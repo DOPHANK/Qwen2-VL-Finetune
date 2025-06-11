@@ -255,6 +255,7 @@ def make_supervised_data_module(model_id, processor, data_args):
     sft_dataset = SupervisedDataset(
         data_path=data_args.data_path, processor=processor, data_args=data_args, model_id=model_id
     )
+    print(sft_dataset)
     data_collator = DataCollatorForSupervisedDataset(pad_token_id=processor.tokenizer.pad_token_id)
 
     return dict(train_dataset=sft_dataset,
