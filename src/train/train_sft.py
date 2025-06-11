@@ -117,6 +117,11 @@ def train():
             )
         ))
 
+    # Add-ins
+    if training_args.bits not in [4, 8]:
+        bnb_model_from_pretrained_args["device_map"] = "auto"
+
+
     if "Qwen2.5" in model_args.model_id:
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
@@ -135,6 +140,10 @@ def train():
     model.config.use_cache = False
     model_to_configure = model
     configure_llm(model_to_configure, training_args)
+
+    # Add-ins
+    training_args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     configure_vision_tower(model_to_configure, training_args, compute_dtype, training_args.device)
 
     if training_args.bits in [4,8]:
@@ -215,7 +224,10 @@ def train():
     trainer.save_state()
 
     model.config.use_cache = True
-    
+
+    #Add-ins
+    model.to(device=training_args.device, dtype=compute_dtype)
+
     if training_args.lora_enable:
         state_dict = get_peft_state_maybe_zero_3(
             model.named_parameters(), training_args.lora_bias
