@@ -38,24 +38,30 @@ class SupervisedDataset(Dataset):
         #    list_data_dict = data_path
 
         if isinstance(data_path, str) and data_path.endswith(".json"):
+            print(1)
             list_data_dict = json.load(open(data_path, "r"))
         elif isinstance(data_path, str) and os.path.isdir(data_path):
+            print(2)
             # Walk through the folder and read all .json files
             list_data_dict = []
             for root, _, files in os.walk(data_path):
                 for fname in files:
                     if fname.endswith(".json"):
                         fpath = os.path.join(root, fname)
+                        print(fpath)
                         with open(fpath, "r") as f:
                             try:
                                 data = json.load(f)
                                 if isinstance(data, list):
+                                    print(2.1)
                                     list_data_dict.extend(data)
                                 else:
+                                    print(2.2)
                                     list_data_dict.append(data)
                             except Exception as e:
                                 print(f"[WARN] Skipping {fpath} due to error: {e}")
         else:
+            print(3)
             list_data_dict = data_path  # fallback for list input
 
 
