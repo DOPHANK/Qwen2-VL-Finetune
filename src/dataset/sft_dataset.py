@@ -16,7 +16,7 @@ from src.constants import (
     SYSTEM_MESSAGE,
 )
 
-from .data_utils import get_image_info, get_video_info, llava_to_openai, pad_sequence
+from src.dataset.data_utils import get_image_info, get_video_info, llava_to_openai, pad_sequence
 
 
 
