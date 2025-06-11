@@ -51,6 +51,7 @@ class SupervisedDataset(Dataset):
         self.video_resized_w = data_args.video_resized_width
         self.video_resized_h = data_args.video_resized_height
         self.fps = data_args.fps
+        print(f"[SupervisedDataset] Loaded {len(self.list_data_dict)} samples.")
 
     def __len__(self):
         return len(self.list_data_dict)
