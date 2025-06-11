@@ -140,10 +140,6 @@ def train():
     model.config.use_cache = False
     model_to_configure = model
     configure_llm(model_to_configure, training_args)
-
-    # Add-ins
-    training_args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     configure_vision_tower(model_to_configure, training_args, compute_dtype, training_args.device)
 
     if training_args.bits in [4,8]:
