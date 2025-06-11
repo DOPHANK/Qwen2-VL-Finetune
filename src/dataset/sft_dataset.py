@@ -232,6 +232,8 @@ class DataCollatorForSupervisedDataset(object):
             'labels': labels,
             'attention_mask': attention_mask,
         }
+        print(f"Data: *** *** ***")
+        print(data_dict)
 
         if len(batch_pixel_values) > 0:
             pixel_values = torch.cat(batch_pixel_values, dim=0)
