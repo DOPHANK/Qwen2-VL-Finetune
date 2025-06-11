@@ -34,8 +34,12 @@ class SupervisedDataset(Dataset):
         super(SupervisedDataset, self).__init__()
         if isinstance(data_path, str):
             list_data_dict = json.load(open(data_path, "r"))
+            print(1)
+            print(len(list_data_dict))
         else:
             list_data_dict = data_path
+            print(2)
+            print(len(list_data_dict))
 
         self.model_id = model_id
         self.processor = processor
@@ -51,7 +55,6 @@ class SupervisedDataset(Dataset):
         self.video_resized_w = data_args.video_resized_width
         self.video_resized_h = data_args.video_resized_height
         self.fps = data_args.fps
-        print(f"[SupervisedDataset] Loaded {len(self.list_data_dict)} samples.")
 
     def __len__(self):
         return len(self.list_data_dict)
