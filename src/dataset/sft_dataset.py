@@ -32,14 +32,32 @@ class SupervisedDataset(Dataset):
         padding=True,
     ):
         super(SupervisedDataset, self).__init__()
-        if isinstance(data_path, str):
+        #if isinstance(data_path, str):
+        #    list_data_dict = json.load(open(data_path, "r"))
+        #else:
+        #    list_data_dict = data_path
+
+        if isinstance(data_path, str) and data_path.endswith(".json"):
             list_data_dict = json.load(open(data_path, "r"))
-            print(1)
-            print(len(list_data_dict))
+        elif isinstance(data_path, str) and os.path.isdir(data_path):
+            # Walk through the folder and read all .json files
+            list_data_dict = []
+            for root, _, files in os.walk(data_path):
+                for fname in files:
+                    if fname.endswith(".json"):
+                        fpath = os.path.join(root, fname)
+                        with open(fpath, "r") as f:
+                            try:
+                                data = json.load(f)
+                                if isinstance(data, list):
+                                    list_data_dict.extend(data)
+                                else:
+                                    list_data_dict.append(data)
+                            except Exception as e:
+                                print(f"[WARN] Skipping {fpath} due to error: {e}")
         else:
-            list_data_dict = data_path
-            print(2)
-            print(len(list_data_dict))
+            list_data_dict = data_path  # fallback for list input
+
 
         self.model_id = model_id
         self.processor = processor
