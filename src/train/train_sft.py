@@ -64,10 +64,6 @@ def train():
         (ModelArguments, DataArguments, TrainingArguments))
     
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-    print(model_args)
-    print(data_args)
-    print("data_args.data_path =", data_args.data_path)
-    print(training_args)
     
     use_liger = training_args.use_liger
     if "Qwen2.5" in model_args.model_id:
