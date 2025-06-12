@@ -36,7 +36,8 @@ class SupervisedDataset(Dataset):
         #    list_data_dict = json.load(open(data_path, "r"))
         #else:
         #    list_data_dict = data_path
-
+        
+        print(data_path)
         if isinstance(data_path, str) and data_path.endswith(".json"):
             print(1)
             list_data_dict = json.load(open(data_path, "r"))
