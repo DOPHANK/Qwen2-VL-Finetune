@@ -209,11 +209,6 @@ def train():
     data_module = make_supervised_data_module(model_id=model_args.model_id,
                                               processor=processor,
                                               data_args=data_args)
-
-    print("Before for name, param in model.named_parameters() Trainable FP16 params:")
-    for name, param in model.named_parameters():
-        if param.requires_grad and param.dtype == torch.float16:
-            print(f" - {name}")
             
     for name, param in model.named_parameters():
         if param.requires_grad and param.grad is None:
@@ -222,11 +217,6 @@ def train():
     for name, param in model.named_parameters():
         if param.dtype == torch.float16 and param.requires_grad is False:
             param.requires_grad = True
-
-    print("After for name, param in model.named_parameters() and Before  trainer = QwenSFTTrainer() Trainable FP16 params:")
-    for name, param in model.named_parameters():
-        if param.requires_grad and param.dtype == torch.float16:
-            print(f" - {name}")
     
     trainer = QwenSFTTrainer(
         model=model,
@@ -234,12 +224,6 @@ def train():
         args=training_args,
         **data_module
     )
-
-    print("After trainer = QwenSFTTrainer() Trainable FP16 params:")
-    for name, param in model.named_parameters():
-        if param.requires_grad and param.dtype == torch.float16:
-            print(f" - {name}")
-
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
