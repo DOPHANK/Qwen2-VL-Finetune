@@ -223,6 +223,10 @@ def train():
         **data_module
     )
 
+    for name, param in model.named_parameters():
+        if param.requires_grad and param.grad is None:
+            param.requires_grad_(True)
+
     print("[DEBUG] Before trainer.train()")
     print(sum(p.requires_grad for p in model.parameters()))
 
@@ -230,6 +234,9 @@ def train():
         trainer.train(resume_from_checkpoint=True)
     else:
         trainer.train()
+
+    print("[DEBUG] After trainer.train()")
+    print(sum(p.requires_grad for p in model.parameters()))
 
     trainer.save_state()
 
