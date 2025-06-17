@@ -232,6 +232,10 @@ def train():
     else:
         print("✅ All frozen FP16 parameters successfully converted to float32.")
 
+    for name, param in model.named_parameters():
+        if param.requires_grad and param.dtype != torch.float32:
+            print(f"[FIX: Trainable {param.dtype} → float32] {name}")
+            param.data = param.data.float()
 
 
 
