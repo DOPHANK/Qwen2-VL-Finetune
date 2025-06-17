@@ -143,6 +143,9 @@ def train():
 
     # DEBUG 2
     trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    print("2. Trainable parameters and their dtypes:")
+    for name, dtype in trainable_params:
+        print(f"{name}: {dtype}")
     if not trainable_params:
         raise ValueError("2. No trainable parameters found. Did you freeze all modules?")
         
@@ -158,6 +161,9 @@ def train():
 
     # DEBUG 3
     trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    print("3. Trainable parameters and their dtypes:")
+    for name, dtype in trainable_params:
+        print(f"{name}: {dtype}")
     if not trainable_params:
         raise ValueError("3. No trainable parameters found. Did you freeze all modules?")
         
@@ -167,6 +173,9 @@ def train():
 
     # DEBUG 4
     trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    print("4. Trainable parameters and their dtypes:")
+    for name, dtype in trainable_params:
+        print(f"{name}: {dtype}")
     if not trainable_params:
         raise ValueError("4. No trainable parameters found. Did you freeze all modules?")
         
@@ -187,10 +196,13 @@ def train():
         rank0_print("Adding LoRA to the model...")
         model = get_peft_model(model, peft_config)
 
-        # DEBUG 4.5
+        # DEBUG 5
         trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+        print("5. Trainable parameters and their dtypes:")
+        for name, dtype in trainable_params:
+            print(f"{name}: {dtype}")
         if not trainable_params:
-            raise ValueError("4.5. No trainable parameters found. Did you freeze all modules?")
+            raise ValueError("5. No trainable parameters found. Did you freeze all modules?")
 
         # Peft maodel makes vision tower and merger freezed again.
         # Configuring fuction could be called here, but sometimes it does not work properly.
@@ -207,10 +219,13 @@ def train():
                 if "merger" in name:
                     param.requires_grad = True
 
-    # DEBUG 5
+    # DEBUG 6
     trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    print("6. Trainable parameters and their dtypes:")
+    for name, dtype in trainable_params:
+        print(f"{name}: {dtype}")
     if not trainable_params:
-        raise ValueError("5. No trainable parameters found. Did you freeze all modules?")
+        raise ValueError("6. No trainable parameters found. Did you freeze all modules?")
 
     processor = AutoProcessor.from_pretrained(model_args.model_id)
 
