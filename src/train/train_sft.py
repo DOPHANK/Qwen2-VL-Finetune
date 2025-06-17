@@ -141,16 +141,6 @@ def train():
             **bnb_model_from_pretrained_args
         )
 
-    # Debug2: Print trainable parameters
-    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
-    
-    print(f"\n[INFO] 2 Trainable parameter count: {len(trainable_params)}")
-    print("[INFO] 2 Trainable parameters and their dtypes:")
-    for name, dtype in trainable_params:
-        print(f" - {name}: {dtype}")
-    if not trainable_params:
-        raise ValueError("2. No trainable parameters found. Did you freeze all modules?")
-        
     model.config.use_cache = False
     model_to_configure = model
     configure_llm(model_to_configure, training_args)
@@ -160,17 +150,7 @@ def train():
         model.config.torch_dtype = (torch.float32 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
         from peft import prepare_model_for_kbit_training
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=training_args.gradient_checkpointing, gradient_checkpointing_kwargs={"use_reentrant": True})
-
-    # Debug3: Print trainable parameters
-    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
-    
-    print(f"\n[INFO] 3 Trainable parameter count: {len(trainable_params)}")
-    print("[INFO] 3 Trainable parameters and their dtypes:")
-    for name, dtype in trainable_params:
-        print(f" - {name}: {dtype}")
-    if not trainable_params:
-        raise ValueError("3. No trainable parameters found. Did you freeze all modules?")
-        
+      
     if training_args.gradient_checkpointing:
         model.enable_input_require_grads()
         training_args.gradient_checkpointing_kwargs = {"use_reentrant": True}
@@ -206,19 +186,14 @@ def train():
             for name, param in model.named_parameters():
                 if "merger" in name:
                     param.requires_grad = True
-
-    # Debug4: Print trainable parameters
-    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
-    
-    print(f"\n[INFO] 4 Trainable parameter count: {len(trainable_params)}")
-    print("[INFO] 4 Trainable parameters and their dtypes:")
-    for name, dtype in trainable_params:
-        print(f" - {name}: {dtype}")
-    if not trainable_params:
-        raise ValueError("4. No trainable parameters found. Did you freeze all modules?")
     
     processor = AutoProcessor.from_pretrained(model_args.model_id)
 
+    # Debug: Print trainable parameters
+    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
+    
+    print(f"\n[INFO] After *processor = AutoProcessor.from_pretrained(model_args.model_id)* Trainable parameter count: {len(trainable_params)}")
+    
     # model.config.tokenizer_model_max_length = processor.tokenizer.model_max_length
 
     if training_args.bits in [4, 8]:
@@ -235,9 +210,34 @@ def train():
                     if training_args.bf16 and module.weight.dtype == torch.float32:
                         module = module.to(torch.bfloat16)
 
+    # Debug: Print trainable parameters
+    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
+    
+    print(f"\n[INFO] After *if training_args.bits in [4, 8]:
+        from peft.tuners.lora import LoraLayer
+        for name, module in model.named_modules():
+            if isinstance(module, LoraLayer):
+                if training_args.bf16:
+                    module = module.to(torch.bfloat16)
+            if 'norm' in name:
+                module = module.to(torch.float32)
+            
+            if 'lm_head' in name or 'embed_token' in name:
+                if hasattr(module, 'weight'):
+                    if training_args.bf16 and module.weight.dtype == torch.float32:
+                        module = module.to(torch.bfloat16)* Trainable parameter count: {len(trainable_params)}")
+
     data_module = make_supervised_data_module(model_id=model_args.model_id,
                                               processor=processor,
                                               data_args=data_args)
+
+    # Debug: Print trainable parameters
+    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
+    
+    print(f"\n[INFO] After *data_module = make_supervised_data_module(model_id=model_args.model_id,
+                                              processor=processor,
+                                              data_args=data_args)* Trainable parameter count: {len(trainable_params)}")
+  
 
     trainer = QwenSFTTrainer(
         model=model,
@@ -246,6 +246,16 @@ def train():
         **data_module
     )
 
+     # Debug: Print trainable parameters
+    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
+    
+    print(f"\n[INFO] After *trainer = QwenSFTTrainer(
+        model=model,
+        processing_class=processor,
+        args=training_args,
+        **data_module
+    )* Trainable parameter count: {len(trainable_params)}")
+    
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
     else:
