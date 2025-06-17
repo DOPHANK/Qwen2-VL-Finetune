@@ -141,11 +141,13 @@ def train():
             **bnb_model_from_pretrained_args
         )
 
-    # DEBUG 2
-    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
-    print("2. Trainable parameters and their dtypes:")
+    # Debug2: Print trainable parameters
+    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
+    
+    print(f"\n[INFO] 2 Trainable parameter count: {len(trainable_params)}")
+    print("[INFO] 2 Trainable parameters and their dtypes:")
     for name, dtype in trainable_params:
-        print(f"{name}: {dtype}")
+        print(f" - {name}: {dtype}")
     if not trainable_params:
         raise ValueError("2. No trainable parameters found. Did you freeze all modules?")
         
@@ -159,11 +161,13 @@ def train():
         from peft import prepare_model_for_kbit_training
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=training_args.gradient_checkpointing, gradient_checkpointing_kwargs={"use_reentrant": True})
 
-    # DEBUG 3
-    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
-    print("3. Trainable parameters and their dtypes:")
+    # Debug3: Print trainable parameters
+    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
+    
+    print(f"\n[INFO] 3 Trainable parameter count: {len(trainable_params)}")
+    print("[INFO] 3 Trainable parameters and their dtypes:")
     for name, dtype in trainable_params:
-        print(f"{name}: {dtype}")
+        print(f" - {name}: {dtype}")
     if not trainable_params:
         raise ValueError("3. No trainable parameters found. Did you freeze all modules?")
         
@@ -171,14 +175,6 @@ def train():
         model.enable_input_require_grads()
         training_args.gradient_checkpointing_kwargs = {"use_reentrant": True}
 
-    # DEBUG 4
-    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
-    print("4. Trainable parameters and their dtypes:")
-    for name, dtype in trainable_params:
-        print(f"{name}: {dtype}")
-    if not trainable_params:
-        raise ValueError("4. No trainable parameters found. Did you freeze all modules?")
-        
     if training_args.lora_enable:
         lora_namespan_exclude = training_args.lora_namespan_exclude
         peft_config = LoraConfig(
@@ -196,14 +192,6 @@ def train():
         rank0_print("Adding LoRA to the model...")
         model = get_peft_model(model, peft_config)
 
-        # DEBUG 5
-        trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
-        print("5. Trainable parameters and their dtypes:")
-        for name, dtype in trainable_params:
-            print(f"{name}: {dtype}")
-        if not trainable_params:
-            raise ValueError("5. No trainable parameters found. Did you freeze all modules?")
-
         # Peft maodel makes vision tower and merger freezed again.
         # Configuring fuction could be called here, but sometimes it does not work properly.
         # So I just made it this way.
@@ -219,14 +207,16 @@ def train():
                 if "merger" in name:
                     param.requires_grad = True
 
-    # DEBUG 6
-    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
-    print("6. Trainable parameters and their dtypes:")
+    # Debug4: Print trainable parameters
+    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
+    
+    print(f"\n[INFO] 4 Trainable parameter count: {len(trainable_params)}")
+    print("[INFO] 4 Trainable parameters and their dtypes:")
     for name, dtype in trainable_params:
-        print(f"{name}: {dtype}")
+        print(f" - {name}: {dtype}")
     if not trainable_params:
-        raise ValueError("6. No trainable parameters found. Did you freeze all modules?")
-
+        raise ValueError("4. No trainable parameters found. Did you freeze all modules?")
+    
     processor = AutoProcessor.from_pretrained(model_args.model_id)
 
     # model.config.tokenizer_model_max_length = processor.tokenizer.model_max_length
