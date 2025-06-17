@@ -215,7 +215,27 @@ def train():
         args=training_args,
         **data_module
     )
+
+    model.train()
+    inputs = next(iter(trainer.get_train_dataloader()))
+    for k in inputs:
+        if isinstance(inputs[k], list):
+            inputs[k] = torch.stack(inputs[k]).to(model.device)
+        else:
+            inputs[k] = inputs[k].to(model.device)
     
+    with torch.cuda.amp.autocast():
+        outputs = model(**inputs)
+        logits = outputs.logits if hasattr(outputs, 'logits') else outputs[0]
+        shift_logits = logits[..., :-1, :].contiguous()
+        shift_labels = inputs["labels"][..., 1:].contiguous()
+        loss = CrossEntropyLoss()(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+    
+    print("LOSS:", loss.item())
+    
+    loss.backward()  # this should NOT fail
+    print("Backward succeeded.")
+
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
     else:
