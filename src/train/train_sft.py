@@ -151,10 +151,16 @@ def train():
         model.config.torch_dtype = (torch.float32 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
         from peft import prepare_model_for_kbit_training
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=training_args.gradient_checkpointing, gradient_checkpointing_kwargs={"use_reentrant": True})
-      
+
+    print("[DEBUG] Before .enable_input_require_grads()")
+    print(sum(p.requires_grad for p in model.parameters()))
+    
     if training_args.gradient_checkpointing:
         model.enable_input_require_grads()
         training_args.gradient_checkpointing_kwargs = {"use_reentrant": True}
+
+    print("[DEBUG] After .enable_input_require_grads()")
+    print(sum(p.requires_grad for p in model.parameters()))
 
     if training_args.lora_enable:
         lora_namespan_exclude = training_args.lora_namespan_exclude
@@ -217,25 +223,8 @@ def train():
         **data_module
     )
 
-    model.train()
-    inputs = next(iter(trainer.get_train_dataloader()))
-    for k in inputs:
-        if isinstance(inputs[k], list):
-            inputs[k] = torch.stack(inputs[k]).to(model.device)
-        else:
-            inputs[k] = inputs[k].to(model.device)
-    
-    with torch.cuda.amp.autocast():
-        outputs = model(**inputs)
-        logits = outputs.logits if hasattr(outputs, 'logits') else outputs[0]
-        shift_logits = logits[..., :-1, :].contiguous()
-        shift_labels = inputs["labels"][..., 1:].contiguous()
-        loss = CrossEntropyLoss()(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
-    
-    print("LOSS:", loss.item())
-    
-    loss.backward()  # this should NOT fail
-    print("Backward succeeded.")
+    print("[DEBUG] Before trainer.train()")
+    print(sum(p.requires_grad for p in model.parameters()))
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
