@@ -211,13 +211,9 @@ def train():
                                               data_args=data_args)
             
     for name, param in model.named_parameters():
-        if param.requires_grad and param.grad is None:
-            param.requires_grad_(True)
+        if not param.requires_grad and param.dtype == torch.float16:
+            param.data = param.data.to(torch.float32)
 
-    for name, param in model.named_parameters():
-        if param.dtype == torch.float16 and param.requires_grad is False:
-            param.requires_grad = True
-    
     trainer = QwenSFTTrainer(
         model=model,
         processing_class=processor,
