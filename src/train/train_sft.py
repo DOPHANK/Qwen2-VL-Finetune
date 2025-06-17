@@ -122,7 +122,11 @@ def train():
     if training_args.bits not in [4, 8]:
         bnb_model_from_pretrained_args["device_map"] = "auto"
 
-
+    # DEBUG 1
+    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    if not trainable_params:
+        raise ValueError("1. No trainable parameters found. Did you freeze all modules?")
+        
     if "Qwen2.5" in model_args.model_id:
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
@@ -137,6 +141,11 @@ def train():
             **bnb_model_from_pretrained_args
         )
 
+    # DEBUG 2
+    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    if not trainable_params:
+        raise ValueError("2. No trainable parameters found. Did you freeze all modules?")
+        
     model.config.use_cache = False
     model_to_configure = model
     configure_llm(model_to_configure, training_args)
@@ -146,11 +155,21 @@ def train():
         model.config.torch_dtype = (torch.float32 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
         from peft import prepare_model_for_kbit_training
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=training_args.gradient_checkpointing, gradient_checkpointing_kwargs={"use_reentrant": True})
-    
+
+    # DEBUG 3
+    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    if not trainable_params:
+        raise ValueError("3. No trainable parameters found. Did you freeze all modules?")
+        
     if training_args.gradient_checkpointing:
         model.enable_input_require_grads()
         training_args.gradient_checkpointing_kwargs = {"use_reentrant": True}
 
+    # DEBUG 4
+    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    if not trainable_params:
+        raise ValueError("4. No trainable parameters found. Did you freeze all modules?")
+        
     if training_args.lora_enable:
         lora_namespan_exclude = training_args.lora_namespan_exclude
         peft_config = LoraConfig(
@@ -168,6 +187,11 @@ def train():
         rank0_print("Adding LoRA to the model...")
         model = get_peft_model(model, peft_config)
 
+        # DEBUG 4.5
+        trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+        if not trainable_params:
+            raise ValueError("4.5. No trainable parameters found. Did you freeze all modules?")
+
         # Peft maodel makes vision tower and merger freezed again.
         # Configuring fuction could be called here, but sometimes it does not work properly.
         # So I just made it this way.
@@ -183,9 +207,10 @@ def train():
                 if "merger" in name:
                     param.requires_grad = True
 
+    # DEBUG 5
     trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
     if not trainable_params:
-        raise ValueError("No trainable parameters found. Did you freeze all modules?")
+        raise ValueError("5. No trainable parameters found. Did you freeze all modules?")
 
     processor = AutoProcessor.from_pretrained(model_args.model_id)
 
