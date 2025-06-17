@@ -37,12 +37,9 @@ class SupervisedDataset(Dataset):
         #else:
         #    list_data_dict = data_path
         
-        print(data_path)
         if isinstance(data_path, str) and data_path.endswith(".json"):
-            print(1)
             list_data_dict = json.load(open(data_path, "r"))
         elif isinstance(data_path, str) and os.path.isdir(data_path):
-            print(2)
             # Walk through the folder and read all .json files
             list_data_dict = []
             for root, _, files in os.walk(data_path):
@@ -54,15 +51,12 @@ class SupervisedDataset(Dataset):
                             try:
                                 data = json.load(f)
                                 if isinstance(data, list):
-                                    print(2.1)
                                     list_data_dict.extend(data)
                                 else:
-                                    print(2.2)
                                     list_data_dict.append(data)
                             except Exception as e:
                                 print(f"[WARN] Skipping {fpath} due to error: {e}")
         else:
-            print(3)
             list_data_dict = data_path  # fallback for list input
 
 
@@ -261,8 +255,6 @@ class DataCollatorForSupervisedDataset(object):
             'labels': labels,
             'attention_mask': attention_mask,
         }
-        print(f"Data: *** *** ***")
-        print(data_dict)
 
         if len(batch_pixel_values) > 0:
             pixel_values = torch.cat(batch_pixel_values, dim=0)
@@ -286,7 +278,6 @@ def make_supervised_data_module(model_id, processor, data_args):
     sft_dataset = SupervisedDataset(
         data_path=data_args.data_path, processor=processor, data_args=data_args, model_id=model_id
     )
-    print(sft_dataset)
     data_collator = DataCollatorForSupervisedDataset(pad_token_id=processor.tokenizer.pad_token_id)
 
     return dict(train_dataset=sft_dataset,
