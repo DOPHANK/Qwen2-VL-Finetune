@@ -46,7 +46,6 @@ class SupervisedDataset(Dataset):
                 for fname in files:
                     if fname.endswith(".json"):
                         fpath = os.path.join(root, fname)
-                        print(fpath)
                         with open(fpath, "r") as f:
                             try:
                                 data = json.load(f)
