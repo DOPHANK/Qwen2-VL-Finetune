@@ -10,6 +10,7 @@ from src.train.train_utils import get_peft_state_maybe_zero_3, get_peft_state_no
 import pathlib
 from liger_kernel.transformers import apply_liger_kernel_to_qwen2_vl, apply_liger_kernel_to_qwen2_5_vl
 from src.train.monkey_patch_forward import replace_qwen2_5_with_mixed_modality_forward, replace_qwen_2_with_mixed_modality_forward
+from torch.nn import CrossEntropyLoss
 
 local_rank = None
 
