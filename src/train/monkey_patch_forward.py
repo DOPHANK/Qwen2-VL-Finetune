@@ -139,16 +139,16 @@ def qwen_2_mixed_modality_forward_with_flce(
     loss = None
     logits = None
 
-    if self.training and (labels is not None) and not torch.is_autocast_enabled():
+    if self.training and labels is not None and not torch.is_autocast_enabled():
         shift_hidden_states = hidden_states[..., :-1, :].contiguous()
         shift_labels = labels[..., 1:].contiguous()
-
-        # Flatten tokens
+    
         shift_hidden_states = shift_hidden_states.view(-1, self.config.hidden_size)
         shift_labels = shift_labels.view(-1)
-
-        lce = LigerFusedLinearCrossEntropyLoss()
-        loss = lce(self.lm_head.weight, shift_hidden_states, shift_labels)
+    
+        with torch.cuda.amp.autocast(enabled=False):
+            lce = LigerFusedLinearCrossEntropyLoss()
+            loss = lce(self.lm_head.weight.float(), shift_hidden_states.float(), shift_labels)
     else:
         logits = self.lm_head(hidden_states)
         if labels is not None:
@@ -448,16 +448,16 @@ def qwen2_5_mixed_modality_forward_with_flce(
     loss = None
     logits = None
 
-    if self.training and (labels is not None) and not torch.is_autocast_enabled():
+    if self.training and labels is not None and not torch.is_autocast_enabled():
         shift_hidden_states = hidden_states[..., :-1, :].contiguous()
         shift_labels = labels[..., 1:].contiguous()
-
-        # Flatten tokens
+    
         shift_hidden_states = shift_hidden_states.view(-1, self.config.hidden_size)
         shift_labels = shift_labels.view(-1)
-
-        lce = LigerFusedLinearCrossEntropyLoss()
-        loss = lce(self.lm_head.weight, shift_hidden_states, shift_labels)
+    
+        with torch.cuda.amp.autocast(enabled=False):
+            lce = LigerFusedLinearCrossEntropyLoss()
+            loss = lce(self.lm_head.weight.float(), shift_hidden_states.float(), shift_labels)
     else:
         logits = self.lm_head(hidden_states)
         if labels is not None:
