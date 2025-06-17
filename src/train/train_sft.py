@@ -60,6 +60,10 @@ def configure_llm(model, training_args):
 def train():
     global local_rank
 
+    print(model_args)
+    print(data_args)
+    print(training_args)
+
     parser = HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments))
     
@@ -127,7 +131,6 @@ def train():
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
-            attn_implementation="flash_attention_2" if not training_args.disable_flash_attn2 else "sdpa", 
             **bnb_model_from_pretrained_args
         )
     else:
