@@ -139,7 +139,7 @@ def qwen_2_mixed_modality_forward_with_flce(
     loss = None
     logits = None
 
-    if self.training and (labels is not None):
+    if self.training and (labels is not None) and not torch.is_autocast_enabled():
         shift_hidden_states = hidden_states[..., :-1, :].contiguous()
         shift_labels = labels[..., 1:].contiguous()
 
@@ -448,7 +448,7 @@ def qwen2_5_mixed_modality_forward_with_flce(
     loss = None
     logits = None
 
-    if self.training and (labels is not None):
+    if self.training and (labels is not None) and not torch.is_autocast_enabled():
         shift_hidden_states = hidden_states[..., :-1, :].contiguous()
         shift_labels = labels[..., 1:].contiguous()
 
