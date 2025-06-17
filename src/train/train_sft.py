@@ -60,10 +60,6 @@ def configure_llm(model, training_args):
 def train():
     global local_rank
 
-    print(model_args)
-    print(data_args)
-    print(training_args)
-
     parser = HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments))
     
