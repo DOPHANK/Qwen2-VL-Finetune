@@ -11,6 +11,7 @@ import pathlib
 from liger_kernel.transformers import apply_liger_kernel_to_qwen2_vl, apply_liger_kernel_to_qwen2_5_vl
 from src.train.monkey_patch_forward import replace_qwen2_5_with_mixed_modality_forward, replace_qwen_2_with_mixed_modality_forward
 from torch.nn import CrossEntropyLoss
+import deepspeed
 
 local_rank = None
 
@@ -122,8 +123,8 @@ def train():
         ))
 
     # Add-ins
-    if training_args.bits not in [4, 8]:
-        bnb_model_from_pretrained_args["device_map"] = "auto"
+    #if training_args.bits not in [4, 8]:
+    #    bnb_model_from_pretrained_args["device_map"] = "auto"
 
     if "Qwen2.5" in model_args.model_id:
         print(f"Loading model {model_args.model_id}")
