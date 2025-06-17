@@ -183,6 +183,10 @@ def train():
                 if "merger" in name:
                     param.requires_grad = True
 
+    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    if not trainable_params:
+        raise ValueError("No trainable parameters found. Did you freeze all modules?")
+
     processor = AutoProcessor.from_pretrained(model_args.model_id)
 
     # model.config.tokenizer_model_max_length = processor.tokenizer.model_max_length
@@ -200,10 +204,6 @@ def train():
                 if hasattr(module, 'weight'):
                     if training_args.bf16 and module.weight.dtype == torch.float32:
                         module = module.to(torch.bfloat16)
-
-    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
-    if not trainable_params:
-        raise ValueError("No trainable parameters found. Did you freeze all modules?")
 
     data_module = make_supervised_data_module(model_id=model_args.model_id,
                                               processor=processor,
