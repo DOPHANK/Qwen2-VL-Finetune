@@ -122,11 +122,6 @@ def train():
     if training_args.bits not in [4, 8]:
         bnb_model_from_pretrained_args["device_map"] = "auto"
 
-    # DEBUG 1
-    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
-    if not trainable_params:
-        raise ValueError("1. No trainable parameters found. Did you freeze all modules?")
-        
     if "Qwen2.5" in model_args.model_id:
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
