@@ -210,7 +210,7 @@ def train():
                                               processor=processor,
                                               data_args=data_args)
 
-    print("Before trainer = QwenSFTTrainer() Trainable FP16 params:")
+    print("Before for name, param in model.named_parameters() Trainable FP16 params:")
     for name, param in model.named_parameters():
         if param.requires_grad and param.dtype == torch.float16:
             print(f" - {name}")
@@ -223,6 +223,11 @@ def train():
         if param.dtype == torch.float16 and param.requires_grad is False:
             param.requires_grad = True
 
+    print("After for name, param in model.named_parameters() and Before  trainer = QwenSFTTrainer() Trainable FP16 params:")
+    for name, param in model.named_parameters():
+        if param.requires_grad and param.dtype == torch.float16:
+            print(f" - {name}")
+    
     trainer = QwenSFTTrainer(
         model=model,
         processing_class=processor,
