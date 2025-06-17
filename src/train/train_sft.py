@@ -210,6 +210,11 @@ def train():
                                               processor=processor,
                                               data_args=data_args)
 
+    print("Before trainer = QwenSFTTrainer() Trainable FP16 params:")
+    for name, param in model.named_parameters():
+        if param.requires_grad and param.dtype == torch.float16:
+            print(f" - {name}")
+            
     for name, param in model.named_parameters():
         if param.requires_grad and param.grad is None:
             param.requires_grad_(True)
@@ -224,6 +229,12 @@ def train():
         args=training_args,
         **data_module
     )
+
+    print("After trainer = QwenSFTTrainer() Trainable FP16 params:")
+    for name, param in model.named_parameters():
+        if param.requires_grad and param.dtype == torch.float16:
+            print(f" - {name}")
+
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
