@@ -151,16 +151,10 @@ def train():
         model.config.torch_dtype = (torch.float32 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
         from peft import prepare_model_for_kbit_training
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=training_args.gradient_checkpointing, gradient_checkpointing_kwargs={"use_reentrant": True})
-
-    print("[DEBUG] Before .enable_input_require_grads()")
-    print(sum(p.requires_grad for p in model.parameters()))
     
     if training_args.gradient_checkpointing:
         model.enable_input_require_grads()
         training_args.gradient_checkpointing_kwargs = {"use_reentrant": True}
-
-    print("[DEBUG] After .enable_input_require_grads()")
-    print(sum(p.requires_grad for p in model.parameters()))
 
     if training_args.lora_enable:
         lora_namespan_exclude = training_args.lora_namespan_exclude
@@ -227,16 +221,14 @@ def train():
         if param.requires_grad and param.grad is None:
             param.requires_grad_(True)
 
-    print("[DEBUG] Before trainer.train()")
-    print(sum(p.requires_grad for p in model.parameters()))
+    for name, param in model.named_parameters():
+        if param.dtype == torch.float16 and param.requires_grad is False:
+            param.requires_grad = True
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
     else:
         trainer.train()
-
-    print("[DEBUG] After trainer.train()")
-    print(sum(p.requires_grad for p in model.parameters()))
 
     trainer.save_state()
 
