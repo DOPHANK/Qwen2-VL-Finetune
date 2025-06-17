@@ -225,7 +225,6 @@ def train():
     ]
     
     if frozen_fp16:
-        for name in frozen_fp16:
         raise RuntimeError("Aborting training to prevent AMP crash due to frozen FP16 params.")
     else:
         print("✅ All frozen FP16 parameters successfully converted to float32.")
