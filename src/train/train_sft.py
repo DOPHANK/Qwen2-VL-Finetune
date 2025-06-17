@@ -64,7 +64,8 @@ def train():
         (ModelArguments, DataArguments, TrainingArguments))
     
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-    
+
+    print(f"Activate liger: {training_args.use_liger}")
     use_liger = training_args.use_liger
     if "Qwen2.5" in model_args.model_id:
         # It monkey patches the forward to handle mixed modality inputs.
@@ -102,6 +103,7 @@ def train():
     local_rank = training_args.local_rank
     compute_dtype = (torch.float16 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
 
+    print("Setup BitsAndBytesConfig")
     bnb_model_from_pretrained_args = {}
     if training_args.bits in [4,8]:
         bnb_model_from_pretrained_args.update(dict(
@@ -123,6 +125,7 @@ def train():
         bnb_model_from_pretrained_args["device_map"] = "auto"
 
     if "Qwen2.5" in model_args.model_id:
+        print(f"Running model {model_args.model_id}")
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
@@ -130,6 +133,7 @@ def train():
         )
     else:
         model = Qwen2VLForConditionalGeneration.from_pretrained(
+            print(f"Running model not qwen2.5")
             model_args.model_id,
             torch_dtype=compute_dtype,
             attn_implementation="flash_attention_2" if not training_args.disable_flash_attn2 else "sdpa", 
