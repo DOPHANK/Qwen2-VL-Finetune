@@ -215,7 +215,6 @@ def train():
     for name, param in model.named_parameters():
         if not param.requires_grad:
             if param.dtype == torch.float16:
-                print(f"[FIX] Converting frozen param to float32: {name}")
                 param.data = param.data.to(torch.float32)
 
     # Debug log for remaining frozen fp16 parameters
@@ -226,16 +225,13 @@ def train():
     ]
     
     if frozen_fp16:
-        print("❌ [ERROR] Still frozen FP16 parameters remain:")
         for name in frozen_fp16:
-            print(" -", name)
         raise RuntimeError("Aborting training to prevent AMP crash due to frozen FP16 params.")
     else:
         print("✅ All frozen FP16 parameters successfully converted to float32.")
 
     for name, param in model.named_parameters():
         if param.requires_grad and param.dtype != torch.float32:
-            print(f"[FIX: Trainable {param.dtype} → float32] {name}")
             param.data = param.data.float()
 
 
