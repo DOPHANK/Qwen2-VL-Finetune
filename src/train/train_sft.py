@@ -210,9 +210,25 @@ def train():
                                               processor=processor,
                                               data_args=data_args)
             
+    # Fix for AMP crashing due to frozen FP16 parameters
     for name, param in model.named_parameters():
-        if not param.requires_grad and param.dtype == torch.float16:
-            param.data = param.data.to(torch.float32)
+        if not param.requires_grad:
+            if param.dtype == torch.float16:
+                print(f"[FIX] Converting frozen param to float32: {name}")
+                param.data = param.data.to(torch.float32)
+
+    # Debug log for remaining frozen fp16 parameters
+    frozen_fp16 = [
+        name for name, param in model.named_parameters()
+        if not param.requires_grad and param.dtype == torch.float16
+    ]
+    if frozen_fp16:
+        print("[ERROR] Still frozen FP16 params after fix:")
+        for name in frozen_fp16:
+            print(" -", name)
+        raise RuntimeError("❌ Aborting: Frozen FP16 parameters remain.")
+
+
 
     trainer = QwenSFTTrainer(
         model=model,
