@@ -127,6 +127,7 @@ def train():
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
+            requires_grad=True,
             **bnb_model_from_pretrained_args
         )
     else:
