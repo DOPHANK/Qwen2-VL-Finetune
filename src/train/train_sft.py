@@ -133,7 +133,7 @@ def train():
         )
     else:
         model = Qwen2VLForConditionalGeneration.from_pretrained(
-            print(f"Running model not qwen2.5")
+            print("Running model not qwen2.5")
             model_args.model_id,
             torch_dtype=compute_dtype,
             attn_implementation="flash_attention_2" if not training_args.disable_flash_attn2 else "sdpa", 
