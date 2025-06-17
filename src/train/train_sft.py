@@ -189,11 +189,6 @@ def train():
     
     processor = AutoProcessor.from_pretrained(model_args.model_id)
 
-    # Debug: Print trainable parameters
-    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
-    
-    print(f"\n[INFO] After processor Trainable parameter count: {len(trainable_params)}")
-    
     # model.config.tokenizer_model_max_length = processor.tokenizer.model_max_length
 
     if training_args.bits in [4, 8]:
@@ -210,20 +205,9 @@ def train():
                     if training_args.bf16 and module.weight.dtype == torch.float32:
                         module = module.to(torch.bfloat16)
 
-    # Debug: Print trainable parameters
-    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
-    
-    print(f"\n[INFO] After if training_args.bits in [4, 8] Trainable parameter count: {len(trainable_params)}")
-
     data_module = make_supervised_data_module(model_id=model_args.model_id,
                                               processor=processor,
                                               data_args=data_args)
-
-    # Debug: Print trainable parameters
-    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
-    
-    print(f"\n[INFO] After data_module Trainable parameter count: {len(trainable_params)}")
-  
 
     trainer = QwenSFTTrainer(
         model=model,
@@ -231,11 +215,6 @@ def train():
         args=training_args,
         **data_module
     )
-
-     # Debug: Print trainable parameters
-    trainable_params = [(n, p.dtype) for n, p in model.named_parameters() if p.requires_grad]
-    
-    print(f"\n[INFO] After trainer Trainable parameter count: {len(trainable_params)}")
     
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
