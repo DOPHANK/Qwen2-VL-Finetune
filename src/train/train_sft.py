@@ -201,6 +201,10 @@ def train():
                     if training_args.bf16 and module.weight.dtype == torch.float32:
                         module = module.to(torch.bfloat16)
 
+    trainable_params = [n for n, p in model.named_parameters() if p.requires_grad]
+    if not trainable_params:
+        raise ValueError("No trainable parameters found. Did you freeze all modules?")
+
     data_module = make_supervised_data_module(model_id=model_args.model_id,
                                               processor=processor,
                                               data_args=data_args)
