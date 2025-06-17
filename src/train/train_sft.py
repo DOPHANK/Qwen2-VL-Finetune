@@ -125,14 +125,15 @@ def train():
         bnb_model_from_pretrained_args["device_map"] = "auto"
 
     if "Qwen2.5" in model_args.model_id:
-        print(f"Running model {model_args.model_id}")
+        print(f"Loading model {model_args.model_id}")
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
             **bnb_model_from_pretrained_args
         )
+        print(f"Model {model_args.model_id} loaded.")
     else:
-        print("Running model not qwen2.5")
+        print("Loading model not qwen2.5")
         model = Qwen2VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
