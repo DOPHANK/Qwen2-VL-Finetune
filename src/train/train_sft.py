@@ -67,7 +67,7 @@ def train():
     
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
-    print(f"Activate liger: {training_args.use_liger}")
+    rank0_print(f"Activate liger: {training_args.use_liger}")
     use_liger = training_args.use_liger
     if "Qwen2.5" in model_args.model_id:
         # It monkey patches the forward to handle mixed modality inputs.
@@ -105,7 +105,7 @@ def train():
     local_rank = training_args.local_rank
     compute_dtype = (torch.float16 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
 
-    print("Setup BitsAndBytesConfig")
+    rank0_print("Setup BitsAndBytesConfig")
     bnb_model_from_pretrained_args = {}
     if training_args.bits in [4,8]:
         bnb_model_from_pretrained_args.update(dict(
@@ -119,7 +119,6 @@ def train():
                 bnb_4bit_compute_dtype=compute_dtype,
                 bnb_4bit_use_double_quant=training_args.double_quant,
                 bnb_4bit_quant_type=training_args.quant_type,
-                "low_cpu_mem_usage": True,
             )
         ))
 
@@ -128,18 +127,20 @@ def train():
     #    bnb_model_from_pretrained_args["device_map"] = "auto"
 
     if "Qwen2.5" in model_args.model_id:
-        print(f"Loading model {model_args.model_id}")
+        rank0_print(f"Loading model {model_args.model_id}")
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
+            "low_cpu_mem_usage": True,
             **bnb_model_from_pretrained_args
         )
-        print(f"Model {model_args.model_id} loaded.")
+        rank0_print(f"Model {model_args.model_id} loaded.")
     else:
-        print("Loading model not qwen2.5")
+        rank0_print("Loading model not qwen2.5")
         model = Qwen2VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
+            "low_cpu_mem_usage": True,
             attn_implementation="flash_attention_2" if not training_args.disable_flash_attn2 else "sdpa", 
             **bnb_model_from_pretrained_args
         )
@@ -228,7 +229,7 @@ def train():
     if frozen_fp16:
         raise RuntimeError("Aborting training to prevent AMP crash due to frozen FP16 params.")
     else:
-        print("✅ All frozen FP16 parameters successfully converted to float32.")
+        rank0_print("✅ All frozen FP16 parameters successfully converted to float32.")
 
     for name, param in model.named_parameters():
         if param.requires_grad and param.dtype != torch.float32:
