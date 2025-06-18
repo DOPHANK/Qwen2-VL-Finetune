@@ -223,27 +223,27 @@ def train():
                                               data_args=data_args)
             
     # Fix for AMP crashing due to frozen FP16 parameters
-    with torch.no_grad():
-        for name, param in model.named_parameters():
-            if not param.requires_grad and param.dtype == torch.float16:
-                param.data = param.data.cpu().float()  # ✅ move to CPU before casting
+    #with torch.no_grad():
+    #    for name, param in model.named_parameters():
+    #        if not param.requires_grad and param.dtype == torch.float16:
+    #            param.data = param.data.cpu().float()  # ✅ move to CPU before casting
     
     # Debug log for remaining frozen fp16 parameters
-    frozen_fp16 = [
-        name for name, param in model.named_parameters()
-        if not param.requires_grad and param.dtype == torch.float16
-    ]
+    #frozen_fp16 = [
+    #    name for name, param in model.named_parameters()
+    #    if not param.requires_grad and param.dtype == torch.float16
+    #]
     
-    if frozen_fp16:
-        raise RuntimeError("Aborting training to prevent AMP crash due to frozen FP16 params.")
-    else:
-        rank0_print("✅ All frozen FP16 parameters successfully converted to float32.")
+    #if frozen_fp16:
+    #    raise RuntimeError("Aborting training to prevent AMP crash due to frozen FP16 params.")
+    #else:
+    #    rank0_print("✅ All frozen FP16 parameters successfully converted to float32.")
     
     # Optional: cast trainable params to float32
-    with torch.no_grad():
-        for name, param in model.named_parameters():
-            if param.requires_grad and param.dtype != torch.float32:
-                param.data = param.data.float()
+    #with torch.no_grad():
+    #    for name, param in model.named_parameters():
+    #        if param.requires_grad and param.dtype != torch.float32:
+    #            param.data = param.data.float()
 
     trainer = QwenSFTTrainer(
         model=model,
