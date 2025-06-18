@@ -125,7 +125,14 @@ def train():
 
     # Add-ins
     if training_args.bits not in [4, 8] and training_args.deepspeed==None:
-        bnb_model_from_pretrained_args["device_map"] = "auto"
+        bnb_model_from_pretrained_args["device_map"] = {
+            "": 0,  # let it auto-balance
+        }
+        bnb_model_from_pretrained_args["max_memory"] = {
+            0: "14GiB",  # or adjust depending on actual usage
+            1: "14GiB",
+            "cpu": "28GiB"
+        }
 
     if "Qwen2.5" in model_args.model_id:
         rank0_print(f"Loading model {model_args.model_id}")
