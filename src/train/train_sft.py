@@ -36,9 +36,12 @@ def find_target_linear_names(model, num_lora_modules=-1, lora_namespan_exclude=[
         rank0_print(f"Found {len(lora_module_names)} lora modules: {lora_module_names}")
     return lora_module_names
 
-def set_requires_grad(parameters, requires_grad):
-    for p in parameters:
-        p.requires_grad = requires_grad
+def set_requires_grad(params, requires_grad=True):
+    for p in params:
+        if p.dtype.is_floating_point or p.is_complex():
+            p.requires_grad = requires_grad
+        else:
+            print(f"Skipping non-float param: {p.shape} {p.dtype}")
 
 def configure_vision_tower(model, training_args, compute_dtype, device):
     vision_tower = model.visual
