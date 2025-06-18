@@ -40,8 +40,6 @@ def set_requires_grad(params, requires_grad=True):
     for p in params:
         if p.dtype.is_floating_point or p.is_complex():
             p.requires_grad = requires_grad
-        else:
-            print(f"Skipping non-float param: {p.shape} {p.dtype}")
 
 def configure_vision_tower(model, training_args, compute_dtype, device):
     vision_tower = model.visual
