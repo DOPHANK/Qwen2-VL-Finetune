@@ -110,6 +110,7 @@ def train():
     if training_args.bits in [4,8]:
         bnb_model_from_pretrained_args.update(dict(
             device_map={"":training_args.device},
+            "low_cpu_mem_usage": True,
             quantization_config = BitsAndBytesConfig(
                 load_in_4bit=training_args.bits==4,
                 load_in_8bit=training_args.bits==8,
@@ -131,7 +132,6 @@ def train():
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
-            "low_cpu_mem_usage": True,
             **bnb_model_from_pretrained_args
         )
         rank0_print(f"Model {model_args.model_id} loaded.")
@@ -140,7 +140,6 @@ def train():
         model = Qwen2VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
-            "low_cpu_mem_usage": True,
             attn_implementation="flash_attention_2" if not training_args.disable_flash_attn2 else "sdpa", 
             **bnb_model_from_pretrained_args
         )
