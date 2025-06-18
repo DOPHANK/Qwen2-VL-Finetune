@@ -58,7 +58,6 @@ def configure_llm(model, training_args):
     llm_params = model.model.parameters()
     set_requires_grad(llm_params, not training_args.freeze_llm)
 
-
 def train():
     global local_rank
 
@@ -252,6 +251,8 @@ def train():
         args=training_args,
         **data_module
     )
+
+    print("Model type:", type(model))
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
