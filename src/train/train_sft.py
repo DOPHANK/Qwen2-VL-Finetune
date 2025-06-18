@@ -129,9 +129,9 @@ def train():
             "": 0,  # let it auto-balance
         }
         bnb_model_from_pretrained_args["max_memory"] = {
-            0: "14GiB",  # or adjust depending on actual usage
-            1: "14GiB",
-            "cpu": "28GiB"
+            0: "12GiB",  # or adjust depending on actual usage
+            1: "12GiB",
+            "cpu": "20GiB"
         }
 
     if "Qwen2.5" in model_args.model_id:
