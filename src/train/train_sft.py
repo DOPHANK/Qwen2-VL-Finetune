@@ -110,7 +110,7 @@ def train():
     if training_args.bits in [4,8]:
         bnb_model_from_pretrained_args.update(dict(
             device_map={"":training_args.device},
-            "low_cpu_mem_usage"= True,
+            low_cpu_mem_usage = True,
             quantization_config = BitsAndBytesConfig(
                 load_in_4bit=training_args.bits==4,
                 load_in_8bit=training_args.bits==8,
