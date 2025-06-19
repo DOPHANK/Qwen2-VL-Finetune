@@ -13,7 +13,7 @@ from src.train.monkey_patch_forward import replace_qwen2_5_with_mixed_modality_f
 from torch.nn import CrossEntropyLoss
 
 import deepspeed
-from src.train.reward_funcs import
+from src.train.reward_funcs import accuracy_reward, format_reward
 
 local_rank = None
 
