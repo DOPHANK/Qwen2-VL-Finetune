@@ -11,7 +11,9 @@ import pathlib
 from liger_kernel.transformers import apply_liger_kernel_to_qwen2_vl, apply_liger_kernel_to_qwen2_5_vl
 from src.train.monkey_patch_forward import replace_qwen2_5_with_mixed_modality_forward, replace_qwen_2_with_mixed_modality_forward
 from torch.nn import CrossEntropyLoss
+
 import deepspeed
+from src.train.reward_funcs import
 
 local_rank = None
 
@@ -252,6 +254,7 @@ def train():
             model=model,
             processing_class=processor,
             args=training_args,
+            compute_metrics=compute_metrics,
             **data_module
         )
 
