@@ -61,6 +61,25 @@ def configure_llm(model, training_args):
     llm_params = model.model.parameters()
     set_requires_grad(llm_params, not training_args.freeze_llm)
 
+def compute_metrics(eval_preds):
+    predictions, labels = eval_preds
+
+    # Decode predictions and labels (if tokenized)
+    decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+
+    # Prepare format: each item must be a list of dicts with a 'content' key
+    completions = [[{"content": pred}] for pred in decoded_preds]
+    assistant = [{"content": label} for label in decoded_labels]
+
+    acc_rewards = accuracy_reward(completions, assistant)
+    fmt_rewards = format_reward(completions)
+
+    return {
+        "accuracy_reward": sum(acc_rewards) / len(acc_rewards),
+        "format_reward": sum(fmt_rewards) / len(fmt_rewards),
+    }
+
 def train():
     global local_rank
 
