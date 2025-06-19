@@ -223,6 +223,7 @@ def train():
                                               processor=processor,
                                               data_args=data_args)
 
+    # Handle AMP crash due to frozen FP16
     if not training_args.freeze_vision_tower:
         # Fix for AMP crashing due to frozen FP16 parameters
         with torch.no_grad():
