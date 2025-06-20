@@ -61,32 +61,25 @@ def configure_llm(model, training_args):
     llm_params = model.model.parameters()
     set_requires_grad(llm_params, not training_args.freeze_llm)
 
-def compute_metrics(eval_preds):
+from transformers.trainer_utils import EvalPrediction
+
+def compute_metrics(eval_preds: EvalPrediction):
     rank0_print("🔍 compute_metrics called")
-    
+
     predictions, labels = eval_preds
 
-    # If the model returns a tuple (e.g., with scores/logits), extract just the token IDs
+    # Handle case when model outputs tuple
     if isinstance(predictions, tuple):
         predictions = predictions[0]
 
-    # Decode the token IDs into strings
+    # Decode token IDs
     decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
     decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True) if labels is not None else []
 
-    # Convert to expected format for reward functions
-    completions = [[{"content": pred.strip()}] for pred in decoded_preds]
+    # Apply reward functions element-wise
+    acc_rewards = [accuracy_reward(p, l) for p, l in zip(decoded_preds, decoded_labels)]
+    fmt_rewards = [format_reward(p, l) for p, l in zip(decoded_preds, decoded_labels)]
 
-    if decoded_labels:
-        assistant = [{"content": label.strip()} for label in decoded_labels]
-    else:
-        assistant = [{} for _ in completions]  # Avoid index errors if labels missing
-
-    # Calculate reward metrics
-    acc_rewards = accuracy_reward(completions, assistant)
-    fmt_rewards = format_reward(completions)
-
-    # Final metric dictionary
     return {
         "accuracy_reward": round(sum(acc_rewards) / len(acc_rewards), 4),
         "format_reward": round(sum(fmt_rewards) / len(fmt_rewards), 4),
