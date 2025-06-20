@@ -64,20 +64,30 @@ def configure_llm(model, training_args):
 def compute_metrics(eval_preds):
     predictions, labels = eval_preds
 
-    # Decode predictions and labels
+    # If the model returns a tuple (e.g., with scores/logits), extract just the token IDs
+    if isinstance(predictions, tuple):
+        predictions = predictions[0]
+
+    # Decode the token IDs into strings
     decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True) if labels is not None else []
 
-    # Prepare format: each item must be a list of dicts with a 'content' key
-    completions = [[{"content": pred}] for pred in decoded_preds]
-    assistant = [{"content": label} for label in decoded_labels]
+    # Convert to expected format for reward functions
+    completions = [[{"content": pred.strip()}] for pred in decoded_preds]
 
+    if decoded_labels:
+        assistant = [{"content": label.strip()} for label in decoded_labels]
+    else:
+        assistant = [{} for _ in completions]  # Avoid index errors if labels missing
+
+    # Calculate reward metrics
     acc_rewards = accuracy_reward(completions, assistant)
     fmt_rewards = format_reward(completions)
 
+    # Final metric dictionary
     return {
-        "accuracy_reward": sum(acc_rewards) / len(acc_rewards),
-        "format_reward": sum(fmt_rewards) / len(fmt_rewards),
+        "accuracy_reward": round(sum(acc_rewards) / len(acc_rewards), 4),
+        "format_reward": round(sum(fmt_rewards) / len(fmt_rewards), 4),
     }
 
 def train():
