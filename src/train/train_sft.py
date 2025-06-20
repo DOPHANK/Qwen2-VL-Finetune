@@ -62,6 +62,8 @@ def configure_llm(model, training_args):
     set_requires_grad(llm_params, not training_args.freeze_llm)
 
 def compute_metrics(eval_preds):
+    rank0_print("🔍 compute_metrics called")
+    
     predictions, labels = eval_preds
 
     # If the model returns a tuple (e.g., with scores/logits), extract just the token IDs
@@ -295,8 +297,16 @@ def train():
     else:
         trainer.train()
 
-    metrics = trainer.evaluate(predict_with_generate=True)
+    rank0_print("Eval dataset:", trainer.eval_dataset[0])
+
+    # ✅ New: use predict() for metrics with generated output
+    output = trainer.predict(
+        dataset=trainer.eval_dataset,
+        predict_with_generate=True
+    )
+    metrics = output.metrics
     rank0_print("Custom Eval Metrics:", metrics)
+
 
     trainer.save_state()
 
