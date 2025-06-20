@@ -81,7 +81,7 @@ def compute_metrics(eval_preds):
     }
 
 def train():
-    global local_rank
+    global local_rank, tokenizer
 
     parser = HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments))
