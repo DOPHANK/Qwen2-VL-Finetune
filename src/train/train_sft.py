@@ -299,11 +299,8 @@ def train():
 
     rank0_print("Eval dataset:", trainer.eval_dataset[0])
 
-    # ✅ New: use predict() for metrics with generated output
-    output = trainer.predict(
-        trainer.eval_dataset,
-        predict_with_generate=True
-    )
+    # ✅ metrics with generated output
+    output = trainer.evaluate(predict_with_generate=True)
     metrics = output.metrics
     rank0_print("Custom Eval Metrics:", metrics)
 
