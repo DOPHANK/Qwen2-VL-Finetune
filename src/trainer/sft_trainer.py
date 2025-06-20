@@ -16,28 +16,6 @@ from transformers.trainer import (
     SaveStrategy
 )
 from src.train.train_utils import get_peft_state_maybe_zero_3, get_peft_state_non_lora_maybe_zero_3
-
-def evaluate(
-    self,
-    eval_dataset: Optional[Dataset] = None,
-    ignore_keys: Optional[List[str]] = None,
-    metric_key_prefix: str = "eval",
-    predict_with_generate: bool = False,
-):
-    if predict_with_generate:
-        # Route to prediction method that supports generation
-        return self.predict(
-            self.eval_dataset if eval_dataset is None else eval_dataset,
-            ignore_keys=ignore_keys,
-            metric_key_prefix=metric_key_prefix
-        )
-    else:
-        # Default behavior
-        return super().evaluate(
-            eval_dataset=eval_dataset,
-            ignore_keys=ignore_keys,
-            metric_key_prefix=metric_key_prefix
-        )
         
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
@@ -57,6 +35,28 @@ class QwenSFTTrainer(Trainer):
 
     def __init__(self, *args, **kwargs):
         super(QwenSFTTrainer, self).__init__(*args, **kwargs)
+
+    def evaluate(
+        self,
+        eval_dataset: Optional[Dataset] = None,
+        ignore_keys: Optional[List[str]] = None,
+        metric_key_prefix: str = "eval",
+        predict_with_generate: bool = False,
+    ):
+        if predict_with_generate:
+            # Route to prediction method that supports generation
+            return self.predict(
+                self.eval_dataset if eval_dataset is None else eval_dataset,
+                ignore_keys=ignore_keys,
+                metric_key_prefix=metric_key_prefix
+            )
+        else:
+            # Default behavior
+            return super().evaluate(
+                eval_dataset=eval_dataset,
+                ignore_keys=ignore_keys,
+                metric_key_prefix=metric_key_prefix
+            )
 
     def create_optimizer(self):
         """
