@@ -285,7 +285,7 @@ def train():
     else:
         trainer.train()
 
-    metrics = trainer.evaluate()
+    metrics = trainer.evaluate(metric_key_prefix="eval", predict_with_generate=True)
     rank0_print("Custom Eval Metrics:", metrics)
 
     trainer.save_state()
