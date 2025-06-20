@@ -80,6 +80,8 @@ def compute_metrics(eval_preds: EvalPrediction):
     acc_rewards = [accuracy_reward(p, l) for p, l in zip(decoded_preds, decoded_labels)]
     fmt_rewards = [format_reward(p, l) for p, l in zip(decoded_preds, decoded_labels)]
 
+    rank0_print(f"✅ accuracy: {acc_rewards}, format: {fmt_rewards}")
+    
     return {
         "accuracy_reward": round(sum(acc_rewards) / len(acc_rewards), 4),
         "format_reward": round(sum(fmt_rewards) / len(fmt_rewards), 4),
@@ -293,10 +295,8 @@ def train():
     rank0_print("Eval dataset:", trainer.eval_dataset[0])
 
     # ✅ metrics with generated output
-    output = trainer.evaluate(predict_with_generate=True)
-    metrics = output.metrics
-    rank0_print("Custom Eval Metrics:", metrics)
-
+    output = trainer.predict(trainer.eval_dataset)
+    rank0_print("Custom Eval Metrics:", output.metrics)
 
     trainer.save_state()
 
