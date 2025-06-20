@@ -301,7 +301,7 @@ def train():
 
     # ✅ New: use predict() for metrics with generated output
     output = trainer.predict(
-        dataset=trainer.eval_dataset,
+        trainer.eval_dataset,
         predict_with_generate=True
     )
     metrics = output.metrics
