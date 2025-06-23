@@ -63,7 +63,7 @@ def configure_llm(model, training_args):
 
 from transformers.trainer_utils import EvalPrediction
 
-def compute_metrics_rf(eval_preds: EvalPrediction):
+def compute_metrics(eval_preds: EvalPrediction):
     rank0_print("🔍 compute_metrics")
     rank0_print(eval_preds)
 
@@ -87,39 +87,6 @@ def compute_metrics_rf(eval_preds: EvalPrediction):
         "accuracy_reward": round(sum(acc_rewards) / len(acc_rewards), 4),
         "format_reward": round(sum(fmt_rewards) / len(fmt_rewards), 4),
     }
-
-def compute_metrics(eval_preds: EvalPrediction):
-    rank0_print("🔍 compute_metrics called")
-
-    predictions, labels = eval_preds
-
-    # Handle case when predictions is a tuple
-    if isinstance(predictions, tuple):
-        predictions = predictions[0]
-
-    # Decode token IDs
-    decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-    decoded_preds = [pred.strip() for pred in decoded_preds]
-
-    # Decode labels if present
-    if labels is not None:
-        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
-        decoded_labels = [label.strip() for label in decoded_labels]
-    else:
-        decoded_labels = [""] * len(decoded_preds)
-
-    # Logging examples
-    for i in range(min(2, len(decoded_preds))):
-        rank0_print(f"📝 Prediction[{i}]: {decoded_preds[i]}")
-        rank0_print(f"📝 Reference[{i}]: {decoded_labels[i]}")
-
-    # Just return count stats for now
-    return {
-        "num_predictions": len(decoded_preds),
-        "num_labels": len(decoded_labels),
-        "dummy_score": 1.0  # Placeholder
-    }
-
 
 def train():
     global local_rank, tokenizer
