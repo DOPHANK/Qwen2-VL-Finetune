@@ -71,7 +71,7 @@ def compute_metrics(eval_preds: EvalPrediction):
         eval_preds = eval_preds[0]
         
     # Unpack predictions and labels
-    predictions_tuple, labels = eval_preds
+    predictions_tuple, labels, _ = eval_preds
 
     # Check and extract token-level predictions
     if isinstance(predictions_tuple, tuple):
