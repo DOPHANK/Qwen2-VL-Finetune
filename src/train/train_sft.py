@@ -69,7 +69,7 @@ def compute_metrics(eval_preds: EvalPrediction):
     if isinstance(eval_preds, tuple):
         eval_preds = eval_preds[0]  # unpack (predictions, label_ids)
 
-    predictions, labels = eval_preds
+    predictions, labels, _ = eval_preds
 
     if isinstance(predictions, tuple):
         predictions = predictions[0]
