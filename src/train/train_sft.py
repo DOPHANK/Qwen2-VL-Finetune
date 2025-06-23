@@ -65,39 +65,37 @@ from transformers.trainer_utils import EvalPrediction
 
 def compute_metrics(eval_preds: EvalPrediction):
     rank0_print("🔍 compute_metrics")
-    rank0_print(eval_preds)
 
     if isinstance(eval_preds, tuple):
-        eval_preds = eval_preds[0]
-        
-    # Unpack predictions and labels
-    predictions_tuple, labels, _ = eval_preds
+        eval_preds = eval_preds[0]  # unpack (predictions, label_ids)
 
-    # Check and extract token-level predictions
-    if isinstance(predictions_tuple, tuple):
-        predictions = predictions_tuple[0]  # float32 logits
-        if predictions.ndim == 2:  # [batch, vocab]
-            predictions = predictions.argmax(axis=-1)  # convert to token ids
-    else:
-        predictions = predictions_tuple
+    predictions, labels = eval_preds
 
-    # Sanity check
-    if predictions is None or labels is None:
-        rank0_print("⚠️ No predictions or labels provided.")
+    if isinstance(predictions, tuple):
+        predictions = predictions[0]
+
+    # ✅ Sanity check: predictions must be int token IDs
+    if not isinstance(predictions, (list, np.ndarray)) or not np.issubdtype(np.array(predictions).dtype, np.integer):
+        rank0_print("⚠️ Predictions are not token IDs. Skipping metric computation.")
         return {}
 
-    # Decode token IDs to strings
-    decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+    if labels is None:
+        rank0_print("⚠️ No labels provided.")
+        return {}
 
-    # Basic metric: string match accuracy
-    acc = sum(p.strip() == l.strip() for p, l in zip(decoded_preds, decoded_labels)) / len(decoded_preds)
-    rank0_print(f"✅ Accuracy: {acc:.4f}")
+    try:
+        decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+    except Exception as e:
+        rank0_print(f"❌ Tokenizer decoding failed: {e}")
+        return {}
+
+    rank0_print(f"Decoded preds: {decoded_preds}")
+    rank0_print(f"Decoded labels: {decoded_labels}")
 
     return {
-        "exact_match": round(acc, 4),
+        "exact_match": round(sum([p.strip() == l.strip() for p, l in zip(decoded_preds, decoded_labels)]) / len(decoded_preds), 4)
     }
-
 
 def train():
     global local_rank, tokenizer
