@@ -64,34 +64,34 @@ def configure_llm(model, training_args):
 
 from transformers.trainer_utils import EvalPrediction
 
-def compute_metrics(eval_preds: EvalPrediction):
+def compute_metrics(eval_preds):
     rank0_print("🔍 compute_metrics called")
 
-    try:
-        (predictions, labels), _ = eval_preds
-    except Exception as e:
-        rank0_print(f"❌ Failed to unpack eval_preds: {e}")
+    if isinstance(eval_preds, tuple) and len(eval_preds) == 2:
+        predictions, labels = eval_preds
+    elif hasattr(eval_preds, "predictions") and hasattr(eval_preds, "label_ids"):
+        predictions = eval_preds.predictions
+        labels = eval_preds.label_ids
+    else:
+        rank0_print("❌ Unsupported eval_preds format:", type(eval_preds))
         return {}
 
-    if isinstance(predictions, tuple):
-        predictions = predictions[0]
+    # Only decode if predictions are token IDs
+    if isinstance(predictions, (list, np.ndarray)) and isinstance(predictions[0], (list, np.ndarray, int)):
+        decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True) if labels is not None else []
 
-    # Token ID-based predictions only
-    if not isinstance(predictions, (list, torch.Tensor, np.ndarray)) or isinstance(predictions[0], float):
+        rank0_print("✅ Sample predictions:", decoded_preds[:1])
+        rank0_print("✅ Sample labels:", decoded_labels[:1])
+
+        return {
+            "avg_pred_len": round(np.mean([len(p) for p in decoded_preds]), 2),
+            "num_samples": len(decoded_preds),
+        }
+    else:
         rank0_print("⚠️ Predictions are not token IDs. Skipping metric computation.")
         return {}
 
-    decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True) if labels is not None else []
-
-    # Just for debugging
-    rank0_print("🧠 Decoded preds:", decoded_preds)
-    rank0_print("🧠 Decoded labels:", decoded_labels)
-
-    return {
-        "num_samples": len(decoded_preds),
-        "avg_pred_length": round(np.mean([len(p) for p in decoded_preds]), 2)
-    }
 
 
 def train():
