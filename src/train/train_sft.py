@@ -289,6 +289,10 @@ def train():
 
     rank0_print("Model type:", type(model))
 
+    # ✅ metrics with generated output
+    metrics = trainer.evaluate(predict_with_generate=True)
+    rank0_print("Final metrics:", metrics)
+    
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=False)
     else:
