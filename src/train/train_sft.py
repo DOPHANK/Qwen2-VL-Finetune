@@ -285,8 +285,22 @@ def train():
         
     # ✅ metrics with generated output
     predictions = trainer.predict(trainer.eval_dataset)
-    preds, labels, metrics = predictions
-    rank0_print(preds.shape, labels.shape)
+    
+    if isinstance(predictions, tuple):
+        preds, labels, _ = predictions
+    else:
+        preds = predictions.predictions
+        labels = predictions.label_ids
+    
+    # Handle preds if it's a tuple
+    if isinstance(preds, tuple):
+        preds = preds[0]
+    if isinstance(labels, tuple):
+        labels = labels[0]
+    
+    rank0_print(f"Prediction shape: {preds.shape}")
+    rank0_print(f"Label shape: {labels.shape}")
+
 
     trainer.save_state()
 
