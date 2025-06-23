@@ -285,7 +285,7 @@ def train():
         
     # ✅ metrics with generated output
     predictions = trainer.predict(trainer.eval_dataset)
-    preds, labels = predictions
+    preds, labels, metrics = predictions
     rank0_print(preds.shape, labels.shape)
 
     trainer.save_state()
