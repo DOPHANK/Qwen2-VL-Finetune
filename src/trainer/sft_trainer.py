@@ -44,20 +44,33 @@ class QwenSFTTrainer(Trainer):
         predict_with_generate: bool = False,
     ):
         print("\nEvaluating...")
+    
+        # Prepare dataset
+        dataset = self.eval_dataset if eval_dataset is None else eval_dataset
+    
         if predict_with_generate:
-            # Route to prediction method that supports generation
-            return self.predict(
-                self.eval_dataset if eval_dataset is None else eval_dataset,
+            # Use prediction method
+            output = self.predict(
+                dataset,
                 ignore_keys=ignore_keys,
                 metric_key_prefix=metric_key_prefix
             )
+            predictions = output.predictions
+            label_ids = output.label_ids
+    
+            if self.compute_metrics is not None:
+                print("⚙️  Manually calling compute_metrics()")
+                metrics = self.compute_metrics((predictions, label_ids))
+                output.metrics.update(metrics)
+                print("✅ compute_metrics result:", metrics)
+            return output
         else:
-            # Default behavior
             return super().evaluate(
                 eval_dataset=eval_dataset,
                 ignore_keys=ignore_keys,
                 metric_key_prefix=metric_key_prefix
             )
+
 
     def create_optimizer(self):
         """
