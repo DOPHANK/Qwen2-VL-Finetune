@@ -94,10 +94,6 @@ def train():
         (ModelArguments, DataArguments, TrainingArguments))
     
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-
-    rank0_print(model_args)
-    rank0_print(data_args)
-    rank0_print(training_args)
     
     rank0_print(f"Activate liger: {training_args.use_liger}")
     use_liger = training_args.use_liger
