@@ -43,7 +43,7 @@ class QwenSFTTrainer(Trainer):
         metric_key_prefix: str = "eval",
         predict_with_generate: bool = False,
     ):
-        print("\nEvaluating starting...")
+        print("\nEvaluating...")
         if predict_with_generate:
             # Route to prediction method that supports generation
             return self.predict(
