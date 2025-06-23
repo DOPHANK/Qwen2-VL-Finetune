@@ -71,6 +71,54 @@ class QwenSFTTrainer(Trainer):
                 metric_key_prefix=metric_key_prefix
             )
 
+    def predict(
+        self,
+        test_dataset: Optional[Dataset] = None,
+        ignore_keys: Optional[List[str]] = None,
+        metric_key_prefix: str = "test",
+    ) -> PredictionOutput:
+        self._memory_tracker.start()
+    
+        test_dataloader = self.get_test_dataloader(test_dataset)
+        output = self.prediction_loop(
+            test_dataloader,
+            description="Prediction",
+            prediction_loss_only=False,
+            ignore_keys=ignore_keys,
+            metric_key_prefix=metric_key_prefix,
+        )
+    
+        # 🔁 If model is generative, use generate()
+        all_preds = []
+        all_labels = []
+    
+        for batch in test_dataloader:
+            input_ids = batch["input_ids"].to(self.args.device)
+            attention_mask = batch["attention_mask"].to(self.args.device)
+    
+            with torch.no_grad():
+                generated_ids = self.model.generate(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    max_new_tokens=128,
+                    do_sample=False
+                )
+    
+            all_preds.extend(generated_ids.cpu().tolist())
+            all_labels.extend(batch["labels"].cpu().tolist())
+    
+        self.control = self.callback_handler.on_prediction_step(self.args, self.state, self.control)
+    
+        # ✅ Now you have predictions = token IDs
+        metrics = {}
+        if self.compute_metrics is not None:
+            metrics = self.compute_metrics((all_preds, all_labels))
+    
+        self._memory_tracker.stop_and_update_metrics(metrics)
+    
+        return PredictionOutput(predictions=all_preds, label_ids=all_labels, metrics=metrics)
+
+
 
     def create_optimizer(self):
         """
