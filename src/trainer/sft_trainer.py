@@ -79,6 +79,9 @@ class QwenSFTTrainer(Trainer):
         ignore_keys: Optional[List[str]] = None,
         metric_key_prefix: str = "test",
     ) -> PredictionOutput:
+
+        print("\nPredicting...")
+        
         self._memory_tracker.start()
     
         test_dataloader = self.get_test_dataloader(test_dataset)
@@ -119,8 +122,6 @@ class QwenSFTTrainer(Trainer):
         self._memory_tracker.stop_and_update_metrics(metrics)
     
         return PredictionOutput(predictions=all_preds, label_ids=all_labels, metrics=metrics)
-
-
 
     def create_optimizer(self):
         """
