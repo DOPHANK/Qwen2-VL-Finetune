@@ -64,7 +64,8 @@ def configure_llm(model, training_args):
 from transformers.trainer_utils import EvalPrediction
 
 def compute_metrics(eval_preds: EvalPrediction):
-    rank0_print("🔍 compute_metrics called")
+    rank0_print("🔍 compute_metrics")
+    rank0_print(eval_preds)
 
     predictions, labels = eval_preds
 
@@ -275,6 +276,7 @@ def train():
             compute_metrics=compute_metrics,
             **data_module
         )
+        rank0_print("Trainer created!")
 
     rank0_print("Model type:", type(model))
 
@@ -299,7 +301,8 @@ def train():
         labels = labels[0]
     
     rank0_print(f"Prediction shape: {preds.shape}")
-    rank0_print(f"Label shape: {labels.shape}")
+    
+    rank0_print(f"Label shape: {labels}")
 
 
     trainer.save_state()
