@@ -280,6 +280,8 @@ def train():
 
     rank0_print("Model type:", type(model))
 
+    rank0_print("Eval data:", data_module)
+
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=False)
     else:
