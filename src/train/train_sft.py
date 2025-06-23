@@ -286,12 +286,10 @@ def train():
         trainer.train(resume_from_checkpoint=False)
     else:
         trainer.train()
-
-    rank0_print("Eval dataset:", trainer.eval_dataset[0])
-
+        
     # ✅ metrics with generated output
-    output = trainer.predict(trainer.eval_dataset)
-    rank0_print("Custom Eval Metrics:", output.metrics)
+    predictions = trainer.predict(trainer.eval_dataset)
+    rank0_print(predictions.predictions.shape, predictions.label_ids.shape)
 
     trainer.save_state()
 
