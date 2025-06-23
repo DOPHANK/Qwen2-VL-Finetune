@@ -38,41 +38,6 @@ class QwenSFTTrainer(Trainer):
     def __init__(self, *args, **kwargs):
         super(QwenSFTTrainer, self).__init__(*args, **kwargs)
 
-    def evaluate(
-        self,
-        eval_dataset: Optional[Dataset] = None,
-        ignore_keys: Optional[List[str]] = None,
-        metric_key_prefix: str = "eval",
-        predict_with_generate: bool = False,
-    ):
-        print("\nEvaluating...")
-    
-        # Prepare dataset
-        dataset = self.eval_dataset if eval_dataset is None else eval_dataset
-    
-        if predict_with_generate:
-            # Use prediction method
-            output = self.predict(
-                dataset,
-                ignore_keys=ignore_keys,
-                metric_key_prefix=metric_key_prefix
-            )
-            predictions = output.predictions
-            label_ids = output.label_ids
-    
-            if self.compute_metrics is not None:
-                print("⚙️  Manually calling compute_metrics()")
-                metrics = self.compute_metrics((predictions, label_ids))
-                output.metrics.update(metrics)
-                print("✅ compute_metrics result:", metrics)
-            return output
-        else:
-            return super().evaluate(
-                eval_dataset=eval_dataset,
-                ignore_keys=ignore_keys,
-                metric_key_prefix=metric_key_prefix
-            )
-
     def predict(
         self,
         test_dataset: Optional[Dataset] = None,
@@ -122,6 +87,41 @@ class QwenSFTTrainer(Trainer):
         self._memory_tracker.stop_and_update_metrics(metrics)
     
         return PredictionOutput(predictions=all_preds, label_ids=all_labels, metrics=metrics)
+
+    def evaluate(
+        self,
+        eval_dataset: Optional[Dataset] = None,
+        ignore_keys: Optional[List[str]] = None,
+        metric_key_prefix: str = "eval",
+        predict_with_generate: bool = False,
+    ):
+        print("\nEvaluating...")
+    
+        # Prepare dataset
+        dataset = self.eval_dataset if eval_dataset is None else eval_dataset
+    
+        if predict_with_generate:
+            # Use prediction method
+            output = self.predict(
+                dataset,
+                ignore_keys=ignore_keys,
+                metric_key_prefix=metric_key_prefix
+            )
+            predictions = output.predictions
+            label_ids = output.label_ids
+    
+            if self.compute_metrics is not None:
+                print("⚙️  Manually calling compute_metrics()")
+                metrics = self.compute_metrics((predictions, label_ids))
+                output.metrics.update(metrics)
+                print("✅ compute_metrics result:", metrics)
+            return output
+        else:
+            return super().evaluate(
+                eval_dataset=eval_dataset,
+                ignore_keys=ignore_keys,
+                metric_key_prefix=metric_key_prefix
+            )
 
     def create_optimizer(self):
         """
