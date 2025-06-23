@@ -67,30 +67,41 @@ from transformers.trainer_utils import EvalPrediction
 def compute_metrics(eval_preds):
     rank0_print("🔍 compute_metrics called")
 
-    if isinstance(eval_preds, tuple) and len(eval_preds) == 2:
-        predictions, labels = eval_preds
-    elif hasattr(eval_preds, "predictions") and hasattr(eval_preds, "label_ids"):
+    if hasattr(eval_preds, "predictions"):
         predictions = eval_preds.predictions
         labels = eval_preds.label_ids
     else:
-        rank0_print("❌ Unsupported eval_preds format:", type(eval_preds))
+        predictions, labels = eval_preds
+
+    # Only handle if predictions are token IDs
+    if isinstance(predictions, tuple):
+        predictions = predictions[0]
+
+    # Remove float predictions if accidentally output
+    if not isinstance(predictions[0], (list, np.ndarray, int)):
+        rank0_print("⚠️ Predictions are not token ID sequences.")
         return {}
 
-    # Only decode if predictions are token IDs
-    if isinstance(predictions, (list, np.ndarray)) and isinstance(predictions[0], (list, np.ndarray, int)):
-        decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True) if labels is not None else []
+    # Clean labels before decoding
+    if labels is not None:
+        if isinstance(labels, np.ndarray):
+            labels = np.where(labels == -100, tokenizer.pad_token_id, labels)
+            labels = labels.astype(np.int32).tolist()
 
-        rank0_print("✅ Sample predictions:", decoded_preds[:1])
-        rank0_print("✅ Sample labels:", decoded_labels[:1])
-
-        return {
-            "avg_pred_len": round(np.mean([len(p) for p in decoded_preds]), 2),
-            "num_samples": len(decoded_preds),
-        }
+        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
     else:
-        rank0_print("⚠️ Predictions are not token IDs. Skipping metric computation.")
-        return {}
+        decoded_labels = []
+
+    decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+
+    rank0_print("✅ Sample prediction:", decoded_preds[:1])
+    rank0_print("✅ Sample label:", decoded_labels[:1])
+
+    return {
+        "avg_pred_len": round(np.mean([len(p) for p in decoded_preds]), 2),
+        "num_samples": len(decoded_preds),
+    }
+
 
 
 
