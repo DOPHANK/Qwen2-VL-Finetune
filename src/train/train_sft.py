@@ -67,26 +67,34 @@ def compute_metrics(eval_preds: EvalPrediction):
     rank0_print("🔍 compute_metrics")
     rank0_print(eval_preds)
 
-    predictions, labels = eval_preds
+    # Unpack predictions and labels
+    predictions_tuple, labels = eval_preds
 
-    # Handle case when model outputs tuple
-    if isinstance(predictions, tuple):
-        predictions = predictions[0]
+    # Check and extract token-level predictions
+    if isinstance(predictions_tuple, tuple):
+        predictions = predictions_tuple[0]  # float32 logits
+        if predictions.ndim == 2:  # [batch, vocab]
+            predictions = predictions.argmax(axis=-1)  # convert to token ids
+    else:
+        predictions = predictions_tuple
 
-    # Decode token IDs
+    # Sanity check
+    if predictions is None or labels is None:
+        rank0_print("⚠️ No predictions or labels provided.")
+        return {}
+
+    # Decode token IDs to strings
     decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True) if labels is not None else []
+    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-    # Apply reward functions element-wise
-    acc_rewards = [accuracy_reward(p, l) for p, l in zip(decoded_preds, decoded_labels)]
-    fmt_rewards = [format_reward(p, l) for p, l in zip(decoded_preds, decoded_labels)]
+    # Basic metric: string match accuracy
+    acc = sum(p.strip() == l.strip() for p, l in zip(decoded_preds, decoded_labels)) / len(decoded_preds)
+    rank0_print(f"✅ Accuracy: {acc:.4f}")
 
-    rank0_print(f"✅ accuracy: {acc_rewards}, format: {fmt_rewards}")
-    
     return {
-        "accuracy_reward": round(sum(acc_rewards) / len(acc_rewards), 4),
-        "format_reward": round(sum(fmt_rewards) / len(fmt_rewards), 4),
+        "exact_match": round(acc, 4),
     }
+
 
 def train():
     global local_rank, tokenizer
