@@ -16,7 +16,9 @@ from transformers.trainer import (
     SaveStrategy
 )
 from src.train.train_utils import get_peft_state_maybe_zero_3, get_peft_state_non_lora_maybe_zero_3
-        
+
+from transformers.trainer_utils import PredictionOutput
+
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
     from deepspeed.runtime.zero.partition_parameters import ZeroParamStatus
