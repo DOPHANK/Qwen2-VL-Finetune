@@ -319,9 +319,10 @@ def train():
         trainer.train()
         
     # ✅ metrics with generated output
-    predictions = trainer.predict(module_data.eval_data)
+    predictions = trainer.predict(module_data.eval_dataset)
     metrics = trainer.evaluate(predict_with_generate=True)
-    print("Final Metrics:", metrics)
+    rank0_print("Final predictions:", predictions)
+    rank0_print("Final metrics:", metrics)
 
     trainer.save_state()
 
