@@ -280,7 +280,21 @@ def train():
 
     rank0_print("Model type:", type(model))
 
-    rank0_print("Eval data:", data_module)
+    rank0_print("🔍 Data module keys:", data_module.keys())
+
+    # Print dataset sizes
+    rank0_print(f"Train dataset size: {len(data_module['train_dataset'])}")
+    rank0_print(f"Eval dataset size: {len(data_module['eval_dataset'])}")
+    
+    # Show a few samples from each
+    rank0_print("🧾 Train dataset sample[0]:")
+    rank0_print(data_module["train_dataset"][0])
+    
+    rank0_print("🧾 Eval dataset sample[0]:")
+    rank0_print(data_module["eval_dataset"][0])
+    
+    # Optional: inspect collator
+    rank0_print("📦 Collator type:", type(data_module["data_collator"]))
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=False)
