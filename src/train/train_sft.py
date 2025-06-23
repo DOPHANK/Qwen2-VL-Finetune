@@ -65,38 +65,34 @@ def configure_llm(model, training_args):
 from transformers.trainer_utils import EvalPrediction
 
 def compute_metrics(eval_preds: EvalPrediction):
-    rank0_print("🔍 compute_metrics")
+    rank0_print("🔍 compute_metrics called")
 
-    if isinstance(eval_preds, tuple):
-        eval_preds = eval_preds[0]  # unpack (predictions, label_ids)
-
-    predictions, labels = eval_preds
+    try:
+        (predictions, labels), _ = eval_preds
+    except Exception as e:
+        rank0_print(f"❌ Failed to unpack eval_preds: {e}")
+        return {}
 
     if isinstance(predictions, tuple):
         predictions = predictions[0]
 
-    # ✅ Sanity check: predictions must be int token IDs
-    if not isinstance(predictions, (list, np.ndarray)) or not np.issubdtype(np.array(predictions).dtype, np.integer):
+    # Token ID-based predictions only
+    if not isinstance(predictions, (list, torch.Tensor, np.ndarray)) or isinstance(predictions[0], float):
         rank0_print("⚠️ Predictions are not token IDs. Skipping metric computation.")
         return {}
 
-    if labels is None:
-        rank0_print("⚠️ No labels provided.")
-        return {}
+    decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True) if labels is not None else []
 
-    try:
-        decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
-    except Exception as e:
-        rank0_print(f"❌ Tokenizer decoding failed: {e}")
-        return {}
-
-    rank0_print(f"Decoded preds: {decoded_preds}")
-    rank0_print(f"Decoded labels: {decoded_labels}")
+    # Just for debugging
+    rank0_print("🧠 Decoded preds:", decoded_preds)
+    rank0_print("🧠 Decoded labels:", decoded_labels)
 
     return {
-        "exact_match": round(sum([p.strip() == l.strip() for p, l in zip(decoded_preds, decoded_labels)]) / len(decoded_preds), 4)
+        "num_samples": len(decoded_preds),
+        "avg_pred_length": round(np.mean([len(p) for p in decoded_preds]), 2)
     }
+
 
 def train():
     global local_rank, tokenizer
