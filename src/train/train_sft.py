@@ -67,6 +67,9 @@ def compute_metrics(eval_preds: EvalPrediction):
     rank0_print("🔍 compute_metrics")
     rank0_print(eval_preds)
 
+    if isinstance(eval_preds, tuple):
+        eval_preds = eval_preds[0]
+        
     # Unpack predictions and labels
     predictions_tuple, labels = eval_preds
 
