@@ -14,6 +14,7 @@ from torch.nn import CrossEntropyLoss
 
 import deepspeed
 from src.train.reward_funcs import accuracy_reward, format_reward
+import numpy as np
 
 local_rank = None
 
