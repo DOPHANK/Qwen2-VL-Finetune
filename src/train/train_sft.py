@@ -64,45 +64,52 @@ def configure_llm(model, training_args):
 
 from transformers.trainer_utils import EvalPrediction
 
+
+
+
+
+
+
+
+
 def compute_metrics(eval_preds):
     rank0_print("🔍 compute_metrics called")
 
-    if hasattr(eval_preds, "predictions"):
-        predictions = eval_preds.predictions
-        labels = eval_preds.label_ids
-    else:
-        predictions, labels = eval_preds
+    predictions, labels = eval_preds
 
-    # Only handle if predictions are token IDs
+    # Handle case when predictions is a tuple (logits, other)
     if isinstance(predictions, tuple):
         predictions = predictions[0]
 
-    # Remove float predictions if accidentally output
-    if not isinstance(predictions[0], (list, np.ndarray, int)):
-        rank0_print("⚠️ Predictions are not token ID sequences.")
+    # If logits are float32 or float16, convert to token IDs using argmax
+    if predictions.ndim == 3:  # (batch, seq, vocab)
+        predictions = np.argmax(predictions, axis=-1)
+
+    # Remove -100 from labels and cast to int
+    if labels is not None:
+        labels = np.where(labels == -100, tokenizer.pad_token_id, labels)
+        labels = labels.astype(np.int32).tolist()
+    else:
+        labels = []
+
+    # Convert predictions to list of int token IDs
+    predictions = predictions.astype(np.int32).tolist()
+
+    # Decode
+    try:
+        decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+    except Exception as e:
+        rank0_print(f"❌ Failed to decode: {e}")
         return {}
 
-    # Clean labels before decoding
-    if labels is not None:
-        if isinstance(labels, np.ndarray):
-            labels = np.where(labels == -100, tokenizer.pad_token_id, labels)
-            labels = labels.astype(np.int32).tolist()
-
-        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
-    else:
-        decoded_labels = []
-
-    decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-
-    rank0_print("✅ Sample prediction:", decoded_preds[:1])
-    rank0_print("✅ Sample label:", decoded_labels[:1])
+    rank0_print(f"✅ Sample prediction: {decoded_preds[:1]}")
+    rank0_print(f"✅ Sample label: {decoded_labels[:1]}")
 
     return {
         "avg_pred_len": round(np.mean([len(p) for p in decoded_preds]), 2),
         "num_samples": len(decoded_preds),
     }
-
-
 
 
 def train():
