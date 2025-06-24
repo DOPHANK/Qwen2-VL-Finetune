@@ -315,9 +315,6 @@ def train():
 
     print(f"Pad token ID: {tokenizer.pad_token_id}")
 
-    print(">>> Checking first prediction IDs", predictions[0][:10])
-    print(">>> Checking first label IDs", labels[0][:10])
-
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=False)
     else:
