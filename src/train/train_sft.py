@@ -111,9 +111,6 @@ def compute_metrics(eval_preds):
 
         decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
-
-        rank0_print(f"✅ First prediction: {decoded_preds[0] if decoded_preds else 'None'}")
-        rank0_print(f"✅ First label: {decoded_labels[0] if decoded_labels else 'None'}")
     except Exception as e:
         raise RuntimeError(f"❌ Failed to decode predictions/labels: {e}")
 
