@@ -85,12 +85,11 @@ def compute_metrics(eval_preds):
                 predictions = np.rint(predictions).astype(np.int32)
             predictions = predictions.tolist()
 
-        if isinstance(labels, np.ndarray):
-            # Replace -100 (ignore index) with pad_token_id
-            labels = np.where(labels == -100, tokenizer.pad_token_id, labels)
-            labels = labels.astype(np.int32).tolist()
-            rank0_print("Replace -100 (ignore index) with pad_token_id...")
-            rank0_print(labels)
+        # Replace -100 (ignore index) with pad_token_id
+        labels = np.where(labels == -100, tokenizer.pad_token_id, labels)
+        labels = labels.astype(np.int32).tolist()
+        rank0_print("Replace -100 (ignore index) with pad_token_id...")
+        rank0_print(labels)
     except Exception as e:
         raise RuntimeError(f"❌ Failed preprocessing predictions/labels: {e}")
 
