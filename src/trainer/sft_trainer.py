@@ -85,6 +85,9 @@ class QwenSFTTrainer(Trainer):
             metrics = self.compute_metrics((all_preds, all_labels))
     
         self._memory_tracker.stop_and_update_metrics(metrics)
+
+        print(">>> Checking first prediction IDs", all_preds[0][:10])
+        print(">>> Checking first label IDs", all_labels[0][:10])
     
         return PredictionOutput(predictions=all_preds, label_ids=all_labels, metrics=metrics)
 
