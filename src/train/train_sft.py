@@ -77,37 +77,45 @@ def compute_metrics(eval_preds):
         raise RuntimeError(f"❌ Failed to unpack eval_preds: {e}, got {type(eval_preds)} with content: {repr(eval_preds)}")
 
     try:
-        # Handle tuple logits
         if isinstance(predictions, tuple):
             predictions = predictions[0]
 
-        if isinstance(predictions, np.ndarray) and predictions.ndim == 3:
-            predictions = np.argmax(predictions, axis=-1)
-    except Exception as e:
-        raise RuntimeError(f"❌ Failed to preprocess predictions: {e}")
+        if isinstance(predictions, np.ndarray):
+            if predictions.dtype != np.int32 and predictions.dtype != np.int64:
+                predictions = predictions.astype(np.int32)
+            predictions = predictions.tolist()
 
-    try:
-        if labels is not None:
+        if isinstance(labels, np.ndarray):
+            # Replace -100 (ignore index) with pad_token_id
             labels = np.where(labels == -100, tokenizer.pad_token_id, labels)
             labels = labels.astype(np.int32).tolist()
-        else:
-            labels = []
-        predictions = predictions.astype(np.int32).tolist() if isinstance(predictions, np.ndarray) else predictions
     except Exception as e:
-        raise RuntimeError(f"❌ Failed to prepare labels/predictions for decoding: {e}")
+        raise RuntimeError(f"❌ Failed preprocessing predictions/labels: {e}")
 
     try:
+        # Basic value checks to avoid large garbage
+        for seq in predictions:
+            for token in seq:
+                if token < 0 or token > tokenizer.vocab_size * 2:  # allow some room for added tokens
+                    raise ValueError(f"⚠️ Invalid token ID in prediction: {token}")
+
+        for seq in labels:
+            for token in seq:
+                if token < 0 or token > tokenizer.vocab_size * 2:
+                    raise ValueError(f"⚠️ Invalid token ID in label: {token}")
+
         decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+
+        rank0_print(f"✅ First prediction: {decoded_preds[0] if decoded_preds else 'None'}")
+        rank0_print(f"✅ First label: {decoded_labels[0] if decoded_labels else 'None'}")
     except Exception as e:
         raise RuntimeError(f"❌ Failed to decode predictions/labels: {e}")
 
-    rank0_print(f"✅ Sample prediction: {decoded_preds[:1]}")
-    rank0_print(f"✅ Sample label: {decoded_labels[:1]}")
-
+    # Return simple metrics for now
     return {
-        "avg_pred_len": round(np.mean([len(p) for p in decoded_preds]), 2),
         "num_samples": len(decoded_preds),
+        "avg_pred_len": round(np.mean([len(p) for p in decoded_preds]), 2),
     }
 
 
@@ -304,7 +312,12 @@ def train():
         rank0_print("QwenSFTTrainer created!")
 
     rank0_print("Model type:", type(model))
-    
+
+    print(f"Pad token ID: {tokenizer.pad_token_id}")
+
+    print(">>> Checking first prediction IDs", predictions[0][:10])
+    print(">>> Checking first label IDs", labels[0][:10])
+
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=False)
     else:
