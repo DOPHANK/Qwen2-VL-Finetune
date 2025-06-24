@@ -114,10 +114,16 @@ def compute_metrics(eval_preds):
     except Exception as e:
         raise RuntimeError(f"❌ Failed to decode predictions/labels: {e}")
 
-    # Return simple metrics for now
+    # Wrap decoded text as chat-style input
+    completions = [[{"role": "assistant", "content": pred.strip()}] for pred in decoded_preds]
+    references = [{"role": "assistant", "content": ref.strip()} for ref in decoded_labels]
+
+    rewards = accuracy_reward(completions, references)
+    mean_reward = sum(rewards) / len(rewards) if rewards else 0.0
+
     return {
-        "num_samples": len(decoded_preds),
-        "avg_pred_len": round(np.mean([len(p) for p in decoded_preds]), 2),
+        "reward_accuracy": mean_reward,
+        "num_samples": len(rewards),
     }
 
 
