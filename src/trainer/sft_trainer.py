@@ -48,11 +48,9 @@ class QwenSFTTrainer(Trainer):
         print("\nPredicting...")
         
         self._memory_tracker.start()
-
-        print("\nPredicting...")
     
         test_dataloader = self.get_test_dataloader(test_dataset)
-        print("\nPredicting...")
+
         output = self.prediction_loop(
             test_dataloader,
             description="Prediction",
@@ -60,7 +58,6 @@ class QwenSFTTrainer(Trainer):
             ignore_keys=ignore_keys,
             metric_key_prefix=metric_key_prefix,
         )
-        print("\nPredicting...")
     
         # 🔁 If model is generative, use generate()
         all_preds = []
@@ -80,24 +77,15 @@ class QwenSFTTrainer(Trainer):
     
             all_preds.extend(generated_ids.cpu().tolist())
             all_labels.extend(batch["labels"].cpu().tolist())
-
-        print("\nPredicting...")
     
         self.control = self.callback_handler.on_prediction_step(self.args, self.state, self.control)
 
-        print("\nPredicting...")
-    
         # ✅ Now you have predictions = token IDs
         metrics = {}
         if self.compute_metrics is not None:
             metrics = self.compute_metrics((all_preds, all_labels))
 
-        print("\nPredicting...")
-        
         self._memory_tracker.stop_and_update_metrics(metrics)
-
-        print(">>> Checking first prediction IDs", all_preds[0][:10])
-        print(">>> Checking first label IDs", all_labels[0][:10])
     
         return PredictionOutput(predictions=all_preds, label_ids=all_labels, metrics=metrics)
 
@@ -108,13 +96,12 @@ class QwenSFTTrainer(Trainer):
         metric_key_prefix: str = "eval",
         predict_with_generate: bool = True,
     ):
-        print("\nEvaluating...")
-    
         # Prepare dataset
         dataset = self.eval_dataset if eval_dataset is None else eval_dataset
-        print("\nEvaluating...")
     
         if predict_with_generate:
+            print("\nEvaluating with generate...")
+            
             # Use prediction method
             output = self.predict(
                 dataset,
@@ -123,16 +110,17 @@ class QwenSFTTrainer(Trainer):
             )
             predictions = output.predictions
             label_ids = output.label_ids
-            print("\nEvaluating...")
+            
             if self.compute_metrics is not None:
                 print("⚙️  Manually calling compute_metrics()")
                 metrics = self.compute_metrics((predictions, label_ids))
                 output.metrics.update(metrics)
                 print("✅ compute_metrics result:", metrics)
 
-            print("\nEvaluating...")
             return output
         else:
+            print("\nEvaluating without generate...")
+            
             return super().evaluate(
                 eval_dataset=eval_dataset,
                 ignore_keys=ignore_keys,
