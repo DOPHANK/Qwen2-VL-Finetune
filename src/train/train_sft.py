@@ -68,40 +68,39 @@ from transformers.trainer_utils import EvalPrediction
 
 
 
-
-
-
-
 def compute_metrics(eval_preds):
     rank0_print("🔍 compute_metrics called")
 
-    predictions, labels = eval_preds
+    try:
+        predictions, labels = eval_preds
+    except Exception as e:
+        raise RuntimeError(f"❌ Failed to unpack eval_preds: {e}, got {type(eval_preds)} with content: {repr(eval_preds)}")
 
-    # Handle case when predictions is a tuple (logits, other)
-    if isinstance(predictions, tuple):
-        predictions = predictions[0]
+    try:
+        # Handle tuple logits
+        if isinstance(predictions, tuple):
+            predictions = predictions[0]
 
-    # If logits are float32 or float16, convert to token IDs using argmax
-    if predictions.ndim == 3:  # (batch, seq, vocab)
-        predictions = np.argmax(predictions, axis=-1)
+        if isinstance(predictions, np.ndarray) and predictions.ndim == 3:
+            predictions = np.argmax(predictions, axis=-1)
+    except Exception as e:
+        raise RuntimeError(f"❌ Failed to preprocess predictions: {e}")
 
-    # Remove -100 from labels and cast to int
-    if labels is not None:
-        labels = np.where(labels == -100, tokenizer.pad_token_id, labels)
-        labels = labels.astype(np.int32).tolist()
-    else:
-        labels = []
+    try:
+        if labels is not None:
+            labels = np.where(labels == -100, tokenizer.pad_token_id, labels)
+            labels = labels.astype(np.int32).tolist()
+        else:
+            labels = []
+        predictions = predictions.astype(np.int32).tolist() if isinstance(predictions, np.ndarray) else predictions
+    except Exception as e:
+        raise RuntimeError(f"❌ Failed to prepare labels/predictions for decoding: {e}")
 
-    # Convert predictions to list of int token IDs
-    predictions = predictions.astype(np.int32).tolist()
-
-    # Decode
     try:
         decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
     except Exception as e:
-        rank0_print(f"❌ Failed to decode: {e}")
-        return {}
+        raise RuntimeError(f"❌ Failed to decode predictions/labels: {e}")
 
     rank0_print(f"✅ Sample prediction: {decoded_preds[:1]}")
     rank0_print(f"✅ Sample label: {decoded_labels[:1]}")
@@ -110,6 +109,8 @@ def compute_metrics(eval_preds):
         "avg_pred_len": round(np.mean([len(p) for p in decoded_preds]), 2),
         "num_samples": len(decoded_preds),
     }
+
+
 
 
 def train():
