@@ -106,7 +106,7 @@ class QwenSFTTrainer(Trainer):
         eval_dataset: Optional[Dataset] = None,
         ignore_keys: Optional[List[str]] = None,
         metric_key_prefix: str = "eval",
-        predict_with_generate: bool = False,
+        predict_with_generate: bool = True,
     ):
         print("\nEvaluating...")
     
