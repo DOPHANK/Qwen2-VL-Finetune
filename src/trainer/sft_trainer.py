@@ -112,7 +112,6 @@ class QwenSFTTrainer(Trainer):
             label_ids = output.label_ids
             
             if self.compute_metrics is not None:
-                print("⚙️  Manually calling compute_metrics()")
                 metrics = self.compute_metrics((predictions, label_ids))
                 output.metrics.update(metrics)
                 print("✅ compute_metrics result:", metrics)
