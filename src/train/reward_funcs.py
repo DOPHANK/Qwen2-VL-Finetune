@@ -3,6 +3,46 @@ import re
 from datetime import datetime
 from math_verify import parse, verify
 
+def extract_key_value_pairs(text):
+    """Extracts (KEY, VALUE) pairs from a string with <im_start>KEY: VALUE<im_end> segments."""
+    pattern = r"<im_start>(.*?):\s*(.*?)<im_end>"
+    return re.findall(pattern, text.strip())
+
+def accuracy_infos(completions, assistant, **kwargs):
+    """Reward function that compares only the VALUEs of KEY: VALUE pairs between predicted and ground-truth completions."""
+    contents = [completion[0]["content"] for completion in completions]
+    solutions = [a["content"] for a in assistant]
+    rewards = []
+    detailed_logs = []
+    current_time = datetime.now().strftime("%d-%H-%M-%S-%f")
+
+    for pred_text, gt_text in zip(contents, solutions):
+        pred_kv = dict(extract_key_value_pairs(pred_text))
+        gt_kv = dict(extract_key_value_pairs(gt_text))
+
+        match_count = 0
+        total = len(gt_kv)
+
+        for key, gt_val in gt_kv.items():
+            pred_val = pred_kv.get(key)
+            if pred_val == gt_val:
+                match_count += 1
+
+        # reward: percentage of correct values
+        reward = match_count / total if total > 0 else 0.0
+        rewards.append(reward)
+
+        # Optional debug log
+        if os.getenv("DEBUG_MODE") == "true":
+            log_path = os.getenv("LOG_PATH", "accuracy_infos_debug.log")
+            with open(log_path, "a") as f:
+                f.write(f"\n=== {current_time} ===\n")
+                f.write(f"[GT  ] {gt_kv}\n")
+                f.write(f"[PRED] {pred_kv}\n")
+                f.write(f"[MATCH] {match_count} / {total} → reward = {reward}\n")
+
+    return rewards
+
 def accuracy_reward(completions, assistant, **kwargs):
     """Reward function that checks if the completion is correct using either symbolic verification or exact string matching."""
     contents = [completion[0]["content"] for completion in completions]
