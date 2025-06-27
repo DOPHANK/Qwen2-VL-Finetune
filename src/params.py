@@ -13,6 +13,10 @@ class ModelArguments:
 
 @dataclass
 class TrainingArguments(HFTrainingArguments):
+    output_dir: str = field(
+        default=None, metadata={"help": "Path to the outputs."}
+    )
+    
     cache_dir: Optional[str] = field(default=None)
     optim: str = field(default="adamw_torch")
     adam_beta1: float = field(default=0.9)
