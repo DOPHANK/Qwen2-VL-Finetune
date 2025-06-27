@@ -13,7 +13,7 @@ from src.train.monkey_patch_forward import replace_qwen2_5_with_mixed_modality_f
 from torch.nn import CrossEntropyLoss
 
 import deepspeed
-from src.train.reward_funcs import accuracy_reward, format_reward
+from src.train.reward_funcs import accuracy_reward, format_reward, accuracy_infos
 import numpy as np
 
 local_rank = None
@@ -118,11 +118,15 @@ def compute_metrics(eval_preds):
     completions = [[{"role": "assistant", "content": pred.strip()}] for pred in decoded_preds]
     references = [{"role": "assistant", "content": ref.strip()} for ref in decoded_labels]
 
-    rewards = accuracy_reward(completions, references)
-    mean_reward = sum(rewards) / len(rewards) if rewards else 0.0
+    rewards_hw = accuracy_infos(completions, references)
+    rewards_all = accuracy_reward(completions, references)
+    
+    mean_reward_hw = sum(rewards_hw) / len(rewards_hw) if rewards_hw else 0.0
+    mean_reward_all = sum(rewards_all) / len(rewards_all) if rewards_all else 0.0
 
     return {
-        "reward_accuracy": mean_reward,
+        "reward_accuracy": mean_reward_all,
+        "infos_accuracy": mean_reward_hw,
         "num_samples": len(rewards),
     }
 
