@@ -34,7 +34,7 @@ def accuracy_infos(completions, assistant, **kwargs):
         rewards.append(reward)
 
         # ✅ Save result
-        result_log_path = "results_infos.json"
+        result_log_path = os.path.join(os.getenv("OUTPUT_DIR", "."), "results_infos.json")
         result_record = {
             "timestamp": current_time,
             "ground_truth": gt_kv,
@@ -92,14 +92,12 @@ def accuracy_reward(completions, assistant, **kwargs):
 
         rewards.append(reward)
 
-        # ✅ Save result
-        result_log_path = "results_all.json"
+         # ✅ Save result
+        result_log_path = os.path.join(os.getenv("OUTPUT_DIR", "."), "results_all.json")
         result_record = {
             "timestamp": current_time,
-            "ground_truth": gt_kv,
-            "prediction": pred_kv,
-            "matched_keys": match_count,
-            "total_keys": total,
+            "ground_truth": sol,
+            "prediction": content,
             "reward": reward
         }
         with open(result_log_path, "a", encoding="utf-8") as f:
