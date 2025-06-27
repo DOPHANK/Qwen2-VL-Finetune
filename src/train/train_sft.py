@@ -136,6 +136,8 @@ def compute_metrics(eval_preds):
 def train():
     global local_rank, tokenizer
 
+    os.environ["OUTPUT_DIR"] = training_args.output_dir
+
     parser = HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments))
     
