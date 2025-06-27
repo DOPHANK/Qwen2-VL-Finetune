@@ -136,12 +136,12 @@ def compute_metrics(eval_preds):
 def train():
     global local_rank, tokenizer
 
-    os.environ["OUTPUT_DIR"] = training_args.output_dir
-
     parser = HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments))
     
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+
+    os.environ["OUTPUT_DIR"] = training_args.output_dir
     
     rank0_print(f"Activate liger: {training_args.use_liger}")
     use_liger = training_args.use_liger
