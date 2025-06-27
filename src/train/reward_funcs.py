@@ -2,6 +2,7 @@ import os
 import re
 from datetime import datetime
 from math_verify import parse, verify
+import json
 
 def extract_key_value_pairs(text):
     """Extracts (KEY, VALUE) pairs from a string with <im_start>KEY: VALUE<im_end> segments."""
@@ -31,6 +32,19 @@ def accuracy_infos(completions, assistant, **kwargs):
         # reward: percentage of correct values
         reward = match_count / total if total > 0 else 0.0
         rewards.append(reward)
+
+        # ✅ Save result
+        result_log_path = "results_infos.json"
+        result_record = {
+            "timestamp": current_time,
+            "ground_truth": gt_kv,
+            "prediction": pred_kv,
+            "matched_keys": match_count,
+            "total_keys": total,
+            "reward": reward
+        }
+        with open(result_log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(result_record, ensure_ascii=False) + "\n")
 
         # Optional debug log
         if os.getenv("DEBUG_MODE") == "true":
@@ -77,6 +91,20 @@ def accuracy_reward(completions, assistant, **kwargs):
                 pass  # Keep reward as 0.0 if both methods fail
 
         rewards.append(reward)
+
+        # ✅ Save result
+        result_log_path = "results_all.json"
+        result_record = {
+            "timestamp": current_time,
+            "ground_truth": gt_kv,
+            "prediction": pred_kv,
+            "matched_keys": match_count,
+            "total_keys": total,
+            "reward": reward
+        }
+        with open(result_log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(result_record, ensure_ascii=False) + "\n")
+        
         if os.getenv("DEBUG_MODE") == "true":
             log_path = os.getenv("LOG_PATH")
             with open(log_path, "a") as f:
