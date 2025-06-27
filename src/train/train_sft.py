@@ -336,6 +336,20 @@ def train():
 
     trainer.save_state()
 
+    # ✅ Evaluate on test set if provided
+    if data_args.test_data_path:
+        print("\n🧪 Evaluating on test set...")
+        test_dataset = make_supervised_data_module(tokenizer=tokenizer, data_path=data_args.test_data_path)
+        test_output = trainer.predict(test_dataset=test_dataset)
+        
+        print("✅ Test evaluation results:")
+        for k, v in test_output.metrics.items():
+            print(f"{k}: {v}")
+        
+        test_result_path = os.path.join(training_args.output_dir, "test_metrics.json")
+        with open(test_result_path, "w", encoding="utf-8") as f:
+            json.dump(test_output.metrics, f, indent=2)
+
     model.config.use_cache = True
 
     #Add-ins
