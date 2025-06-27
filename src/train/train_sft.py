@@ -127,7 +127,7 @@ def compute_metrics(eval_preds):
     return {
         "reward_accuracy": mean_reward_all,
         "infos_accuracy": mean_reward_hw,
-        "num_samples": len(mean_reward_all),
+        "num_samples": len(reward_hw),
     }
 
 
