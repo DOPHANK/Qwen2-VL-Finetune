@@ -1,0 +1,16 @@
+[
+  {
+    "id": "5_4",
+    "image": "./08NV/images/5/4.jpg",
+    "conversations": [
+      {
+        "from": "user",
+        "value": "Picture: <image>\n./08NV/images/5/4.jpg"
+      },
+      {
+        "from": "assistant",
+        "value": "<im_start>NSS_IV: False<im_end>\n<im_start>DNSS_IV_5: False<im_end>\n<im_start>ACETAR_IV: False<im_end>\n<im_start>OTH_FLUID: False<im_end>\n<im_start>OTH_FLUID_SPEC: False<im_end>\n<im_start>ICU_ADMISSION: False<im_end>\n<im_start>BLEEDING: False<im_end>\n<im_start>ACUTE_KIDNEY_INJ: nan<im_end>\n<im_start>LIVER_INJ: False<im_end>\n<im_start>VOLUME_OVERLOAD: False<im_end>\n<im_start>OTH_COMPS: nan<im_end>\n<im_start>OTH_COMPS_SPEC: True<im_end>\n<im_start>ET_TUBE: False<im_end>\n<im_start>NEBULIZER: False<im_end>\n<im_start>EGD: nan<im_end>\n<im_start>NG_TUBE: 2<im_end>\n<im_start>PLEURAL_TAPPING: 11/03/2025 15:50:33<im_end>"
+      }
+    ]
+  }
+]

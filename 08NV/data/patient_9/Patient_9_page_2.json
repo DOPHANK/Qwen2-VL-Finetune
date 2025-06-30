@@ -1,0 +1,16 @@
+[
+  {
+    "id": "9_2",
+    "image": "./08NV/images/9/2.jpg",
+    "conversations": [
+      {
+        "from": "user",
+        "value": "Picture: <image>\n./08NV/images/9/2.jpg"
+      },
+      {
+        "from": "assistant",
+        "value": "<im_start>WBC: nan<im_end>\n<im_start>RBC: nan<im_end>\n<im_start>Hb: IFA SCRUB TYPHUS. IGG IGM NEGATIVE    IFA MURINN TYPHUS IGG IGM NEGATIVE<im_end>\n<im_start>HCT: False<im_end>\n<im_start>MCV: False<im_end>\n<im_start>PLT: False<im_end>\n<im_start>BAND: False<im_end>\n<im_start>NEU: False<im_end>\n<im_start>LYMPH: False<im_end>\n<im_start>MONO: False<im_end>\n<im_start>EO: False<im_end>\n<im_start>BASO: True<im_end>\n<im_start>Atyp lymp: True<im_end>\n<im_start>OTH_MORBIDITIES: False<im_end>\n<im_start>PCR_SPEC: False<im_end>\n<im_start>OTH_DIAG_TEST: True<im_end>\n<im_start>NONE_ANTIBIOTIC: False<im_end>\n<im_start>AMOXICILLIN: False<im_end>\n<im_start>DICLOXACILLIN: True<im_end>\n<im_start>AMOXICILLINCLAVULANICACID: SULPERAZONE , COLISTIN , TAZOCIN<im_end>\n<im_start>LEVOFLOXACIN: False<im_end>\n<im_start>CEFTRIAXONE: False<im_end>\n<im_start>CEFTAZIDIME: False<im_end>\n<im_start>CIPROFLOXACIN: True<im_end>\n<im_start>VANCOMYCIN: 10% DNSS IV<im_end>\n<im_start>MEROPENEM: True<im_end>\n<im_start>ERTAPENEM: True<im_end>\n<im_start>DOXYCYCLINE: True<im_end>\n<im_start>AZITHROMYCIN: True<im_end>\n<im_start>NORFLOXACIN: True<im_end>\n<im_start>METRONIDAZOLE: True<im_end>\n<im_start>OTH_ANTIBIOTIC: BACTERIAL INFECTION, MULTIORGAN FAILURE ELECTROLITES IMBALANCE<im_end>\n<im_start>OTH_ANTIBIOTIC_SPEC: True<im_end>"
+      }
+    ]
+  }
+]
