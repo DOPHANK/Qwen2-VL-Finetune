@@ -342,8 +342,8 @@ def train():
     
         # ✅ Prepare test dataset
         test_dataset = make_supervised_data_module(
-            tokenizer=tokenizer,
-            data_path=data_args.test_data_path
+            data_path=data_args.test_data_path,
+            processor=processor
         )
     
         # ✅ Run prediction
