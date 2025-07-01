@@ -16,8 +16,6 @@ class TrainingArguments(HFTrainingArguments):
     output_dir: str = field(
         default=None, metadata={"help": "Path to the outputs."}
     )
-
-    page_number: int = field(default=None, metadata={"help": "Only use samples from a specific page number"})
     
     cache_dir: Optional[str] = field(default=None)
     optim: str = field(default="adamw_torch")
@@ -185,6 +183,9 @@ class DataArguments:
     test_data_path: str = field(
         default=None, metadata={"help": "Path to the test data."}
     )
+    
+    page_number: int = field(default=None, metadata={"help": "Only use samples from a specific page number"})
+    
     lazy_preprocess: bool = False
     image_folder: Optional[str] = field(default=None)
     image_min_pixels: Optional[int] = field(default=3136)
