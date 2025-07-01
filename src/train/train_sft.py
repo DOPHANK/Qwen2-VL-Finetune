@@ -341,9 +341,7 @@ def train():
         print("\n🧪 Running evaluation on test set...")
     
         # ✅ Prepare test dataset
-        test_dataset = make_supervised_data_module(model_id=model_args.model_id,
-                                              processor=processor,
-                                              data_args=data_args)
+        test_dataset = data_module.get("test_dataset")
     
         # ✅ Run prediction
         test_output = trainer.predict(test_dataset=test_dataset)
