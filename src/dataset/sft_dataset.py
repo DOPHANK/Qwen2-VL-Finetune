@@ -26,12 +26,14 @@ class SupervisedDataset(Dataset):
     def __init__(
         self,
         data_path: str | list,
+        page_number,
         processor: transformers.ProcessorMixin,
         data_args: DataArguments,
         model_id,
         padding=True,
     ):
         super(SupervisedDataset, self).__init__()
+        
         #if isinstance(data_path, str):
         #    list_data_dict = json.load(open(data_path, "r"))
         #else:
@@ -45,7 +47,7 @@ class SupervisedDataset(Dataset):
             for root, _, files in os.walk(data_path):
                 for fname in files:
                     if fname.endswith(".json") and (
-                        PAGE_NUMBER is None or f"_page_{PAGE_NUMBER}" in fname
+                        page_number is None or f"_page_{page_number}" in fname
                     ):
                         fpath = os.path.join(root, fname)
                         with open(fpath, "r") as f:
@@ -277,11 +279,11 @@ class DataCollatorForSupervisedDataset(object):
 def make_supervised_data_module(model_id, processor, data_args):
     """Make dataset and collator for supervised fine-tuning."""
     sft_dataset = SupervisedDataset(
-        data_path=data_args.data_path, processor=processor, data_args=data_args, model_id=model_id
+        data_path=data_args.data_path, page_number=data_args.page_number, processor=processor, data_args=data_args, model_id=model_id
     )
 
     eval_dataset = SupervisedDataset(
-        data_path=data_args.eval_data_path, processor=processor, data_args=data_args, model_id=model_id
+        data_path=data_args.eval_data_path, page_number=data_args.page_number, processor=processor, data_args=data_args, model_id=model_id
     )
     
     data_collator = DataCollatorForSupervisedDataset(pad_token_id=processor.tokenizer.pad_token_id)
