@@ -316,14 +316,14 @@ def train():
                 if param.requires_grad and param.dtype != torch.float32:
                     param.data = param.data.float()
     
-        trainer = QwenSFTTrainer(
-            model=model,
-            processing_class=processor,
-            args=training_args,
-            compute_metrics=compute_metrics,
-            **data_module
-        )
-        rank0_print("QwenSFTTrainer created!")
+    trainer = QwenSFTTrainer(
+        model=model,
+        processing_class=processor,
+        args=training_args,
+        compute_metrics=compute_metrics,
+        **data_module
+    )
+    rank0_print("QwenSFTTrainer created!")
 
     rank0_print("Model type:", type(model))
 
