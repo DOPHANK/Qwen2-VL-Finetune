@@ -16,6 +16,8 @@ class TrainingArguments(HFTrainingArguments):
     output_dir: str = field(
         default=None, metadata={"help": "Path to the outputs."}
     )
+
+    page_number: int = field(default=None, metadata={"help": "Only use samples from a specific page number"})
     
     cache_dir: Optional[str] = field(default=None)
     optim: str = field(default="adamw_torch")
