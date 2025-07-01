@@ -285,9 +285,14 @@ def make_supervised_data_module(model_id, processor, data_args):
     eval_dataset = SupervisedDataset(
         data_path=data_args.eval_data_path, page_number=data_args.page_number, processor=processor, data_args=data_args, model_id=model_id
     )
+
+    test_dataset = SupervisedDataset(
+        data_path=data_args.test_data_path, page_number=None, processor=processor, data_args=data_args, model_id=model_id
+    )
     
     data_collator = DataCollatorForSupervisedDataset(pad_token_id=processor.tokenizer.pad_token_id)
 
     return dict(train_dataset=sft_dataset,
                 eval_dataset=eval_dataset,
+                test_dataset=test_dataset,
                 data_collator=data_collator)
