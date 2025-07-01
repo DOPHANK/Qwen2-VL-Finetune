@@ -44,7 +44,9 @@ class SupervisedDataset(Dataset):
             list_data_dict = []
             for root, _, files in os.walk(data_path):
                 for fname in files:
-                    if fname.endswith(".json"):
+                    if fname.endswith(".json") and (
+                        PAGE_NUMBER is None or f"_page_{PAGE_NUMBER}" in fname
+                    ):
                         fpath = os.path.join(root, fname)
                         with open(fpath, "r") as f:
                             try:
