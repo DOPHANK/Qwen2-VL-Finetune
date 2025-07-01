@@ -142,6 +142,7 @@ def train():
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
     os.environ["OUTPUT_DIR"] = training_args.output_dir
+    os.environ["PAGE_NUMBER"] = training_args.page_number
     
     rank0_print(f"Activate liger: {training_args.use_liger}")
     use_liger = training_args.use_liger
