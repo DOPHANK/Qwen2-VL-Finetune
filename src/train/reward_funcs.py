@@ -10,6 +10,65 @@ def extract_key_value_pairs(text):
     return re.findall(pattern, text.strip())
 
 def accuracy_infos(completions, assistant, **kwargs):
+    """Evaluate percentage of correctly predicted VALUEs across all pages."""
+    contents = [completion[0]["content"] for completion in completions]
+    solutions = [a["content"] for a in assistant]
+    rewards = []
+    current_time = datetime.now().strftime("%d-%H-%M-%S-%f")
+
+    total_match_count = 0
+    total_value_count = 0
+
+    result_log_path = os.path.join(os.getenv("OUTPUT_DIR", "."), "results_infos.json")
+    with open(result_log_path, "a", encoding="utf-8") as f:
+        for pred_text, gt_text in zip(contents, solutions):
+            pred_kv = dict(extract_key_value_pairs(pred_text))
+            gt_kv = dict(extract_key_value_pairs(gt_text))
+
+            match_count = 0
+            total = len(gt_kv)
+            total_value_count += total
+
+            for key, gt_val in gt_kv.items():
+                pred_val = pred_kv.get(key)
+                if pred_val == gt_val:
+                    match_count += 1
+
+            total_match_count += match_count
+            reward = match_count / total if total > 0 else 0.0
+            rewards.append(reward)
+
+            # Save each page's result
+            result_record = {
+                "timestamp": current_time,
+                "ground_truth": gt_kv,
+                "prediction": pred_kv,
+                "matched_keys": match_count,
+                "total_keys": total,
+                "reward": reward
+            }
+            f.write(json.dumps(result_record, ensure_ascii=False) + "\n")
+
+            # Optional debug logging
+            if os.getenv("DEBUG_MODE") == "true":
+                log_path = os.getenv("LOG_PATH", "accuracy_infos_debug.log")
+                with open(log_path, "a") as logf:
+                    logf.write(f"\n=== {current_time} ===\n")
+                    logf.write(f"[GT  ] {gt_kv}\n")
+                    logf.write(f"[PRED] {pred_kv}\n")
+                    logf.write(f"[MATCH] {match_count} / {total} → reward = {reward}\n")
+
+    # Print or return global summary
+    if total_value_count > 0:
+        overall_accuracy = total_match_count / total_value_count
+    else:
+        overall_accuracy = 0.0
+
+    print(f"\n✅ Overall accuracy across all VALUEs: {total_match_count} / {total_value_count} → {overall_accuracy:.2%}")
+    
+    return rewards
+
+def accuracy_infos_v1(completions, assistant, **kwargs):
     """Reward function that compares only the VALUEs of KEY: VALUE pairs between predicted and ground-truth completions."""
     contents = [completion[0]["content"] for completion in completions]
     solutions = [a["content"] for a in assistant]
