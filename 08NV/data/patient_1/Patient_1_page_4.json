@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1_4",
+    "image": "/kaggle/working/images/1/4.jpg",
+    "conversations": [
+      {
+        "from": "user",
+        "value": "Picture: <image>\n/kaggle/working/images/1/4.jpg"
+      },
+      {
+        "from": "assistant",
+        "value": "<im_start>NSS_IV: False<im_end>\n<im_start>DNSS_IV_5: True<im_end>\n<im_start>ACETAR_IV: False<im_end>\n<im_start>OTH_FLUID: False<im_end>\n<im_start>OTH_FLUID_SPEC: nan<im_end>\n<im_start>ICU_ADMISSION: False<im_end>\n<im_start>BLEEDING: True<im_end>\n<im_start>ACUTE_KIDNEY_INJ: False<im_end>\n<im_start>LIVER_INJ: False<im_end>\n<im_start>VOLUME_OVERLOAD: False<im_end>\n<im_start>OTH_COMPS: True<im_end>\n<im_start>OTH_COMPS_SPEC: ELECTROLYTES IMBALANCE<im_end>\n<im_start>ET_TUBE: False<im_end>\n<im_start>NEBULIZER: False<im_end>\n<im_start>EGD: False<im_end>\n<im_start>NG_TUBE: False<im_end>\n<im_start>PLEURAL_TAPPING: False<im_end>\n<im_start>VENTILATOR_L_96H: False<im_end>\n<im_start>VENTILATOR_M_96H: False<im_end>\n<im_start>MRI: False<im_end>\n<im_start>MRI_ORGAN: nan<im_end>\n<im_start>CT: False<im_end>\n<im_start>CT_ORGAN: nan<im_end>\n<im_start>BL_TRANSFUSION: True<im_end>\n<im_start>UNIT1: nan<im_end>\n<im_start>TYPE1: nan<im_end>\n<im_start>UNIT2: nan<im_end>\n<im_start>TYPE2: nan<im_end>\n<im_start>CPR: False<im_end>\n<im_start>NG_TUBE2: False<im_end>\n<im_start>URETHRAL_CATHETER: True<im_end>\n<im_start>U_S: False<im_end>\n<im_start>U_S_ORGAN: nan<im_end>\n<im_start>HEMODIALYSIS: False<im_end>\n<im_start>DENGUE_FEVER: False<im_end>\n<im_start>DENGUE_WO_WS: False<im_end>\n<im_start>DENGUE_W_WS: False<im_end>\n<im_start>DENGUE_HEMORRHAGIC_FEV: False<im_end>\n<im_start>SEVERE_DENGUE: True<im_end>\n<im_start>RICKETTSIOSIS: False<im_end>\n<im_start>MELIOIDOSIS: False<im_end>\n<im_start>CHIKUNGUNYA: False<im_end>\n<im_start>DE_HEMORRHAGIC_FEV_NOSHOCK: False<im_end>\n<im_start>UNSPEC_BACTERIAL_INFECTION: False<im_end>\n<im_start>LEPTOSPIROSIS: False<im_end>\n<im_start>BACTEREMIA: False<im_end>\n<im_start>MALARIA: False<im_end>\n<im_start>MALARIA_SPEC: nan<im_end>\n<im_start>DE_HEMORRHAGIC_FEV_W_SHOCK: False<im_end>\n<im_start>UNSPEC_VIRAL_INFECTION: False<im_end>\n<im_start>OTH_OUTCOME_DIAG: nan<im_end>\n<im_start>DISCHARGED_HOME: True<im_end>\n<im_start>REFERRED_TO_ANOTHER: False<im_end>\n<im_start>DEAD: False<im_end>\n<im_start>OTH_NOTE: nan<im_end>"
+      }
+    ]
+  }
+]

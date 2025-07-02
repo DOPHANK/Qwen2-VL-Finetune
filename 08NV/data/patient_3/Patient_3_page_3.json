@@ -1,0 +1,16 @@
+[
+  {
+    "id": "3_3",
+    "image": "/kaggle/working/images/3/3.jpg",
+    "conversations": [
+      {
+        "from": "user",
+        "value": "Picture: <image>\n/kaggle/working/images/3/3.jpg"
+      },
+      {
+        "from": "assistant",
+        "value": "<im_start>BUN: 19.2<im_end>\n<im_start>CREATININE_SERUM: 1.14<im_end>\n<im_start>eGFR: 90.14<im_end>\n<im_start>CALCIUM: 12<im_end>\n<im_start>MAGNESIUM: 1.8<im_end>\n<im_start>PHOSPHORUS: 2.4<im_end>\n<im_start>SODIUM: 136<im_end>\n<im_start>POTASSIUM: 4.1<im_end>\n<im_start>CHLORIDE: 98<im_end>\n<im_start>CARBONDIOXIDE: 22<im_end>\n<im_start>OTHERS: nan<im_end>\n<im_start>NS1: POS<im_end>\n<im_start>DengueIgM: NEG<im_end>\n<im_start>DengueIgG: NEG<im_end>\n<im_start>MalariaThickThinF: NEG<im_end>\n<im_start>MalariaRDT: ND<im_end>\n<im_start>ChikungunyaIgM: ND<im_end>\n<im_start>ChikungunyaIgG: ND<im_end>\n<im_start>PCR: ND<im_end>\n<im_start>PCR_SPEC: nan<im_end>\n<im_start>OTH_DIAG_TEST: IN FEUENZA RAPID TEST NEGATIVE<im_end>\n<im_start>NONE_ANTIBIOTIC: False<im_end>\n<im_start>AMOXICILLIN: False<im_end>\n<im_start>DICLOXACILLIN: False<im_end>\n<im_start>AMOXICILLINCLAVULANICACID: False<im_end>\n<im_start>LEVOFLOXACIN: False<im_end>\n<im_start>CEFTRIAXONE: True<im_end>\n<im_start>CEFTAZIDIME: False<im_end>\n<im_start>CIPROFLOXACIN: False<im_end>\n<im_start>VANCOMYCIN: True<im_end>\n<im_start>MEROPENEM: True<im_end>\n<im_start>ERTAPENEM: False<im_end>\n<im_start>DOXYCYCLINE: False<im_end>\n<im_start>AZITHROMYCIN: False<im_end>\n<im_start>NORFLOXACIN: False<im_end>\n<im_start>METRONIDAZOLE: False<im_end>\n<im_start>OTH_ANTIBIOTIC: True<im_end>\n<im_start>OTH_ANTIBIOTIC_SPEC: TAZOCIN, SULPERA ZONE<im_end>"
+      }
+    ]
+  }
+]
