@@ -1,0 +1,16 @@
+[
+  {
+    "id": "4_2",
+    "image": "/08NV/images/4/2.jpg",
+    "conversations": [
+      {
+        "from": "user",
+        "value": "Picture: <image>\n/08NV/images/4/2.jpg"
+      },
+      {
+        "from": "assistant",
+        "value": "<im_start>WBC: 4.1<im_end>\n<im_start>RBC: 3.64<im_end>\n<im_start>Hb: 9.1<im_end>\n<im_start>HCT: 28.5<im_end>\n<im_start>MCV: 78.1<im_end>\n<im_start>PLT: 26<im_end>\n<im_start>BAND: 3<im_end>\n<im_start>NEU: 45<im_end>\n<im_start>LYMPH: 46<im_end>\n<im_start>MONO: 3<im_end>\n<im_start>EO: 0<im_end>\n<im_start>BASO: 0<im_end>\n<im_start>AtypLymp: 3<im_end>\n<im_start>OTH_x: nan<im_end>\n<im_start>DIRECT_BILIRUBIN: 1.2<im_end>\n<im_start>TOTAL_BILIRUBIN: 3.5<im_end>\n<im_start>TOTAL_PROTEIN: 6.3<im_end>\n<im_start>ALBUMIN: 3.8<im_end>\n<im_start>GLOBULIN: 2.5<im_end>\n<im_start>ALKALINE_PHOSPHATASE: 38<im_end>\n<im_start>AST_SGOT: 2436<im_end>\n<im_start>ALT_SGPT: 687<im_end>\n<im_start>LACTATE: 38.8<im_end>\n<im_start>OTH_y: nan<im_end>"
+      }
+    ]
+  }
+]
