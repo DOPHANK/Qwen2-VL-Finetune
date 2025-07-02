@@ -321,7 +321,9 @@ def train():
         processing_class=processor,
         args=training_args,
         compute_metrics=compute_metrics,
-        **data_module
+        train_dataset=data_module["train_dataset"],
+        eval_dataset=data_module["eval_dataset"],
+        data_collator=data_module["data_collator"],
     )
     rank0_print("QwenSFTTrainer created!")
 
