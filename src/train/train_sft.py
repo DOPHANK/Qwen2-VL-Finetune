@@ -342,19 +342,40 @@ def train():
     if data_args.test_data_path:
         print("\n🧪 Running evaluation on test set...")
     
-        # ✅ Prepare test dataset
+        # ✅ Ensure tokenizer is configured correctly for decoder-only generation
+        processor.tokenizer.padding_side = "left"
+        processor.tokenizer.pad_token = processor.tokenizer.eos_token
+    
+        # ✅ Retrieve the test dataset
         test_dataset = data_module.get("test_dataset")
+        if test_dataset is None:
+            raise ValueError("Test dataset is not available in data_module.")
     
-        # ✅ Run prediction
-        test_output = trainer.predict(test_dataset=test_dataset)
+        # ✅ Run prediction using custom generate logic inside `predict()`
+        try:
+            test_output = trainer.predict(
+                test_dataset=test_dataset,
+                metric_key_prefix="test"  # Optional, will prefix test_* in metrics
+            )
+        except Exception as e:
+            print(f"[ERROR] Failed during test prediction: {e}")
+            test_output = None
     
-        print("📊 Test Metrics:")
-        for key, val in test_output.metrics.items():
-            print(f"{key}: {val:.4f}")
+        if test_output:
+            # ✅ Log results
+            print("📊 Test Metrics:")
+            for key, val in test_output.metrics.items():
+                print(f"{key}: {val:.4f}")
     
-        # ✅ Optionally save to file
-        with open(os.path.join(training_args.output_dir, "test_metrics.json"), "w", encoding="utf-8") as f:
-            json.dump(test_output.metrics, f, indent=2)
+            # ✅ Save results to file
+            output_metrics_path = os.path.join(training_args.output_dir, "test_metrics.json")
+            try:
+                with open(output_metrics_path, "w", encoding="utf-8") as f:
+                    json.dump(test_output.metrics, f, indent=2)
+                print(f"✅ Test metrics saved to: {output_metrics_path}")
+            except Exception as e:
+                print(f"[WARN] Could not save test metrics: {e}")
+
 
 
     model.config.use_cache = True
