@@ -54,7 +54,7 @@ class QwenSFTTrainer(Trainer):
         output = self.prediction_loop(
             test_dataloader,
             description="Prediction",
-            prediction_loss_only=False,
+            prediction_loss_only=True,
             ignore_keys=ignore_keys,
             metric_key_prefix=metric_key_prefix,
         )
