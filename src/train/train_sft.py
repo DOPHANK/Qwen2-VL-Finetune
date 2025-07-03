@@ -367,7 +367,7 @@ def train():
             for key, val in test_output.metrics.items():
                 print(f"{key}: {val:.4f}")
     
-            # ✅ Save results to file
+            # ✅ Save metrics
             output_metrics_path = os.path.join(training_args.output_dir, "test_metrics.json")
             try:
                 with open(output_metrics_path, "w", encoding="utf-8") as f:
@@ -375,6 +375,23 @@ def train():
                 print(f"✅ Test metrics saved to: {output_metrics_path}")
             except Exception as e:
                 print(f"[WARN] Could not save test metrics: {e}")
+    
+            # ✅ Save predictions vs ground truth as readable text
+            from transformers import PreTrainedTokenizer
+            tokenizer: PreTrainedTokenizer = processor.tokenizer
+    
+            decoded_preds = tokenizer.batch_decode(test_output.predictions, skip_special_tokens=True)
+            decoded_labels = tokenizer.batch_decode(test_output.label_ids, skip_special_tokens=True)
+    
+            result_path = os.path.join(training_args.output_dir, "test_outputs.txt")
+            with open(result_path, "w", encoding="utf-8") as f:
+                for i, (pred, label) in enumerate(zip(decoded_preds, decoded_labels)):
+                    f.write(f"\n--- Sample {i+1} ---\n")
+                    f.write(f"[Ground Truth]:\n{label.strip()}\n")
+                    f.write(f"[Prediction   ]:\n{pred.strip()}\n")
+    
+            print(f"✅ Test predictions saved to: {result_path}")
+
 
 
 
