@@ -377,8 +377,6 @@ def train():
                 print(f"[WARN] Could not save test metrics: {e}")
     
             # ✅ Save predictions vs ground truth as readable text
-            from transformers import PreTrainedTokenizer
-            tokenizer: PreTrainedTokenizer = processor.tokenizer
     
             decoded_preds = tokenizer.batch_decode(test_output.predictions, skip_special_tokens=True)
             decoded_labels = tokenizer.batch_decode(test_output.label_ids, skip_special_tokens=True)
