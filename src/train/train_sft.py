@@ -357,6 +357,7 @@ def train():
             inputs = {k: v.to(training_args.device) for k, v in inputs.items()}
 
             rank0_print("Generating...")
+            model.eval()
             generated_ids = model.generate(
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs["attention_mask"],
