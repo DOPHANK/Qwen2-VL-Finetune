@@ -349,7 +349,7 @@ def train():
             
             rank0_print("Processing...")
             inputs = processor(
-                test_prompt,
+                text=test_prompt,
                 images=test_image,
                 padding=False,
                 return_tensors="pt"
