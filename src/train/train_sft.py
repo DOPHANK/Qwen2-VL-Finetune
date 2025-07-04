@@ -375,11 +375,6 @@ def train():
             for i, text in enumerate(output_texts):
                 rank0_print(f"[Sample {i + 1}]: {text}")
 
-            # Save output
-            single_out_path = os.path.join(training_args.output_dir, "single_inference_output.txt")
-            with open(single_out_path, "w", encoding="utf-8") as f:
-                f.write(output_text)
-            print(f"✅ Output saved to: {single_out_path}")
         except Exception as e:
             print(f"[ERROR] Failed during single image inference: {e}")
 
