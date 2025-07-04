@@ -338,60 +338,36 @@ def train():
 
     trainer.save_state()
 
-    # 👇 Evaluate on test set if test_data_path is provided
-    if data_args.test_data_path:
-        print("\n🧪 Running evaluation on test set...")
-    
-        # ✅ Ensure tokenizer is configured correctly for decoder-only generation
-        processor.tokenizer.padding_side = "left"
-        processor.tokenizer.pad_token = processor.tokenizer.eos_token
-    
-        # ✅ Retrieve the test dataset
-        test_dataset = data_module.get("test_dataset")
-        if test_dataset is None:
-            raise ValueError("Test dataset is not available in data_module.")
-    
-        # ✅ Run prediction using custom generate logic inside `predict()`
+    # === Custom single image generation test ===
+    if getattr(data_args, "inference_image_path", None):
+        print("\n🖼️ Running test inference on single image...")
+
+        from PIL import Image
+
+        prompt_text = "Picture: <image>\n"
+
         try:
-            test_output = trainer.predict(
-                test_dataset=test_dataset,
-                metric_key_prefix="test"  # Optional, will prefix test_* in metrics
-            )
+            image = Image.open(data_args.inference_image_path).convert("RGB")
+            single_inputs = processor(prompt_text, images=image, return_tensors="pt").to(model.device)
+
+            with torch.no_grad():
+                generated_ids = model.generate(
+                    **single_inputs,
+                    max_new_tokens=512,
+                    do_sample=False,
+                )
+            
+            output_text = processor.tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+            print("\n🧾 Generated Output:")
+            print(output_text)
+
+            # Save output
+            single_out_path = os.path.join(training_args.output_dir, "single_inference_output.txt")
+            with open(single_out_path, "w", encoding="utf-8") as f:
+                f.write(output_text)
+            print(f"✅ Output saved to: {single_out_path}")
         except Exception as e:
-            print(f"[ERROR] Failed during test prediction: {e}")
-            test_output = None
-    
-        if test_output:
-            # ✅ Log results
-            print("📊 Test Metrics:")
-            for key, val in test_output.metrics.items():
-                print(f"{key}: {val:.4f}")
-    
-            # ✅ Save metrics
-            output_metrics_path = os.path.join(training_args.output_dir, "test_metrics.json")
-            try:
-                with open(output_metrics_path, "w", encoding="utf-8") as f:
-                    json.dump(test_output.metrics, f, indent=2)
-                print(f"✅ Test metrics saved to: {output_metrics_path}")
-            except Exception as e:
-                print(f"[WARN] Could not save test metrics: {e}")
-    
-            # ✅ Save predictions vs ground truth as readable text
-    
-            decoded_preds = tokenizer.batch_decode(test_output.predictions, skip_special_tokens=True)
-            decoded_labels = tokenizer.batch_decode(test_output.label_ids, skip_special_tokens=True)
-    
-            result_path = os.path.join(training_args.output_dir, "test_outputs.txt")
-            with open(result_path, "w", encoding="utf-8") as f:
-                for i, (pred, label) in enumerate(zip(decoded_preds, decoded_labels)):
-                    f.write(f"\n--- Sample {i+1} ---\n")
-                    f.write(f"[Ground Truth]:\n{label.strip()}\n")
-                    f.write(f"[Prediction   ]:\n{pred.strip()}\n")
-    
-            print(f"✅ Test predictions saved to: {result_path}")
-
-
-
+            print(f"[ERROR] Failed during single image inference: {e}")
 
     model.config.use_cache = True
 
