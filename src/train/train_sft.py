@@ -369,8 +369,7 @@ def train():
             )
 
             rank0_print("Computing output text...")
-            decoded = processor.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-            output_text = decoded[0]
+            output_text = processor.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
             print("\n🧠🧾 Generated Output:")
             print(output_text)
 
