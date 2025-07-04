@@ -344,7 +344,7 @@ def train():
         rank0_print("\n🖼️ Running test inference on single image...")
 
         try:
-            test_prompt = "Picture: <image>\n{data_args.inference_image_path}"
+            test_prompt = "Give results for these tests"
             test_image = Image.open(data_args.inference_image_path).convert("RGB")
             
             rank0_print("Processing...")
