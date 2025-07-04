@@ -369,9 +369,11 @@ def train():
             )
 
             rank0_print("Computing output text...")
-            output_text = processor.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-            print("\n🧠🧾 Generated Output:")
-            print(output_text)
+            output_texts = processor.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+
+            rank0_print("\n🧠🧾 Generated Output:")
+            for i, text in enumerate(output_texts):
+                rank0_print(f"[Sample {i + 1}]: {text}")
 
             # Save output
             single_out_path = os.path.join(training_args.output_dir, "single_inference_output.txt")
