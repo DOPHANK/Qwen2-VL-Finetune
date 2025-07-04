@@ -341,7 +341,7 @@ def train():
 
     # === Custom single image generation test ===
     if getattr(data_args, "inference_image_path", None):
-        print("\n🖼️ Running test inference on single image...")]        
+        print("\n🖼️ Running test inference on single image...")
 
         try:
             test_prompt = "Picture: <image>\n{inference_image_path}"
