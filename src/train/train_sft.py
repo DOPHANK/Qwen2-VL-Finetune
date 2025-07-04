@@ -341,28 +341,30 @@ def train():
 
     # === Custom single image generation test ===
     if getattr(data_args, "inference_image_path", None):
-        print("\n🖼️ Running test inference on single image...")
-
-        prompt_text = "Picture: <image>\n"
+        print("\n🖼️ Running test inference on single image...")]        
 
         try:
-            image = Image.open(data_args.inference_image_path).convert("RGB")
+            test_prompt = "Picture: <image>\n{inference_image_path}"
+            test_image = Image.open(data_args.inference_image_path).convert("RGB")
             
-            single_inputs = processor(
-                text=prompt_text,
-                images=image,
+            inputs = processor(
+                text=[test_prompt],
+                images=[test_image],
+                padding=False,
                 return_tensors="pt"
-            ).to(model.device)
+            )
+            for k in inputs:
+                inputs[k] = inputs[k].to(training_args.device)
+    
+            generated_ids = model.generate(
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs["attention_mask"],
+                max_new_tokens=128
+            )
 
-            with torch.no_grad():
-                generated_ids = model.generate(
-                    **single_inputs,
-                    max_new_tokens=512,
-                    do_sample=False,
-                )
-            
-            output_text = processor.tokenizer.decode(generated_ids[0], skip_special_tokens=True)
-            print("\n🧾 Generated Output:")
+            decoded = processor.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+            output_text = decoded[0]
+            print("\n🧠🧾 Generated Output:")
             print(output_text)
 
             # Save output
