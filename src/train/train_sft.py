@@ -330,7 +330,7 @@ def train():
 
     rank0_print("Model type:", type(model))
 
-    print(f"Pad token ID: {tokenizer.pad_token_id}")
+    rank0_print(f"Pad token ID: {tokenizer.pad_token_id}")
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=False)
@@ -341,12 +341,13 @@ def train():
 
     # === Custom single image generation test ===
     if getattr(data_args, "inference_image_path", None):
-        print("\n🖼️ Running test inference on single image...")
+        rank0_print("\n🖼️ Running test inference on single image...")
 
         try:
             test_prompt = "Picture: <image>\n"
             test_image = Image.open(data_args.inference_image_path).convert("RGB")
             
+            rank0_print("Processing...")
             inputs = processor(
                 text=[test_prompt],
                 images=[test_image],
@@ -355,13 +356,15 @@ def train():
             )
             for k in inputs:
                 inputs[k] = inputs[k].to(training_args.device)
-    
+
+            rank0_print("Generating...")
             generated_ids = model.generate(
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs["attention_mask"],
                 max_new_tokens=128
             )
 
+            rank0_print("Computing output text...")
             decoded = processor.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
             output_text = decoded[0]
             print("\n🧠🧾 Generated Output:")
