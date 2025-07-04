@@ -344,18 +344,17 @@ def train():
         rank0_print("\n🖼️ Running test inference on single image...")
 
         try:
-            test_prompt = "Picture: <image>\n"
+            test_prompt = "Picture: <image>\n{data_args.inference_image_path}"
             test_image = Image.open(data_args.inference_image_path).convert("RGB")
             
             rank0_print("Processing...")
             inputs = processor(
-                text=[test_prompt],
-                images=[test_image],
+                test_prompt,
+                images=test_image,
                 padding=False,
                 return_tensors="pt"
             )
-            for k in inputs:
-                inputs[k] = inputs[k].to(training_args.device)
+            inputs = {k: v.to(training_args.device) for k, v in inputs.items()}
 
             rank0_print("Generating...")
             generated_ids = model.generate(
