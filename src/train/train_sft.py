@@ -15,6 +15,7 @@ from torch.nn import CrossEntropyLoss
 import deepspeed
 from src.train.reward_funcs import accuracy_reward, format_reward, accuracy_infos
 import numpy as np
+from PIL import Image
 
 local_rank = None
 
@@ -342,13 +343,16 @@ def train():
     if getattr(data_args, "inference_image_path", None):
         print("\n🖼️ Running test inference on single image...")
 
-        from PIL import Image
-
         prompt_text = "Picture: <image>\n"
 
         try:
             image = Image.open(data_args.inference_image_path).convert("RGB")
-            single_inputs = processor(prompt_text, images=image, return_tensors="pt").to(model.device)
+            
+            single_inputs = processor(
+                text=prompt_text,
+                images=image,
+                return_tensors="pt"
+            ).to(model.device)
 
             with torch.no_grad():
                 generated_ids = model.generate(
