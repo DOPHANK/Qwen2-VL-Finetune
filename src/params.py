@@ -183,6 +183,11 @@ class DataArguments:
     test_data_path: str = field(
         default=None, metadata={"help": "Path to the test data."}
     )
+    inference_image_path: Optional[str] = field(
+        default=None,
+        metadata={"help": "Path to an image for one-shot inference after training."}
+    )
+
     
     page_number: int = field(default=None, metadata={"help": "Only use samples from a specific page number"})
     
