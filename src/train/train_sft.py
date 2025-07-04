@@ -344,7 +344,7 @@ def train():
         print("\n🖼️ Running test inference on single image...")
 
         try:
-            test_prompt = "Picture: <image>\n{inference_image_path}"
+            test_prompt = "Picture: <image>\n"
             test_image = Image.open(data_args.inference_image_path).convert("RGB")
             
             inputs = processor(
