@@ -344,7 +344,7 @@ def train():
         rank0_print("\n🖼️ Running test inference on single image...")
 
         try:
-            test_prompt = "Look at the following image and extract information in it: {data_args.inference_image_path}"
+            test_prompt = "<image>\nExtract and list the filled information from this form as KEY: VALUE pairs."
             test_image = Image.open(data_args.inference_image_path).convert("RGB")
             
             rank0_print("Processing...")
