@@ -350,12 +350,23 @@ def train():
             rank0_print("Processing...")
             inputs = processor(
                 text=test_prompt,
-                images=test_image,
+                images=[test_image],
                 padding=False,
                 return_tensors="pt"
             )
             inputs = {k: v.to(training_args.device) for k, v in inputs.items()}
 
+            rank0_print("Text: ")
+            rank0_print(inputs["input_ids"])
+            rank0_print(processor.tokenizer.decode(inputs["input_ids"][0]))
+            
+            rank0_print(inputs.keys())
+
+            rank0_print("Image: ")
+            rank0_print(processor.tokenizer.special_tokens_map)
+            rank0_print(processor.tokenizer.convert_tokens_to_ids("<image>"))
+
+            
             rank0_print("Generating...")
             model.eval()
             generated_ids = model.generate(
