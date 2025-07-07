@@ -361,7 +361,7 @@ def train():
             generated_ids = model.generate(
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs["attention_mask"],
-                max_new_tokens=64,                   # reduce from 128 to 64 (or even lower)
+                max_new_tokens=32,                   # reduce from 128 to 64 (or even lower)
                 do_sample=False,                     # greedy decoding
                 num_beams=1,                         # beam search off
                 early_stopping=True,                # stop early if EOS is generated
