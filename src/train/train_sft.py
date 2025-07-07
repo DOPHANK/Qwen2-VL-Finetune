@@ -397,7 +397,7 @@ def train():
             ]
 
             rank0_print("Computing output text...")
-            output_text = processor.batch_decode(
+            output_texts = processor.batch_decode(
                 generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )
 
