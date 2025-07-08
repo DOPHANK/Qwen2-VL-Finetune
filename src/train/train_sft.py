@@ -350,17 +350,16 @@ def train():
 
         try:
             from qwen_vl_utils import process_vision_info
-        
+
+            test_image = Image.open(data_args.inference_image_path).convert("RGB")
+
             messages = [
                 {
                     "role": "user",
                     "content": [
-                        {
-                            "type": "image",
-                            "image": data_args.inference_image_path,
-                        },
-                        {"type": "text", "text": "Extract and list the filled information from this form as KEY: VALUE pairs."},
-                    ],
+                        {"type": "image", "image": test_image},
+                        {"type": "text", "text": "Extract and list the filled information from this form as KEY: VALUE pairs."}
+                    ]
                 }
             ]
             
@@ -378,8 +377,7 @@ def train():
                 videos=video_inputs,
                 padding=True,
                 return_tensors="pt",
-            )
-            inputs = inputs.to(model.device)
+            ).to(model.device)
 
             rank0_print("Text: ")
             rank0_print(inputs["input_ids"])
@@ -394,7 +392,9 @@ def train():
             # Inference: Generation of the output
             rank0_print("Generating...")
             
-            generated_ids = model.generate(**inputs, max_new_tokens=128,
+            generated_ids = model.generate(**inputs,
+                                           max_new_tokens=128,
+                                           do_sample=False,
                                            pad_token_id=processor.tokenizer.pad_token_id,
                                            eos_token_id=processor.tokenizer.eos_token_id
                                           )
