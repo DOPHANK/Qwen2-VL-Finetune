@@ -4,12 +4,12 @@ import logging
 from PIL import Image
 import torch
 from transformers import HfArgumentParser, set_seed
-from src.data.sft_dataset import make_supervised_data_module, process_vision_info
+from src.dataset.sft_dataset import make_supervised_data_module, process_vision_info
 from src.trainer.sft_trainer import QwenSFTTrainer
-from src.utils.params import DataArguments, ModelArguments, TrainingArguments
+from src.params import DataArguments, ModelArguments, TrainingArguments
 from peft import PeftModel
 from transformers import AutoProcessor, AutoTokenizer, Qwen2_5_VLForConditionalGeneration
-from src.reward.reward_funcs import reward_accuracy, infos_accuracy
+from src.train.reward_funcs import reward_accuracy, infos_accuracy
 
 logger = logging.getLogger(__name__)
 
