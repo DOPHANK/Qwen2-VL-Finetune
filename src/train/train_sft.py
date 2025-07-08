@@ -344,40 +344,64 @@ def train():
         rank0_print("\n🖼️ Running test inference on single image...")
 
         try:
-            test_image = Image.open(data_args.inference_image_path).convert("RGB")
-
-            # ✅ Construct prompt with special tokens to match training style
-            prompt = (
-                "<|im_start|>user\n"
-                "<|vision_start|><|image_pad|>" * 32 + "<|vision_end|>\n"  # Simulated vision tokens
-                "Extract and list the filled information from this form as KEY: VALUE pairs.\n"
-                "<|im_end|>"
-            )
-    
+            from qwen_vl_utils import process_vision_info
+        
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "image": data_args.inference_image_path,
+                        },
+                        {"type": "text", "text": "Extract and list the filled information from this form as KEY: VALUE pairs."},
+                    ],
+                }
+            ]
+            
+            # Preparation for inference
             rank0_print("Processing...")
+            
+            text = processor.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
+            image_inputs, video_inputs = process_vision_info(messages)
+
             inputs = processor(
-                text=prompt,
-                images=test_image,
-                return_tensors="pt"
+                text=[text],
+                images=image_inputs,
+                videos=video_inputs,
+                padding=True,
+                return_tensors="pt",
             )
-            inputs = {k: v.to(training_args.device) for k, v in inputs.items()}
-    
+            inputs = inputs.to(model.device)
+
+            rank0_print("Text: ")
+            rank0_print(inputs["input_ids"])
+            rank0_print(processor.tokenizer.decode(inputs["input_ids"][0]))
+            
+            rank0_print(inputs.keys())
+
+            rank0_print("Image: ")
+            rank0_print(processor.tokenizer.special_tokens_map)
+            rank0_print(processor.tokenizer.convert_tokens_to_ids("<image>"))
+            
+            # Inference: Generation of the output
             rank0_print("Generating...")
-            model.eval()
-            generated_ids = model.generate(
-                input_ids=inputs["input_ids"],
-                attention_mask=inputs["attention_mask"],
-                max_new_tokens=64,
-                do_sample=False,
-                num_beams=1,
-                early_stopping=True,
-                pad_token_id=processor.tokenizer.pad_token_id,
-                eos_token_id=processor.tokenizer.eos_token_id
+            
+            generated_ids = model.generate(**inputs, max_new_tokens=128,
+                                           pad_token_id=processor.tokenizer.pad_token_id,
+                                           eos_token_id=processor.tokenizer.eos_token_id
+                                          )
+            generated_ids_trimmed = [
+                out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
+            ]
+
+            rank0_print("Computing output text...")
+            output_texts = processor.batch_decode(
+                generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )
-    
-            rank0_print("Decoding output...")
-            output_texts = processor.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-    
+            
             rank0_print("\n🧠🧾 Generated Output:")
             for i, text in enumerate(output_texts):
                 rank0_print(f"[Sample {i + 1}]: {text}")
