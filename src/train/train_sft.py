@@ -398,6 +398,14 @@ def train():
                                            pad_token_id=processor.tokenizer.pad_token_id,
                                            eos_token_id=processor.tokenizer.eos_token_id
                                           )
+            rank0_print("Generated:", generated_ids)
+            output_texts = processor.batch_decode(
+                generated_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
+            )
+            rank0_print("\n🧠🧾 Generated ids:")
+            for i, text in enumerate(output_texts):
+                rank0_print(f"[Sample {i + 1}]: {text}")
+            
             generated_ids_trimmed = [
                 out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
             ]
