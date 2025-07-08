@@ -117,10 +117,6 @@ def compute_metrics(eval_preds):
                     print(f"\n📝 Example {i+1}:")
                     print("🧠 Prediction:", decoded_preds[i])
                     print("🎯 Ground Truth:", decoded_labels[i])
-
-        print("\n📊 Validation Metrics:")
-        for key, val in predictions_output.metrics.items():
-            print(f"{key}: {val:.4f}")
     except Exception as e:
         raise RuntimeError(f"❌ Failed to decode predictions/labels: {e}")
 
