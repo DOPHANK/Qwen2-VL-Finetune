@@ -17,6 +17,8 @@ from src.train.reward_funcs import accuracy_reward, format_reward, accuracy_info
 import numpy as np
 from PIL import Image
 
+from qwen_vl_utils import process_vision_info
+
 logger = logging.getLogger(__name__)
 
 
