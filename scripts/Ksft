@@ -14,8 +14,8 @@ MODEL_NAME = "Qwen/Qwen2.5-VL-3B-Instruct"
 DATA_PATH = "08NV/fine_tune/train"
 IMAGE_FOLDER = "08NV/images"
 
-!accelerate launch "08NV/src/train/train_sft.py" \
-    --deepspeed '08NV/scripts/zero2_offload.json' \
+!accelerate launch "/src/train/train_sft.py" \
+    --deepspeed '/scripts/zero2_offload.json' \
     --use_liger False \
     --data_path "$DATA_PATH" \
     --model_id "$MODEL_NAME" \
