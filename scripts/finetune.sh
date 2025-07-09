@@ -1,7 +1,4 @@
 #!/bin/bash
-import os
-import torch
-
 torch.cuda.empty_cache()
 
 os.environ["FLASH_ATTENTION_FORCE_DISABLED"] = "1"
