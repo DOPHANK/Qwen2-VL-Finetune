@@ -1,25 +1,33 @@
 #!/bin/bash
-torch.cuda.empty_cache()
 
-os.environ["FLASH_ATTENTION_FORCE_DISABLED"] = "1"
-os.environ["WANDB_MODE"] = "disabled"
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
-os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# Set environment variables
+export FLASH_ATTENTION_FORCE_DISABLED=1
+export WANDB_MODE=disabled
+export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
+export CUDA_LAUNCH_BLOCKING=1
+export CUDA_VISIBLE_DEVICES=0
 
-MODEL_OUTPUT = "output_model"
-os.makedirs(MODEL_OUTPUT, exist_ok=True)
+# Define variables
+MODEL_OUTPUT="output_model"
+MODEL_NAME="Qwen/Qwen2.5-VL-3B-Instruct"
+DATA_PATH="08NV/fine_tune/train"
+IMAGE_FOLDER="08NV/images"
+EVAL_DATA_PATH="08NV/fine_tune/validation"
+INFERENCE_IMAGE_PATH="08NV/images/1/4.jpg"
 
-MODEL_NAME = "Qwen/Qwen2.5-VL-3B-Instruct"
-DATA_PATH = "08NV/fine_tune/train"
-IMAGE_FOLDER = "08NV/images"
+# Make sure output directory exists
+mkdir -p "$MODEL_OUTPUT"
 
-!accelerate launch "/src/train/train_sft.py" \
-    --deepspeed '/scripts/zero2_offload.json' \
+# Clear GPU cache using Python (optional)
+python3 -c "import torch; torch.cuda.empty_cache()"
+
+# Run training
+accelerate launch --num_processes=1 --main_process_port=29501 /root/Qwen2-VL-Finetune-1/src/train/train_sft.py \
+    --deepspeed /scripts/zero2_offload.json \
     --use_liger False \
-    --data_path "$DATA_PATH" \
-    --model_id "$MODEL_NAME" \
-    --image_folder "$IMAGE_FOLDER" \
+    --data_path 08NV/fine_tune/train \
+    --model_id $MODEL_NAME \
+    --image_folder 08NV/images \
     --page_number 4 \
     --remove_unused_columns False \
     --freeze_vision_tower False \
@@ -29,7 +37,7 @@ IMAGE_FOLDER = "08NV/images"
     --fp16 True \
     --lora_enable True \
     --disable_flash_attn2 True \
-    --output_dir "$MODEL_OUTPUT" \
+    --output_dir $MODEL_OUTPUT \
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
     --tf32 False \
@@ -49,6 +57,6 @@ IMAGE_FOLDER = "08NV/images"
     --lora_namespan_exclude "['embed_tokens,lm_head']" \
     --num_train_epochs 1 \
     --do_eval True \
-    --eval_strategy 'epoch' \
-    --eval_data_path "08NV/fine_tune/validation" \
-    --inference_image_path "08NV/images/1/4.jpg"
+    --eval_strategy "epoch" \
+    --eval_data_path 08NV/fine_tune/validation \
+    --inference_image_path 08NV/images/1/4.jpg
