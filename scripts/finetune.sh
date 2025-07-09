@@ -1,49 +1,57 @@
 #!/bin/bash
+import os
+import torch
 
-# You can use 2B instead of 7B
-# MODEL_NAME="Qwen/Qwen2-VL-7B-Instruct"
-# MODEL_NAME="Qwen/Qwen2-VL-2B-Instruct"
-MODEL_NAME="Qwen/Qwen2.5-VL-3B-Instruct"
-# MODEL_NAME="Qwen/Qwen2.5-VL-7B-Instruct"
+torch.cuda.empty_cache()
 
-GLOBAL_BATCH_SIZE=128
-BATCH_PER_DEVICE=4
-NUM_DEVICES=8
-GRAD_ACCUM_STEPS=$((GLOBAL_BATCH_SIZE / (BATCH_PER_DEVICE * NUM_DEVICES)))
+os.environ["FLASH_ATTENTION_FORCE_DISABLED"] = "1"
+os.environ["WANDB_MODE"] = "disabled"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-export PYTHONPATH=src:$PYTHONPATH
+MODEL_OUTPUT = "output_model"
+os.makedirs(MODEL_OUTPUT, exist_ok=True)
 
-deepspeed src/train/train_sft.py \
-    --use_liger True \
-    --deepspeed scripts/zero3_offload.json \
-    --model_id $MODEL_NAME \
-    --data_path /path/to/your/training/data.json \
-    --image_folder /path/to/your/image/folder \
+MODEL_NAME = "Qwen/Qwen2.5-VL-3B-Instruct"
+DATA_PATH = "08NV/fine_tune/train"
+IMAGE_FOLDER = "08NV/images"
+
+!accelerate launch "/src/train/train_sft.py" \
+    --deepspeed '/scripts/zero2_offload.json' \
+    --use_liger False \
+    --data_path "$DATA_PATH" \
+    --model_id "$MODEL_NAME" \
+    --image_folder "$IMAGE_FOLDER" \
+    --page_number 4 \
     --remove_unused_columns False \
     --freeze_vision_tower False \
-    --freeze_llm False \
+    --freeze_llm True \
     --freeze_merger False \
-    --bf16 True \
-    --fp16 False \
-    --disable_flash_attn2 False \
-    --output_dir output/test_fft \
-    --num_train_epochs 1 \
-    --per_device_train_batch_size $BATCH_PER_DEVICE \
-    --gradient_accumulation_steps $GRAD_ACCUM_STEPS \
-    --image_min_pixels $((512 * 28 * 28)) \
-    --image_max_pixels $((1280 * 28 * 28)) \
-    --learning_rate 1e-5 \
-    --merger_lr 1e-5 \
-    --vision_lr 2e-6 \
-    --weight_decay 0.1 \
-    --warmup_ratio 0.03 \
+    --bf16 False \
+    --fp16 True \
+    --lora_enable True \
+    --disable_flash_attn2 True \
+    --output_dir "$MODEL_OUTPUT" \
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
-    --tf32 True \
+    --tf32 False \
     --gradient_checkpointing True \
-    --report_to tensorboard \
-    --lazy_preprocess True \
-    --save_strategy "steps" \
-    --save_steps 200 \
+    --save_strategy "epoch" \
+    --save_steps 10 \
     --save_total_limit 10 \
-    --dataloader_num_workers 4
+    --dataloader_num_workers 0 \
+    --per_device_train_batch_size 1 \
+    --fp16_full_eval False \
+    --image_min_pixels 1372 \
+    --image_max_pixels 1372 \
+    --bits 4 \
+    --quant_type nf4 \
+    --optim adamw_torch_fused \
+    --optim_target_modules "q_proj,v_proj,o_proj" \
+    --lora_namespan_exclude "['embed_tokens,lm_head']" \
+    --num_train_epochs 1 \
+    --do_eval True \
+    --eval_strategy 'epoch' \
+    --eval_data_path "08NV/fine_tune/validation" \
+    --inference_image_path "08NV/images/1/4.jpg"
