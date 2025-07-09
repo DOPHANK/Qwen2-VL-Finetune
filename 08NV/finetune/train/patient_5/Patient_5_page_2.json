@@ -1,0 +1,16 @@
+[
+  {
+    "id": "5_2",
+    "image": "/08NV/images/5/2.jpg",
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<image>\nExtract and list the filled information from this form as KEY: VALUE pairs."
+      },
+      {
+        "from": "assistant",
+        "value": "<im_start>WBC: 2.6<im_end>\n<im_start>RBC: 4.28<im_end>\n<im_start>Hb: 11.4<im_end>\n<im_start>HCT: 33.6<im_end>\n<im_start>MCV: 78.4<im_end>\n<im_start>PLT: 37<im_end>\n<im_start>BAND: 3<im_end>\n<im_start>NEU: 52<im_end>\n<im_start>LYMPH: 32<im_end>\n<im_start>MONO: 3<im_end>\n<im_start>EO: 0<im_end>\n<im_start>BASO: 0<im_end>\n<im_start>AtypLymp: 10<im_end>\n<im_start>OTH_x: nan<im_end>\n<im_start>DIRECT_BILIRUBIN: 0.5<im_end>\n<im_start>TOTAL_BILIRUBIN: 0.9<im_end>\n<im_start>TOTAL_PROTEIN: 5.8<im_end>\n<im_start>ALBUMIN: 3.4<im_end>\n<im_start>GLOBULIN: 2.4<im_end>\n<im_start>ALKALINE_PHOSPHATASE: 61<im_end>\n<im_start>AST_SGOT: 834<im_end>\n<im_start>ALT_SGPT: 301<im_end>\n<im_start>LACTATE: 14.9<im_end>\n<im_start>OTH_y: nan<im_end>"
+      }
+    ]
+  }
+]

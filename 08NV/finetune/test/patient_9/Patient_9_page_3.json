@@ -1,0 +1,16 @@
+[
+  {
+    "id": "9_3",
+    "image": "/08NV/images/9/3.jpg",
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<image>\nExtract and list the filled information from this form as KEY: VALUE pairs."
+      },
+      {
+        "from": "assistant",
+        "value": "<im_start>BUN: nan<im_end>\n<im_start>CREATININE_SERUM: nan<im_end>\n<im_start>eGFR: nan<im_end>\n<im_start>CALCIUM: 8.1<im_end>\n<im_start>MAGNESIUM: 2.5<im_end>\n<im_start>PHOSPHORUS: 3.3<im_end>\n<im_start>SODIUM: 136<im_end>\n<im_start>POTASSIUM: 3.9<im_end>\n<im_start>CHLORIDE: nan<im_end>\n<im_start>CARBONDIOXIDE: 25<im_end>\n<im_start>OTHERS: nan<im_end>\n<im_start>NS1: POS<im_end>\n<im_start>DengueIgM: NEG<im_end>\n<im_start>DengueIgG: NEG<im_end>\n<im_start>MalariaThickThinF: ND<im_end>\n<im_start>MalariaRDT: ND<im_end>\n<im_start>ChikungunyaIgM: ND<im_end>\n<im_start>ChikungunyaIgG: ND<im_end>\n<im_start>PCR: ND<im_end>\n<im_start>PCR_SPEC: nan<im_end>\n<im_start>OTH_DIAG_TEST: IFA SCRUB TYPHUS. IGG IGM NEGATIVE    IFA MURINN TYPHUS IGG IGM NEGATIVE<im_end>\n<im_start>NONE_ANTIBIOTIC: False<im_end>\n<im_start>AMOXICILLIN: False<im_end>\n<im_start>DICLOXACILLIN: False<im_end>\n<im_start>AMOXICILLINCLAVULANICACID: False<im_end>\n<im_start>LEVOFLOXACIN: False<im_end>\n<im_start>CEFTRIAXONE: False<im_end>\n<im_start>CEFTAZIDIME: False<im_end>\n<im_start>CIPROFLOXACIN: False<im_end>\n<im_start>VANCOMYCIN: True<im_end>\n<im_start>MEROPENEM: True<im_end>\n<im_start>ERTAPENEM: False<im_end>\n<im_start>DOXYCYCLINE: False<im_end>\n<im_start>AZITHROMYCIN: True<im_end>\n<im_start>NORFLOXACIN: False<im_end>\n<im_start>METRONIDAZOLE: False<im_end>\n<im_start>OTH_ANTIBIOTIC: True<im_end>\n<im_start>OTH_ANTIBIOTIC_SPEC: SULPERAZONE , COLISTIN , TAZOCIN<im_end>"
+      }
+    ]
+  }
+]
