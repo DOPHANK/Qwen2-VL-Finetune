@@ -25,8 +25,8 @@ cd /kaggle/working/Qwen2-VL-Finetune/
 ls
 
 # Run training
-accelerate launch /src/train/train_sft.py \
-    --deepspeed /scripts/zero2_offload.json \
+accelerate launch src/train/train_sft.py \
+    --deepspeed scripts/zero2_offload.json \
     --use_liger False \
     --data_path $DATA_PATH \
     --model_id $MODEL_NAME \
