@@ -6,6 +6,7 @@ export WANDB_MODE=disabled
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export CUDA_LAUNCH_BLOCKING=1
 export CUDA_VISIBLE_DEVICES=0
+export PYTHONPATH=src:$PYTHONPATH
 
 # Define variables
 MODEL_OUTPUT="output_model"
