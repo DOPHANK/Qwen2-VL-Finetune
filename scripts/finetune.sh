@@ -6,7 +6,6 @@ export WANDB_MODE=disabled
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export CUDA_LAUNCH_BLOCKING=1
 export CUDA_VISIBLE_DEVICES=0
-export PYTHONPATH="/kaggle/working/Qwen2-VL-Finetune/"
 
 # Define variables
 MODEL_OUTPUT="output_model"
@@ -21,6 +20,8 @@ mkdir -p "$MODEL_OUTPUT"
 
 # Clear GPU cache using Python (optional)
 python3 -c "import torch; torch.cuda.empty_cache()"
+
+cd /kaggle/working/Qwen2-VL-Finetune || exit 1
 
 # Run training
 accelerate launch /src/train/train_sft.py \
