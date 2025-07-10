@@ -131,7 +131,7 @@ class SupervisedDataset(Dataset):
             images=None
             videos=None
 
-        conversations = item["conversations"]  # already a list
+        conversations = sources["conversations"]  # already a list
         sources = copy.deepcopy(llava_to_openai(conversations, is_video=is_video))
 
         # sources = copy.deepcopy(llava_to_openai(sources['conversations'], is_video=is_video))
