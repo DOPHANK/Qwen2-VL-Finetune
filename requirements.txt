@@ -111,6 +111,3 @@ widgetsnbextension==4.0.14
 xxhash==3.5.0
 yarl==1.20.0
 zipp==3.21.0
-qwen-vl-utils
-math_verify
-mpi4py
