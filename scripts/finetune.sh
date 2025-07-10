@@ -23,12 +23,12 @@ mkdir -p "$MODEL_OUTPUT"
 python3 -c "import torch; torch.cuda.empty_cache()"
 
 # Run training
-accelerate launch --num_processes=1 --main_process_port=29501 /Qwen2-VL-Finetune/src/train/train_sft.py \
+accelerate launch /kaggle/working/Qwen2-VL-Finetune/src/train/train_sft.py \
     --deepspeed /scripts/zero2_offload.json \
     --use_liger False \
-    --data_path 08NV/fine_tune/train \
+    --data_path $DATA_PATH \
     --model_id $MODEL_NAME \
-    --image_folder 08NV/images \
+    --image_folder $IMAGE_FOLDER \
     --page_number 4 \
     --remove_unused_columns False \
     --freeze_vision_tower False \
@@ -59,5 +59,5 @@ accelerate launch --num_processes=1 --main_process_port=29501 /Qwen2-VL-Finetune
     --num_train_epochs 1 \
     --do_eval True \
     --eval_strategy "epoch" \
-    --eval_data_path 08NV/fine_tune/validation \
-    --inference_image_path 08NV/images/1/4.jpg
+    --eval_data_path $EVAL_DATA_PATH \
+    --inference_image_path $INFERENCE_IMAGE_PATH
