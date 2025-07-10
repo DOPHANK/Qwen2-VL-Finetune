@@ -22,7 +22,7 @@ mkdir -p "$MODEL_OUTPUT"
 python3 -c "import torch; torch.cuda.empty_cache()"
 
 # Run training
-accelerate launch --num_processes=1 --main_process_port=29501 /root/Qwen2-VL-Finetune-1/src/train/train_sft.py \
+accelerate launch --num_processes=1 --main_process_port=29501 /Qwen2-VL-Finetune/src/train/train_sft.py \
     --deepspeed /scripts/zero2_offload.json \
     --use_liger False \
     --data_path 08NV/fine_tune/train \
