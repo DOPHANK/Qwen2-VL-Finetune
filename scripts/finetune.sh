@@ -6,7 +6,7 @@ export WANDB_MODE=disabled
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export CUDA_LAUNCH_BLOCKING=1
 export CUDA_VISIBLE_DEVICES=0
-export PYTHONPATH=src:$PYTHONPATH
+export PYTHONPATH="/kaggle/working/Qwen2-VL-Finetune/"
 
 # Define variables
 MODEL_OUTPUT="output_model"
@@ -23,7 +23,7 @@ mkdir -p "$MODEL_OUTPUT"
 python3 -c "import torch; torch.cuda.empty_cache()"
 
 # Run training
-accelerate launch /kaggle/working/Qwen2-VL-Finetune/src/train/train_sft.py \
+accelerate launch /src/train/train_sft.py \
     --deepspeed /scripts/zero2_offload.json \
     --use_liger False \
     --data_path $DATA_PATH \
