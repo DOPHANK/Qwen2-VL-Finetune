@@ -130,11 +130,8 @@ class SupervisedDataset(Dataset):
             pixel_key = None
             images=None
             videos=None
-
-        conversations = sources["conversations"]  # already a list
-        sources = copy.deepcopy(llava_to_openai(conversations, is_video=is_video))
-
-        # sources = copy.deepcopy(llava_to_openai(sources['conversations'], is_video=is_video))
+            
+        sources = copy.deepcopy(llava_to_openai(sources['conversations'], is_video=is_video))
 
         all_input_ids = [] 
         all_labels = []
