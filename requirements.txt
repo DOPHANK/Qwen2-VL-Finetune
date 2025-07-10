@@ -118,3 +118,5 @@ optimum
 transformers_stream_generator
 gptqmodel
 auto-gptq
+numpy==1.26.4
+scikit-learn==1.3.2
