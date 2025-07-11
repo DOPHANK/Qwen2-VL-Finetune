@@ -1,0 +1,16 @@
+[
+  {
+    "id": "9_2",
+    "image": "/vital_vision/images/9/2.jpg",
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<image>\nExtract and list the filled information from this form as KEY: VALUE pairs."
+      },
+      {
+        "from": "assistant",
+        "value": "<im_start>WBC: 15.2<im_end>\n<im_start>RBC: 4.52<im_end>\n<im_start>Hb: 9.4<im_end>\n<im_start>HCT: 29.6<im_end>\n<im_start>MCV: 64.7<im_end>\n<im_start>PLT: 123<im_end>\n<im_start>BAND: 5<im_end>\n<im_start>NEU: 48<im_end>\n<im_start>LYMPH: 35.6<im_end>\n<im_start>MONO: 2<im_end>\n<im_start>EO: 0<im_end>\n<im_start>BASO: 0<im_end>\n<im_start>AtypLymp: 8<im_end>\n<im_start>OTH_x: nan<im_end>\n<im_start>DIRECT_BILIRUBIN: 5.5<im_end>\n<im_start>TOTAL_BILIRUBIN: 7.0<im_end>\n<im_start>TOTAL_PROTEIN: 6.7<im_end>\n<im_start>ALBUMIN: 3.9<im_end>\n<im_start>GLOBULIN: 2<im_end>\n<im_start>ALKALINE_PHOSPHATASE: 186<im_end>\n<im_start>AST_SGOT: 7060<im_end>\n<im_start>ALT_SGPT: 3350<im_end>\n<im_start>LACTATE: 47<im_end>\n<im_start>OTH_y: nan<im_end>"
+      }
+    ]
+  }
+]

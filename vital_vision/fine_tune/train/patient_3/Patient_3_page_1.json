@@ -1,0 +1,16 @@
+[
+  {
+    "id": "3_1",
+    "image": "/vital_vision/images/3/1.jpg",
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<image>\nExtract and list the filled information from this form as KEY: VALUE pairs."
+      },
+      {
+        "from": "assistant",
+        "value": "<im_start>EVENT: 1<im_end>\n<im_start>SUBJID: 3<im_end>\n<im_start>RECORD_DTC: 15/11/2024 00:00:00<im_end>\n<im_start>SEX: Male<im_end>\n<im_start>AGE: 23.0<im_end>\n<im_start>ADMISSION_DTC: 28/10/2018 00:00:00<im_end>\n<im_start>DISCHARGE_DTC: 18/11/2018 00:00:00<im_end>\n<im_start>ILLNESS_DAYS: 6.0<im_end>\n<im_start>TEMP_ADM: 38.4<im_end>\n<im_start>SYSBP: 108.0<im_end>\n<im_start>DIABP: 81.0<im_end>\n<im_start>HR: 100.0<im_end>\n<im_start>RESP: 22.0<im_end>\n<im_start>SPO2: 99.0<im_end>\n<im_start>CONSCIOUS_LEVEL: Conscious<im_end>\n<im_start>WEIGHT: 70.0<im_end>\n<im_start>NA_W: False<im_end>\n<im_start>HEIGHT: 160.0<im_end>\n<im_start>NA_H: False<im_end>\n<im_start>HYPERTENSION: N<im_end>\n<im_start>DIABETES: N<im_end>\n<im_start>DYSLIPIDAEMIA: N<im_end>\n<im_start>IHD: N<im_end>\n<im_start>CLUNGD: N<im_end>\n<im_start>CVD: N<im_end>\n<im_start>CLIVERD: N<im_end>\n<im_start>CKD: N<im_end>\n<im_start>MALIGNANCY: N<im_end>\n<im_start>AUTOIMMUNE_DISEASE: N<im_end>\n<im_start>OTH_MORBIDITIES: nan<im_end>"
+      }
+    ]
+  }
+]
