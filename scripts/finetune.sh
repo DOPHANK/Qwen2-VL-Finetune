@@ -70,4 +70,5 @@ accelerate launch src/train/train_sft.py \
     --do_eval True \
     --eval_strategy "epoch" \
     --eval_data_path $EVAL_DATA_PATH \
-    --inference_image_path $INFERENCE_IMAGE_PATH
+    --inference_image_path $INFERENCE_IMAGE_PATH \
+    --on_Kaggle True
