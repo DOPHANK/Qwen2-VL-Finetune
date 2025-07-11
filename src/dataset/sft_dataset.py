@@ -113,10 +113,6 @@ class SupervisedDataset(Dataset):
                 if not os.path.exists(image_file):
                     if not image_file.startswith("http"):
                         image_file = os.path.join(image_folder, image_file)
-                        print(image_file)
-                        image_file = os.path.join(kaggle, image_file)
-                        print(image_file)
-
                 image_file = os.path.join(kaggle, image_file)
                 print(image_file)
                 images.append(get_image_info(image_file, self.image_min_pixel, self.image_max_pixel, self.image_resized_w, self.image_resized_h))
