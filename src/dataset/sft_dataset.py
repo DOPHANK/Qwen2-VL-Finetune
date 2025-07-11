@@ -93,11 +93,7 @@ class SupervisedDataset(Dataset):
             grid_key = "image_grid_thw"
             pixel_key = "pixel_values"
             
-            image_files = sources["image"]
-            print(image_file)
-            image_file = os.path.join("/kaggle/working/Qwen2-VL-Finetune/", image_file)
-            print(image_file)
-            
+            image_files = sources["image"]            
             image_folder = self.data_args.image_folder
 
             if isinstance(image_files, str):
@@ -109,7 +105,9 @@ class SupervisedDataset(Dataset):
                 if not os.path.exists(image_file):
                     if not image_file.startswith("http"):
                         image_file = os.path.join(image_folder, image_file)
-
+                        
+                image_file = os.path.join("/kaggle/working/Qwen2-VL-Finetune", image_file)
+                print(image_file)
                 images.append(get_image_info(image_file, self.image_min_pixel, self.image_max_pixel, self.image_resized_w, self.image_resized_h))
 
         elif "video" in sources:
