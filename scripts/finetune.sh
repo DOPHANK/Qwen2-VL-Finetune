@@ -23,7 +23,7 @@ mkdir -p "$MODEL_OUTPUT"
 python3 -c "import torch; torch.cuda.empty_cache()"
 
 cd /kaggle/working/Qwen2-VL-Finetune/
-ls
+ls -l
 
 # Run training
 accelerate launch src/train/train_sft.py \
