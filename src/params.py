@@ -61,7 +61,6 @@ class TrainingArguments(HFTrainingArguments):
     lora_namespan_exclude: str = field(default=None, metadata={"help": "List of namespan to exclude for LoRA"})
     num_lora_modules: int = -1
     use_liger: bool = True
-    on_Kaggle: bool = False
 
 @dataclass
 class DPOArguments(DPOConfigTRL):
@@ -203,3 +202,4 @@ class DataArguments:
     video_resized_width: int = field(default=None)
     video_resized_height: int = field(default=None)
     fps: float = 1.0
+    on_Kaggle: bool = False    
