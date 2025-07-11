@@ -39,7 +39,7 @@ accelerate launch src/train/train_sft.py \
     --data_path $DATA_PATH \
     --model_id $MODEL_NAME \
     --image_folder $IMAGE_FOLDER \
-    --page_number 4 \
+    --page_number 1 \
     --remove_unused_columns False \
     --freeze_vision_tower False \
     --freeze_llm True \
