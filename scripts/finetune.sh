@@ -11,10 +11,10 @@ export PYTHONPATH="/kaggle/working/Qwen2-VL-Finetune/"
 # Define variables
 MODEL_OUTPUT="output_model"
 MODEL_NAME="Qwen/Qwen2.5-VL-3B-Instruct"
-DATA_PATH="08NV/fine_tune/train"
-IMAGE_FOLDER="08NV/images"
-EVAL_DATA_PATH="08NV/fine_tune/validation"
-INFERENCE_IMAGE_PATH="08NV/images/1/4.jpg"
+DATA_PATH="vital_vision/fine_tune/train"
+IMAGE_FOLDER="vital_vision/images"
+EVAL_DATA_PATH="vital_vision/fine_tune/validation"
+INFERENCE_IMAGE_PATH="vital_vision/images/1/4.jpg"
 
 # Make sure output directory exists
 mkdir -p "$MODEL_OUTPUT"
