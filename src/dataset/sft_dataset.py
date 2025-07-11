@@ -89,11 +89,6 @@ class SupervisedDataset(Dataset):
         is_video = False
         
         kaggle = ""
-        print("Set kaggle: ", self.on_kaggle)
-        if self.on_kaggle:
-            kaggle = "/kaggle/working/Qwen2-VL-Finetune/"
-            
-        print("Kaggle setted: ", kaggle)
 
         processor = self.processor
         if "image" in sources:
@@ -113,6 +108,11 @@ class SupervisedDataset(Dataset):
                 if not os.path.exists(image_file):
                     if not image_file.startswith("http"):
                         image_file = os.path.join(image_folder, image_file)
+
+                print("Set kaggle: ", self.on_kaggle)
+                if self.on_kaggle:
+                    kaggle = "/kaggle/working/Qwen2-VL-Finetune/"
+                print("Kaggle setted: ", kaggle)
                 print(image_file)
                 image_file = os.path.join(kaggle, image_file)
                 print(image_file)
