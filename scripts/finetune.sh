@@ -24,8 +24,9 @@ python3 -c "import torch; torch.cuda.empty_cache()"
 
 cd /kaggle/working/Qwen2-VL-Finetune/
 ls -F
-cd vital_vision/
+cd vital_vision/images/
 ls -F
+cd ..
 cd ..
 ls -F
 
