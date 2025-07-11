@@ -77,6 +77,7 @@ class SupervisedDataset(Dataset):
         self.video_resized_w = data_args.video_resized_width
         self.video_resized_h = data_args.video_resized_height
         self.fps = data_args.fps
+        self.on_kaggle = data_args.on_Kaggle
 
     def __len__(self):
         return len(self.list_data_dict)
@@ -87,7 +88,7 @@ class SupervisedDataset(Dataset):
         is_video = False
         
         kaggle = ""
-        if data_args.on_Kaggle:
+        if self.on_kaggle:
             kaggle = "/kaggle/working/Qwen2-VL-Finetune/"
 
         processor = self.processor
