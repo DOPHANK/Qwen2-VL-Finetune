@@ -353,6 +353,9 @@ def train():
 
             test_image = Image.open(data_args.inference_image_path).convert("RGB")
 
+            from IPython.display import display
+            display(test_image)
+
             prompts = {
                 "chatml": "Extract infos as KEY: VALUE pairs in ChatML format.",
                 "json": "Extract infos as KEY: VALUE pairs in JSON format.",
