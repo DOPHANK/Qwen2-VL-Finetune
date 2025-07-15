@@ -376,13 +376,14 @@ def train():
             # Preparation for inference
             rank0_print("Processing...")
             
-            text = processor.apply_chat_template(
-                messages_batch, tokenize=False, add_generation_prompt=True
-            )
+            text_batch = [
+                processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                for messages in messages_batch
+            ]
             image_inputs, video_inputs = process_vision_info(messages_batch)
 
             inputs = processor(
-                text=[text],
+                text=text_batch,
                 images=image_inputs,
                 videos=video_inputs,
                 padding=True,
