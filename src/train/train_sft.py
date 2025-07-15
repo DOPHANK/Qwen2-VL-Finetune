@@ -353,14 +353,24 @@ def train():
 
             test_image = Image.open(data_args.inference_image_path).convert("RGB")
 
-            messages = [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image", "image": test_image},
-                        {"type": "text", "text": "Extract and list the filled information from this form as KEY: VALUE pairs."}
-                    ]
-                }
+            prompts = {
+                "chatml": "Extract infos as KEY: VALUE pairs in ChatML format.",
+                "json": "Extract infos as KEY: VALUE pairs in JSON format.",
+                "yaml": "Extract infos as KEY: VALUE pairs in YAML format.",
+                "xml": "Extract infos as KEY: VALUE pairs in XML format."
+            }
+            
+            messages_batch = [
+                [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "image", "image": test_image},
+                            {"type": "text", "text": prompt}
+                        ]
+                    }
+                ]
+                for prompt in prompts.values()
             ]
             
             # Preparation for inference
@@ -379,16 +389,6 @@ def train():
                 return_tensors="pt",
             ).to(model.device)
 
-            rank0_print("Text: ")
-            rank0_print(inputs["input_ids"])
-            rank0_print(processor.tokenizer.decode(inputs["input_ids"][0]))
-            
-            rank0_print(inputs.keys())
-
-            rank0_print("Image: ")
-            rank0_print(processor.tokenizer.special_tokens_map)
-            rank0_print(processor.tokenizer.convert_tokens_to_ids("<image>"))
-            
             # Inference: Generation of the output
             rank0_print("Generating...")
             
