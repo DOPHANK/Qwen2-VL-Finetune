@@ -46,7 +46,8 @@ class QwenSFTTrainer(Trainer):
     ) -> PredictionOutput:
 
         print("\nPredicting...")
-        
+
+        self.model.eval()
         self._memory_tracker.start()
     
         test_dataloader = self.get_test_dataloader(test_dataset)
