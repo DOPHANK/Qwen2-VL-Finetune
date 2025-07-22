@@ -345,18 +345,22 @@ def train():
     trainer.save_state()
 
     # === Run testing on test set ===
-    rank0_print("\n🧪 Running evaluation on test dataset...")
+    if getattr(data_args, "test_data_path", None):
+        rank0_print("\n🧪 Running evaluation on test dataset...")
 
-    test_dataset = data_module["test_dataset"]
-
-    test_output = trainer.predict(test_dataset)
-    test_predictions = test_output.predictions
-    test_labels = test_output.label_ids
-    test_metrics = test_output.metrics
-
-    rank0_print("\n✅ Test results:")
-    for k, v in test_metrics.items():
-        rank0_print(f"{k}: {v}")
+        try:
+            test_dataset = data_module["test_dataset"]
+        
+            test_output = trainer.predict(test_dataset)
+            test_predictions = test_output.predictions
+            test_labels = test_output.label_ids
+            test_metrics = test_output.metrics
+        
+            rank0_print("\n✅ Test results:")
+            for k, v in test_metrics.items():
+                rank0_print(f"{k}: {v}")
+        except Exception as e:
+            print(f"[ERROR] Failed during evaluation: {e}")
         
     # === Custom single image generation test ===
     if getattr(data_args, "inference_image_path", None):
