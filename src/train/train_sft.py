@@ -375,10 +375,10 @@ def train():
             display(test_image)
 
             prompts = {
-                "chatml": "Extract infos as KEY: VALUE pairs in ChatML format.",
-                "json": "Extract infos as KEY: VALUE pairs in JSON format.",
-                "yaml": "Extract infos as KEY: VALUE pairs in YAML format.",
-                "xml": "Extract infos as KEY: VALUE pairs in XML format."
+                "chatml": "Extract infos from image as KEY: VALUE pairs in ChatML format.",
+                "json": "Extract infos from image as KEY: VALUE pairs in JSON format.",
+                "yaml": "Extract infos from image as KEY: VALUE pairs in YAML format.",
+                "xml": "Extract infos from image as KEY: VALUE pairs in XML format."
             }
             
             messages_batch = [
