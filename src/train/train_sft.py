@@ -352,8 +352,14 @@ def train():
             test_dataset = data_module["test_dataset"]
         
             test_output = trainer.predict(test_dataset)
+            rank0_print("\n✅ Test output:", test_output)
+            
             test_predictions = test_output.predictions
+            rank0_print("\n✅ Test predictions:", test_predictions)
+            
             test_labels = test_output.label_ids
+            rank0_print("\n✅ Test labels:", test_labels)
+            
             test_metrics = test_output.metrics
         
             rank0_print("\n✅ Test results:")
