@@ -154,12 +154,13 @@ def accuracy_infos(completions, assistant, **kwargs):
             f.write(json.dumps(result_record, ensure_ascii=False) + "\n")
 
             if os.getenv("DEBUG_MODE") == "true":
-                log_path = os.getenv("LOG_PATH", "accuracy_infos_debug.log")
-                with open(log_path, "a") as logf:
+                debug_log_path = os.path.join(os.getenv("OUTPUT_DIR", "."), "accuracy_infos_debug.json")
+                with open(debug_log_path, "a") as logf:
                     logf.write(f"\n=== {current_time} ===\n")
                     logf.write(f"[GT  ] {gt_kv}\n")
                     logf.write(f"[PRED] {pred_kv}\n")
                     logf.write(f"[MATCH] {match_count} / {total} → reward = {reward:.4f}\n")
+                print(f"[DEBUG] saved {debug_log_path}")
 
     overall_accuracy = total_match_count / total_value_count if total_value_count > 0 else 0.0
     print(f"\n✅ Overall accuracy across all VALUEs: {total_match_count} / {total_value_count} → {overall_accuracy:.2%}")
