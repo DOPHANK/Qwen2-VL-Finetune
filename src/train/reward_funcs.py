@@ -143,13 +143,12 @@ def accuracy_infos(completions, assistant, **kwargs):
             reward = match_count / total if total > 0 else 0.0
             rewards.append(reward)
 
-            if os.getenv("DEBUG_MODE") == "true":
-                print(f"\n=== {current_time} ===")
-                print(f"[PRED FORMAT] {format_type_pred}")
-                print(f"[GT FORMAT]   {format_type_gt}")
-                print(f"[GT  ] {gt_kv}")
-                print(f"[PRED] {pred_kv}")
-                print(f"[MATCH] {match_count} / {total} → reward = {reward:.4f}")
+            print(f"\n=== {current_time} ===")
+            print(f"[PRED FORMAT] {format_type_pred}")
+            print(f"[GT FORMAT]   {format_type_gt}")
+            print(f"[GT  ] {gt_kv}")
+            print(f"[PRED] {pred_kv}")
+            print(f"[MATCH] {match_count} / {total} → reward = {reward:.4f}")
 
     overall_accuracy = total_match_count / total_value_count if total_value_count > 0 else 0.0
     print(f"\n✅ Overall accuracy across all VALUEs: {total_match_count} / {total_value_count} → {overall_accuracy:.2%}")
