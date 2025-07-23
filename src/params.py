@@ -61,7 +61,7 @@ class TrainingArguments(HFTrainingArguments):
     lora_namespan_exclude: str = field(default=None, metadata={"help": "List of namespan to exclude for LoRA"})
     num_lora_modules: int = -1
     use_liger: bool = True
-    debug: bool = True
+    debug_mode_activate: bool = True
 
 @dataclass
 class DPOArguments(DPOConfigTRL):
