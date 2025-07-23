@@ -97,20 +97,20 @@ def extract_key_value_pairs_xml(text):
         return [(child.tag, child.text or "") for child in root]
     except Exception:
         return []
-
+        
 def detect_format_and_extract(text):
     if "<im_start>" in text and "<im_end>" in text:
         print("ChatML format...")
-        return extract_key_value_pairs_chatml(text)
+        return "ChatML", extract_key_value_pairs_chatml(text)
     elif text.strip().startswith("{") and text.strip().endswith("}"):
         print("JSON format...")
-        return extract_key_value_pairs_json(text)
+        return "JSON", extract_key_value_pairs_json(text)
     elif text.strip().startswith("<record>") and text.strip().endswith("</record>"):
         print("XML format...")
-        return extract_key_value_pairs_xml(text)
+        return "XML", extract_key_value_pairs_xml(text)
     else:
         print("YAML format...")
-        return extract_key_value_pairs_yaml(text)  # fallback
+        return "YAML", extract_key_value_pairs_yaml(text)
 
 def accuracy_infos(completions, assistant, **kwargs):
     """Evaluate accuracy of VALUEs across multiple output formats (ChatML, JSON, YAML, XML)."""
@@ -125,8 +125,10 @@ def accuracy_infos(completions, assistant, **kwargs):
     result_log_path = os.path.join(os.getenv("OUTPUT_DIR", "."), "results_infos.json")
     with open(result_log_path, "a", encoding="utf-8") as f:
         for pred_text, gt_text in zip(contents, solutions):
-            pred_kv = dict(detect_format_and_extract(pred_text))
-            gt_kv = dict(detect_format_and_extract(gt_text))
+            format_type_pred, pred_kv_pairs = detect_format_and_extract(pred_text)
+            format_type_gt, gt_kv_pairs = detect_format_and_extract(gt_text)
+            pred_kv = dict(pred_kv_pairs)
+            gt_kv = dict(gt_kv_pairs)
 
             match_count = 0
             total = len(gt_kv)
@@ -141,24 +143,13 @@ def accuracy_infos(completions, assistant, **kwargs):
             reward = match_count / total if total > 0 else 0.0
             rewards.append(reward)
 
-            result_record = {
-                "timestamp": current_time,
-                "ground_truth": gt_kv,
-                "prediction": pred_kv,
-                "matched_keys": match_count,
-                "total_keys": total,
-                "reward": reward
-            }
-            f.write(json.dumps(result_record, ensure_ascii=False) + "\n")
-
             if os.getenv("DEBUG_MODE") == "true":
-                debug_log_path = os.path.join(os.getenv("OUTPUT_DIR", "."), "accuracy_infos_debug.json")
-                with open(debug_log_path, "a") as logf:
-                    logf.write(f"\n=== {current_time} ===\n")
-                    logf.write(f"[GT  ] {gt_kv}\n")
-                    logf.write(f"[PRED] {pred_kv}\n")
-                    logf.write(f"[MATCH] {match_count} / {total} → reward = {reward:.4f}\n")
-                print(f"[DEBUG] saved {debug_log_path}")
+                print(f"\n=== {current_time} ===")
+                print(f"[PRED FORMAT] {format_type_pred}")
+                print(f"[GT FORMAT]   {format_type_gt}")
+                print(f"[GT  ] {gt_kv}")
+                print(f"[PRED] {pred_kv}")
+                print(f"[MATCH] {match_count} / {total} → reward = {reward:.4f}")
 
     overall_accuracy = total_match_count / total_value_count if total_value_count > 0 else 0.0
     print(f"\n✅ Overall accuracy across all VALUEs: {total_match_count} / {total_value_count} → {overall_accuracy:.2%}")
