@@ -6,8 +6,6 @@ import json
 import yaml
 import xml.etree.ElementTree as ET
 
-DEBUG_MODE = True
-
 def extract_key_value_pairs(text):
     """Extracts (KEY, VALUE) pairs from a string with <im_start>KEY: VALUE<im_end> segments."""
     pattern = r"<im_start>(.*?):\s*(.*?)<im_end>"
