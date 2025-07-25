@@ -11,7 +11,7 @@ def extract_key_value_pairs(text):
     pattern = r"<im_start>(.*?):\s*(.*?)<im_end>"
     return re.findall(pattern, text.strip())
 
-def accuracy_infos_v0(completions, assistant, **kwargs):
+def accuracy_infos(completions, assistant, **kwargs):
     """Evaluate percentage of correctly predicted VALUEs across all pages."""
     contents = [completion[0]["content"] for completion in completions]
     solutions = [a["content"] for a in assistant]
@@ -139,7 +139,7 @@ def detect_format_and_extract(text):
         print("YAML format...")
         return "YAML", extract_key_value_pairs_yaml(text)
 
-def accuracy_infos(completions, assistant, **kwargs):
+def accuracy_infos_v1(completions, assistant, **kwargs):
     """Evaluate accuracy of VALUEs across multiple output formats (ChatML, JSON, YAML, XML)."""
     contents = [completion[0]["content"] for completion in completions]
     solutions = [a["content"] for a in assistant]
