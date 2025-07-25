@@ -87,14 +87,28 @@ def extract_key_value_pairs_json(text):
 
 def extract_key_value_pairs_yaml(text):
     try:
-        data = yaml.safe_load(text)
+        # Strip out leading instruction lines (e.g., "<image>\nExtract infos...")
+        lines = text.strip().splitlines()
+        yaml_lines = []
+
+        # Find first line that looks like a key: value pair
+        for line in lines:
+            if ':' in line and not line.strip().startswith('<'):
+                yaml_lines = lines[lines.index(line):]
+                break
+
+        yaml_text = "\n".join(yaml_lines)
+        data = yaml.safe_load(yaml_text)
+
         if not isinstance(data, dict):
             print("⚠️ YAML parsed but is not a dict:", repr(data))
             return {}
         return data
+
     except Exception as e:
         print(f"❌ YAML parsing failed: {e}")
         return {}
+
 
 
 def extract_key_value_pairs_xml(text):
