@@ -77,26 +77,40 @@ def extract_key_value_pairs_chatml(text):
 def extract_key_value_pairs_json(text):
     try:
         data = json.loads(text)
-        return list(data.items())
-    except Exception:
-        return []
+        if not isinstance(data, dict):
+            print("⚠️ JSON parsed but is not a dict:", repr(data))
+            return {}
+        return data
+    except Exception as e:
+        print(f"❌ JSON parsing failed: {e}")
+        return {}
 
 def extract_key_value_pairs_yaml(text):
     try:
         data = yaml.safe_load(text)
-        if isinstance(data, dict):
-            return list(data.items())
-        else:
-            return []
-    except Exception:
-        return []
+        if not isinstance(data, dict):
+            print("⚠️ YAML parsed but is not a dict:", repr(data))
+            return {}
+        return data
+    except Exception as e:
+        print(f"❌ YAML parsing failed: {e}")
+        return {}
+
 
 def extract_key_value_pairs_xml(text):
     try:
         root = ET.fromstring(text)
-        return [(child.tag, child.text or "") for child in root]
-    except Exception:
-        return []
+        data = {}
+        for child in root.iter():
+            if child is not root:
+                data[child.tag] = child.text
+        return data
+    except ET.ParseError as e:
+        print(f"❌ XML parsing failed: {e}")
+        return {}
+    except Exception as e:
+        print(f"❌ Unknown XML error: {e}")
+        return {}
         
 def detect_format_and_extract(text):
     if "<im_start>" in text and "<im_end>" in text:
