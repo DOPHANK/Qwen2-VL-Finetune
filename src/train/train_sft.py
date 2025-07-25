@@ -380,26 +380,36 @@ def train():
 
             from IPython.display import display
             display(test_image)
-
-            prompts = {
-                "chatml": "Extract infos from image as KEY: VALUE pairs in ChatML format.",
-                "json": "Extract infos from image as KEY: VALUE pairs in JSON format.",
-                "yaml": "Extract infos from image as KEY: VALUE pairs in YAML format.",
-                "xml": "Extract infos from image as KEY: VALUE pairs in XML format."
-            }
             
             messages_batch = [
                 [
                     {
                         "role": "user",
                         "content": [
+                            {"type": "image", "image": "/kaggle/working/images/8/1.jpg"},
+                            {"type": "text", "text": "Extract infos from image as KEY: VALUE pairs in ChatML format.\n"
+                                                        "Use <im_start> and <im_end> to wrap each key-value pair like this:\n"
+                                                        "<im_start>KEY: VALUE<im_end>."}
+                        ]
+                    },
+                    {
+                        "role": "assistant",
+                        "content": (
+                            "<im_start>EVENT: 1<im_end>\n<im_start>SUBJID: 8<im_end>\n<im_start>RECORD_DTC: 20/11/2024 00:00:00<im_end>\n<im_start>SEX: Male<im_end>\n<im_start>AGE: 28.0<im_end>\n<im_start>ADMISSION_DTC: 05/09/2019 00:00:00<im_end>\n<im_start>DISCHARGE_DTC: 13/09/2019 00:00:00<im_end>\n<im_start>ILLNESS_DAYS: 8.0<im_end>\n<im_start>TEMP_ADM: 38.1<im_end>\n<im_start>SYSBP: 117.0<im_end>\n<im_start>DIABP: 62.0<im_end>\n<im_start>HR: 142.0<im_end>\n<im_start>RESP: 34.0<im_end>\n<im_start>SPO2: 100.0<im_end>\n<im_start>CONSCIOUS_LEVEL: Unconscious<im_end>\n<im_start>WEIGHT: nan<im_end>\n<im_start>NA_W: True<im_end>\n<im_start>HEIGHT: nan<im_end>\n<im_start>NA_H: True<im_end>\n<im_start>HYPERTENSION: N<im_end>\n<im_start>DIABETES: N<im_end>\n<im_start>DYSLIPIDAEMIA: N<im_end>\n<im_start>IHD: N<im_end>\n<im_start>CLUNGD: N<im_end>\n<im_start>CVD: N<im_end>\n<im_start>CLIVERD: N<im_end>\n<im_start>CKD: N<im_end>\n<im_start>MALIGNANCY: N<im_end>\n<im_start>AUTOIMMUNE_DISEASE: N<im_end>\n<im_start>OTH_MORBIDITIES: nan<im_end>"
+                        )
+                    },
+                    {
+                        "role": "user",
+                        "content": [
                             {"type": "image", "image": test_image},
-                            {"type": "text", "text": prompt}
+                            {"type": "text", "text": "Extract infos from image as KEY: VALUE pairs in ChatML format.\n"
+                                                        "Use <im_start> and <im_end> to wrap each key-value pair like this:\n"
+                                                        "<im_start>KEY: VALUE<im_end>."}
                         ]
                     }
                 ]
-                for prompt in prompts.values()
             ]
+
             
             # Preparation for inference
             rank0_print("Processing...")
