@@ -381,30 +381,34 @@ def train():
             
             messages_batch = [
                 [
-                    # 🟢 Example (few-shot)
+                    # Example
                     {
                         "role": "user",
                         "content": [
                             {"type": "image", "image": example_image},
-                            {"type": "text", "text": "Extract infos from this image as KEY: VALUE pairs in ChatML format."}
+                            {"type": "text", "text": "Example: Extract infos from this image as KEY: VALUE pairs in ChatML format."}
                         ]
                     },
                     {
                         "role": "assistant",
-                        "content": (
-                            "<im_start>EVENT: 1<im_end>\n<im_start>SUBJID: 8<im_end>\n<im_start>AGE: 28<im_end>\n..."
-                        )
+                        "content": "<im_start>EVENT: 1<im_end>\n<im_start>SUBJID: 8<im_end>\n<im_start>RECORD_DTC: 20/11/2024 00:00:00<im_end>\n<im_start>SEX: Male<im_end>\n<im_start>AGE: 28.0<im_end>\n<im_start>ADMISSION_DTC: 05/09/2019 00:00:00<im_end>\n<im_start>DISCHARGE_DTC: 13/09/2019 00:00:00<im_end>\n<im_start>ILLNESS_DAYS: 8.0<im_end>\n<im_start>TEMP_ADM: 38.1<im_end>\n<im_start>SYSBP: 117.0<im_end>\n<im_start>DIABP: 62.0<im_end>\n<im_start>HR: 142.0<im_end>\n<im_start>RESP: 34.0<im_end>\n<im_start>SPO2: 100.0<im_end>\n<im_start>CONSCIOUS_LEVEL: Unconscious<im_end>\n<im_start>WEIGHT: nan<im_end>\n<im_start>NA_W: True<im_end>\n<im_start>HEIGHT: nan<im_end>\n<im_start>NA_H: True<im_end>\n<im_start>HYPERTENSION: N<im_end>\n<im_start>DIABETES: N<im_end>\n<im_start>DYSLIPIDAEMIA: N<im_end>\n<im_start>IHD: N<im_end>\n<im_start>CLUNGD: N<im_end>\n<im_start>CVD: N<im_end>\n<im_start>CLIVERD: N<im_end>\n<im_start>CKD: N<im_end>\n<im_start>MALIGNANCY: N<im_end>\n<im_start>AUTOIMMUNE_DISEASE: N<im_end>\n<im_start>OTH_MORBIDITIES: nan<im_end>"
                     },
-                    # 🟢 Actual task
+                    # Separator
+                    {
+                        "role": "system",
+                        "content": "----- NEW TASK BELOW -----"
+                    },
+                    # Actual task
                     {
                         "role": "user",
                         "content": [
                             {"type": "image", "image": test_image},
-                            {"type": "text", "text": "Now extract infos from this new image as KEY: VALUE pairs in ChatML format."}
+                            {"type": "text", "text": "Now ignore the example above and extract infos from THIS new image only, as KEY: VALUE pairs in ChatML format."}
                         ]
                     }
                 ]
             ]
+
 
 
             
@@ -429,7 +433,7 @@ def train():
             rank0_print("Generating...")
             
             generated_ids = model.generate(**inputs,
-                                           max_new_tokens=128,
+                                           max_new_tokens=512,
                                            do_sample=False,
                                            pad_token_id=processor.tokenizer.pad_token_id,
                                            eos_token_id=processor.tokenizer.eos_token_id
