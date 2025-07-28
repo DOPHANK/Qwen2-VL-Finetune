@@ -387,20 +387,6 @@ def train():
                     {
                         "role": "user",
                         "content": [
-                            {"type": "image", "image": example_image},
-                            {"type": "text", "text": "Extract infos from image as KEY: VALUE pairs in ChatML format.\n"
-                                                        "Use <im_start> and <im_end> to wrap each key-value pair like this:\n"
-                                                        "<im_start>KEY: VALUE<im_end>."}
-                        ]
-                    },
-                    {
-                        "role": "assistant",
-                        "content": (
-                            "<im_start>EVENT: 1<im_end>\n<im_start>SUBJID: 8<im_end>\n<im_start>RECORD_DTC: 20/11/2024 00:00:00<im_end>\n...")
-                    },
-                    {
-                        "role": "user",
-                        "content": [
                             {"type": "image", "image": test_image},
                             {"type": "text", "text": "Extract infos from image as KEY: VALUE pairs in ChatML format.\n"
                                                         "Use <im_start> and <im_end> to wrap each key-value pair like this:\n"
