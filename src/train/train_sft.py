@@ -381,17 +381,31 @@ def train():
             
             messages_batch = [
                 [
+                    # 🟢 Example (few-shot)
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "image", "image": example_image},
+                            {"type": "text", "text": "Extract infos from this image as KEY: VALUE pairs in ChatML format."}
+                        ]
+                    },
+                    {
+                        "role": "assistant",
+                        "content": (
+                            "<im_start>EVENT: 1<im_end>\n<im_start>SUBJID: 8<im_end>\n<im_start>AGE: 28<im_end>\n..."
+                        )
+                    },
+                    # 🟢 Actual task
                     {
                         "role": "user",
                         "content": [
                             {"type": "image", "image": test_image},
-                            {"type": "text", "text": "Extract infos from image as KEY: VALUE pairs in ChatML format.\n"
-                                                        "Use <im_start> and <im_end> to wrap each key-value pair like this:\n"
-                                                        "<im_start>KEY: VALUE<im_end>."}
+                            {"type": "text", "text": "Now extract infos from this new image as KEY: VALUE pairs in ChatML format."}
                         ]
                     }
                 ]
             ]
+
 
             
             # Preparation for inference
@@ -424,9 +438,9 @@ def train():
             output_texts = processor.batch_decode(
                 generated_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )
-            rank0_print("\n🧠🧾 Generated ids:")
-            for i, text in enumerate(output_texts):
-                rank0_print(f"[Sample {i + 1}]: {text}")
+            #rank0_print("\n🧠🧾 Generated ids:")
+            #for i, text in enumerate(output_texts):
+            #    rank0_print(f"[Sample {i + 1}]: {text}")
             
             generated_ids_trimmed = [
                 out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
