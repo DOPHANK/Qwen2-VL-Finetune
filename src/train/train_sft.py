@@ -339,7 +339,7 @@ def train():
     rank0_print(f"Pad token ID: {tokenizer.pad_token_id}")
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
-        trainer.train(resume_from_checkpoint=False)
+        trainer.train(resume_from_checkpoint=True)
     else:
         trainer.train()
 
