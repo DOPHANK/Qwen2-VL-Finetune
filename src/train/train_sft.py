@@ -275,7 +275,7 @@ def train():
                 if "merger" in name:
                     param.requires_grad = True
     
-    processor = AutoProcessor.from_pretrained(model_args.model_id)
+    processor = AutoProcessor.from_pretrained(model_args.model_id, use_fast=True)
     tokenizer = processor.tokenizer
 
     # model.config.tokenizer_model_max_length = processor.tokenizer.model_max_length
