@@ -378,9 +378,6 @@ def train():
 
             example_image = Image.open("/kaggle/working/images/8/1.jpg").convert("RGB")
             test_image = Image.open(data_args.inference_image_path).convert("RGB")
-
-            from IPython.display import display
-            display(test_image)
             
             messages_batch = [
                 [
