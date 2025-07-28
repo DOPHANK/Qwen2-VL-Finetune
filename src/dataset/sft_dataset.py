@@ -107,7 +107,6 @@ class SupervisedDataset(Dataset):
                         image_file = os.path.join(image_folder, image_file)
                         
                 image_file = os.path.join("/kaggle/working/Qwen2-VL-Finetune", image_file)
-                print(image_file)
                 images.append(get_image_info(image_file, self.image_min_pixel, self.image_max_pixel, self.image_resized_w, self.image_resized_h))
 
         elif "video" in sources:
