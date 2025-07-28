@@ -36,8 +36,8 @@ def find_target_linear_names(model, num_lora_modules=-1, lora_namespan_exclude=[
     
     if num_lora_modules > 0:
         lora_module_names = lora_module_names[-num_lora_modules:]
-    if verbose:
-        #rank0_print(f"Found {len(lora_module_names)} lora modules: {lora_module_names}")
+    #if verbose:
+    #    rank0_print(f"Found {len(lora_module_names)} lora modules: {lora_module_names}")
     return lora_module_names
 
 def set_requires_grad(params, requires_grad=True):
