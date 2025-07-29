@@ -401,7 +401,7 @@ def train():
 
             # Inference: Generation of the output          
             generated_ids = model.generate(**inputs,
-                                           max_new_tokens=512,
+                                           max_new_tokens=256,
                                            do_sample=False,
                                            pad_token_id=processor.tokenizer.pad_token_id,
                                            eos_token_id=processor.tokenizer.eos_token_id
