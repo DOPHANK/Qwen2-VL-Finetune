@@ -375,7 +375,7 @@ def train():
                         "role": "user",
                         "content": [
                             {"type": "image", "image": test_image},
-                            {"type": "text", "text": "Now ignore the example above and extract infos from THIS new image only, as KEY: VALUE pairs in ChatML format.\nUse <im_start> and <im_end> to wrap each key-value pair like this:\n<im_start>KEY: VALUE<im_end>\n Reminder that checkboxes are at front of VALUEs."}
+                            {"type": "text", "text": "Extract infos from this new image, as KEY: VALUE pairs in ChatML format.\nUse <im_start> and <im_end> to wrap each key-value pair like this:\n<im_start>KEY: VALUE<im_end>\n Reminder that checkboxes are at front of VALUEs."}
                         ]
                     }
                 ]
@@ -409,9 +409,10 @@ def train():
             output_texts = processor.batch_decode(
                 generated_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )
-            #rank0_print("\n🧠🧾 Generated ids:")
-            #for i, text in enumerate(output_texts):
-            #    rank0_print(f"[Sample {i + 1}]: {text}")
+            rank0_print("\n🧠🧾 Generated ids:")
+            for i, text in enumerate(output_texts):
+                if i > 0:
+                    rank0_print(f"[Sample {i + 1}]: {text}")
             
             generated_ids_trimmed = [
                 out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
@@ -421,9 +422,9 @@ def train():
                 generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )
             
-            rank0_print("\n🧠🧾 Generated Output:")
-            for i, text in enumerate(output_texts):
-                rank0_print(f"[Sample {i + 1}]: {text}")
+            #rank0_print("\n🧠🧾 Generated Output:")
+            #for i, text in enumerate(output_texts):
+            #    rank0_print(f"[Sample {i + 1}]: {text}")
 
         except Exception as e:
             print(f"[ERROR] Failed during single image inference: {e}")
