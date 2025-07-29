@@ -70,8 +70,6 @@ from transformers.trainer_utils import EvalPrediction
 
 
 def compute_metrics(eval_preds):
-    rank0_print("🔍 compute_metrics called")
-
     try:
         predictions, labels = eval_preds
     except Exception as e:
@@ -90,7 +88,6 @@ def compute_metrics(eval_preds):
             labels = labels.tolist()
 
         # ✅ Replace -100 (ignore index) with pad_token_id
-        print("🔁 Replacing -100 with pad_token_id...")
         labels = [
             [token if token != -100 else tokenizer.pad_token_id for token in label]
             for label in labels
@@ -113,10 +110,10 @@ def compute_metrics(eval_preds):
         decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-        for i in range(min(5, len(decoded_preds))):
-                    print(f"\n📝 Example {i+1}:")
-                    print("🧠 Prediction:", decoded_preds[i])
-                    print("🎯 Ground Truth:", decoded_labels[i])
+        #for i in range(min(5, len(decoded_preds))):
+        #            print(f"\n📝 Example {i+1}:")
+        #            print("🧠 Prediction:", decoded_preds[i])
+        #            print("🎯 Ground Truth:", decoded_labels[i])
     except Exception as e:
         raise RuntimeError(f"❌ Failed to decode predictions/labels: {e}")
 
@@ -150,7 +147,6 @@ def train():
     os.environ["OUTPUT_DIR"] = training_args.output_dir
     os.environ["DEBUG_MODE"] = str(training_args.debug_mode_activate)
     
-    rank0_print(f"Activate liger: {training_args.use_liger}")
     use_liger = training_args.use_liger
     if "Qwen2.5" in model_args.model_id:
         # It monkey patches the forward to handle mixed modality inputs.
@@ -188,7 +184,6 @@ def train():
     local_rank = training_args.local_rank
     compute_dtype = (torch.float16 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
 
-    rank0_print("Setup BitsAndBytesConfig")
     bnb_model_from_pretrained_args = {}
     if training_args.bits in [4,8]:
         bnb_model_from_pretrained_args.update(dict(
@@ -213,15 +208,12 @@ def train():
         }
 
     if "Qwen2.5" in model_args.model_id:
-        rank0_print(f"Loading model {model_args.model_id}")
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
             **bnb_model_from_pretrained_args
         )
-        rank0_print(f"Model {model_args.model_id} loaded.")
     else:
-        rank0_print("Loading model not qwen2.5")
         model = Qwen2VLForConditionalGeneration.from_pretrained(
             model_args.model_id,
             torch_dtype=compute_dtype,
@@ -257,7 +249,6 @@ def train():
                 model.to(torch.bfloat16)
             if training_args.fp16:
                 model.to(torch.float16)
-        rank0_print("Adding LoRA to the model...")
         model = get_peft_model(model, peft_config)
 
         # Peft maodel makes vision tower and merger freezed again.
@@ -312,11 +303,6 @@ def train():
             if not param.requires_grad and param.dtype == torch.float16
         ]
         
-        if frozen_fp16:
-            raise RuntimeError("Aborting training to prevent AMP crash due to frozen FP16 params.")
-        else:
-            rank0_print("✅ All frozen FP16 parameters successfully converted to float32.")
-        
         # Optional: cast trainable params to float32
         with torch.no_grad():
             for name, param in model.named_parameters():
@@ -332,11 +318,6 @@ def train():
         eval_dataset=data_module["eval_dataset"],
         data_collator=data_module["data_collator"],
     )
-    rank0_print("QwenSFTTrainer created!")
-
-    rank0_print("Model type:", type(model))
-
-    rank0_print(f"Pad token ID: {tokenizer.pad_token_id}")
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
@@ -347,25 +328,16 @@ def train():
 
     # === Run testing on test set ===
     if getattr(data_args, "test_data_path", None):
-        rank0_print("\n🧪 Running evaluation on test dataset...")
-
         try:
             test_dataset = data_module["test_dataset"]
         
             test_output = trainer.predict(test_dataset)
-            rank0_print("\n✅ Test output:", test_output)
             
             test_predictions = test_output.predictions
-            rank0_print("\n✅ Test predictions:", test_predictions)
             
             test_labels = test_output.label_ids
-            rank0_print("\n✅ Test labels:", test_labels)
             
             test_metrics = test_output.metrics
-        
-            rank0_print("\n✅ Test results:")
-            for k, v in test_metrics.items():
-                rank0_print(f"{k}: {v}")
         except Exception as e:
             print(f"[ERROR] Failed during evaluation: {e}")
         
@@ -413,8 +385,6 @@ def train():
 
             
             # Preparation for inference
-            rank0_print("Processing...")
-            
             text_batch = [
                 processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
                 for messages in messages_batch
@@ -429,16 +399,13 @@ def train():
                 return_tensors="pt",
             ).to(model.device)
 
-            # Inference: Generation of the output
-            rank0_print("Generating...")
-            
+            # Inference: Generation of the output          
             generated_ids = model.generate(**inputs,
                                            max_new_tokens=512,
                                            do_sample=False,
                                            pad_token_id=processor.tokenizer.pad_token_id,
                                            eos_token_id=processor.tokenizer.eos_token_id
                                           )
-            rank0_print("Generated:", generated_ids)
             output_texts = processor.batch_decode(
                 generated_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )
@@ -450,7 +417,6 @@ def train():
                 out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
             ]
 
-            rank0_print("Computing output text...")
             output_texts = processor.batch_decode(
                 generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )
