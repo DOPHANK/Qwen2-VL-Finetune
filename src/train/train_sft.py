@@ -386,7 +386,7 @@ def train():
                         "role": "user",
                         "content": [
                             {"type": "image", "image": example_image},
-                            {"type": "text", "text": "Example: Extract infos from this image as KEY: VALUE pairs in ChatML format."}
+                            {"type": "text", "text": "Example: Extract infos from image as KEY: VALUE pairs in ChatML format.\nUse <im_start> and <im_end> to wrap each key-value pair like this:\n<im_start>KEY: VALUE<im_end>."}
                         ]
                     },
                     {
@@ -403,7 +403,7 @@ def train():
                         "role": "user",
                         "content": [
                             {"type": "image", "image": test_image},
-                            {"type": "text", "text": "Now ignore the example above and extract infos from THIS new image only, as KEY: VALUE pairs in ChatML format. Reminder that checkboxes are at front of VALUEs."}
+                            {"type": "text", "text": "Now ignore the example above and extract infos from THIS new image only, as KEY: VALUE pairs in ChatML format.\nUse <im_start> and <im_end> to wrap each key-value pair like this:\n<im_start>KEY: VALUE<im_end>\n Reminder that checkboxes are at front of VALUEs."}
                         ]
                     }
                 ]
