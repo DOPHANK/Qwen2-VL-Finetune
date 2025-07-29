@@ -90,42 +90,78 @@ class QwenSFTTrainer(Trainer):
     
         return PredictionOutput(predictions=all_preds, label_ids=all_labels, metrics=metrics)
 
-    def evaluate(
-        self,
-        eval_dataset: Optional[Dataset] = None,
-        ignore_keys: Optional[List[str]] = None,
-        metric_key_prefix: str = "eval",
-        predict_with_generate: bool = True,
-    ):
-        # Prepare dataset
-        dataset = self.eval_dataset if eval_dataset is None else eval_dataset
+        def evaluate(
+            self,
+            eval_dataset: Optional[Dataset] = None,
+            ignore_keys: Optional[List[str]] = None,
+            metric_key_prefix: str = "eval",
+            predict_with_generate: bool = True,
+        ):
+            dataset = self.eval_dataset if eval_dataset is None else eval_dataset
+            if dataset is None or len(dataset) == 0:
+                print("⚠️ No evaluation dataset provided. Skipping evaluation.")
+                return {}
     
-        if predict_with_generate:
-            print("\nEvaluating with generate...")
+            # ✅ Prepare log file
+            log_file = os.path.join(self.args.output_dir, "test_predictions.log")
+            os.makedirs(self.args.output_dir, exist_ok=True)
+            print(f"🧪 Starting evaluation on {len(dataset)} samples...")
+            f = open(log_file, "w")
+    
+            if predict_with_generate:
+                print("\nEvaluating with generate...")
+                self.model.eval()
             
-            # Use prediction method
-            output = self.predict(
-                dataset,
-                ignore_keys=ignore_keys,
-                metric_key_prefix=metric_key_prefix
-            )
-            predictions = output.predictions
-            label_ids = output.label_ids
-            
-            if self.compute_metrics is not None:
-                metrics = self.compute_metrics((predictions, label_ids))
-                output.metrics.update(metrics)
-                print("✅ compute_metrics result:", metrics)
-
-            return output
-        else:
-            print("\nEvaluating without generate...")
-            
-            return super().evaluate(
-                eval_dataset=eval_dataset,
-                ignore_keys=ignore_keys,
-                metric_key_prefix=metric_key_prefix
-            )
+                dataloader = self.get_eval_dataloader(dataset)
+                for step, inputs in enumerate(dataloader):
+                    img_path = inputs.get("image_path", ["N/A"])
+                    if isinstance(img_path, list):
+                        img_path = img_path[0]
+    
+                    print(f"\n--- [Step {step}] Image: {img_path} ---")
+                    f.write(f"Step {step} | Image: {img_path}\n")
+    
+                    # ✅ Run prediction
+                    input_ids = inputs["input_ids"].to(self.args.device)
+                    attn_mask = inputs["attention_mask"].to(self.args.device)
+                    labels = inputs.get("labels", None)
+    
+                    with torch.no_grad():
+                        generated_ids = self.model.generate(
+                            input_ids=input_ids,
+                            attention_mask=attn_mask,
+                            max_new_tokens=256,
+                            do_sample=False
+                        )
+    
+                    # ✅ Decode outputs
+                    pred_text = self.tokenizer.decode(generated_ids[0], skip_special_tokens=False)
+                    label_text = "[NO LABEL]"
+                    if labels is not None:
+                        label_text = self.tokenizer.decode(labels[0], skip_special_tokens=False)
+    
+                    # ✅ Log to console & file
+                    print(f"✅ Ground Truth: {label_text}")
+                    print(f"🤖 Model Output: {pred_text}")
+                    f.write(f"Ground Truth: {label_text}\nPrediction: {pred_text}\n{'-'*50}\n")
+    
+                f.close()
+    
+                # ✅ Call original predict to compute metrics
+                output = self.predict(dataset, ignore_keys=ignore_keys, metric_key_prefix=metric_key_prefix)
+                if self.compute_metrics is not None:
+                    metrics = self.compute_metrics((output.predictions, output.label_ids))
+                    output.metrics.update(metrics)
+                    print("📊 Metrics:", metrics)
+                print(f"📝 Detailed predictions saved to {log_file}")
+                return output
+            else:
+                print("\nEvaluating without generate...")
+                return super().evaluate(
+                    eval_dataset=eval_dataset,
+                    ignore_keys=ignore_keys,
+                    metric_key_prefix=metric_key_prefix
+                )
 
     def create_optimizer(self):
         """
