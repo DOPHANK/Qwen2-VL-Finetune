@@ -358,13 +358,23 @@ def train():
                         "role": "user",
                         "content": [
                             {"type": "image", "image": example_image},
-                            {"type": "text", "text": "Example: Extract infos from image as KEY: VALUE pairs in ChatML format.\nUse <im_start> and <im_end> to wrap each key-value pair like this:\n<im_start>KEY: VALUE<im_end>."}
+                            {"type": "text", "text": (
+                                "Example: Extract infos from this image as KEY: VALUE pairs in ChatML format.\n"
+                                "Use <im_start> and <im_end> to wrap each key-value pair like this:\n"
+                                "<im_start>KEY: VALUE<im_end>."
+                            )}
                         ]
                     },
                     {
                         "role": "assistant",
-                        "content": "<im_start>Side Code: 1<im_end>\n<im_start>ID: 8<im_end>\n<im_start>RECORD_DTC: 20/11/2024<im_end>\n...},
-                    # Separator
+                        "content": (
+                            "<im_start>Side Code: 1<im_end>\n"
+                            "<im_start>ID: 8<im_end>\n"
+                            "<im_start>RECORD_DTC: 20/11/2024<im_end>\n"
+                            "..."
+                        )
+                    },
+                    # Separator to emphasize new task
                     {
                         "role": "system",
                         "content": "----- NEW TASK BELOW -----"
@@ -374,15 +384,17 @@ def train():
                         "role": "user",
                         "content": [
                             {"type": "image", "image": test_image},
-                            {"type": "text", "text": "Extract infos from this new image, as KEY: VALUE pairs in ChatML format."
-                                                    "Use <im_start> and <im_end> to wrap each key-value pair like this:"
-                                                    "<im_start>KEY: VALUE<im_end>"
-                                                    "Reminder that checkboxes are at front of VALUEs."
-                            }
+                            {"type": "text", "text": (
+                                "Now extract infos from THIS new image (not the example above) "
+                                "as KEY: VALUE pairs in ChatML format.\n"
+                                "Follow this format strictly: <im_start>KEY: VALUE<im_end>.\n"
+                                "Remember: Checkboxes are indicated at the start of the VALUE."
+                            )}
                         ]
                     }
                 ]
             ]
+
 
 
 
