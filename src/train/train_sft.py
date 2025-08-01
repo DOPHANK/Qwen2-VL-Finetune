@@ -475,7 +475,7 @@ def train():
             log("Starting model.generate()...")
             generated_ids = model.generate(
                 **inputs,
-                max_new_tokens=128,
+                max_new_tokens=1024,
                 do_sample=False,
                 pad_token_id=processor.tokenizer.pad_token_id,
                 eos_token_id=processor.tokenizer.eos_token_id
