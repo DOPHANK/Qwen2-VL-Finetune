@@ -376,59 +376,6 @@ def train():
             
             messages_batch = [
                 [
-                    # Example
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "image", "image": example_image},
-                            {"type": "text", "text": (
-                                "Example: Extract infos from this image as KEY: VALUE pairs in ChatML format.\n"
-                                "Use <im_start> and <im_end> to wrap each key-value pair like this:\n"
-                                "<im_start>KEY: VALUE<im_end>."
-                            )}
-                        ]
-                    },
-                    {
-                        "role": "assistant",
-                        "content": (
-                            "<im_start>Side Code: 1<im_end>\n"
-                            "<im_start>ID: 8<im_end>\n"
-                            "<im_start>RECORD_DTC: 20/11/2024<im_end>\n"
-                            "<im_start>SEX: Male<im_end>\n"
-                            "<im_start>AGE: 28.0<im_end>\n"
-                            "<im_start>ADMISSION_DTC: 05/09/2019<im_end>\n"
-                            "<im_start>DISCHARGE_DTC: 13/09/2019<im_end>\n"
-                            "<im_start>ILLNESS_DAYS: 8.0<im_end>\n"
-                            "<im_start>TEMP_ADM: 38.1<im_end>\n"
-                            "<im_start>SYSBP: 117.0<im_end>\n"
-                            "<im_start>DIABP: 62.0<im_end>\n"
-                            "<im_start>HR: 142.0<im_end>\n"
-                            "<im_start>RESP: 34.0<im_end>\n"
-                            "<im_start>SPO2: 100.0<im_end>\n"
-                            "<im_start>CONSCIOUS_LEVEL: Unconscious<im_end>\n"
-                            "<im_start>WEIGHT: nan<im_end>\n"
-                            "<im_start>NA_W: True<im_end>\n"
-                            "<im_start>HEIGHT: nan<im_end>\n"
-                            "<im_start>NA_H: True<im_end>\n"
-                            "<im_start>HYPERTENSION: False<im_end>\n"
-                            "<im_start>DIABETES: False<im_end>\n"
-                            "<im_start>DYSLIPIDAEMIA: False<im_end>\n"
-                            "<im_start>IHD: False<im_end>\n"
-                            "<im_start>CLUNGD: False<im_end>\n"
-                            "<im_start>CVD: False<im_end>\n"
-                            "<im_start>CLIVERD: False<im_end>\n"
-                            "<im_start>CKD: False<im_end>\n"
-                            "<im_start>MALIGNANCY: False<im_end>\n"
-                            "<im_start>AUTOIMMUNE_DISEASE: False<im_end>\n"
-                            "<im_start>OTH_MORBIDITIES: nan<im_end>"
-                        )
-                    },
-                    # Separator to emphasize new task
-                    {
-                        "role": "system",
-                        "content": "----- NEW TASK BELOW -----"
-                    },
-                    # Actual task
                     {
                         "role": "user",
                         "content": [
@@ -436,17 +383,45 @@ def train():
                             {"type": "text", "text": (
                                 "Now extract infos from THIS new image (not the example above) "
                                 "as KEY: VALUE pairs in ChatML format.\n"
-                                "Follow this format strictly: <im_start>KEY: VALUE<im_end>.\n"
-                                "Remember: Checkboxes are indicated at the start of the VALUE."
+                                "Follow this format strictly: <im_start>KEY: VALUE<im_end> as example following.\n"
+                                "Start example"
+                                "<im_start>Side Code: 1<im_end>\n"
+                                "<im_start>ID: 8<im_end>\n"
+                                "<im_start>RECORD_DTC: 20/11/2024<im_end>\n"
+                                "<im_start>SEX: Male<im_end>\n"
+                                "<im_start>AGE: 28.0<im_end>\n"
+                                "<im_start>ADMISSION_DTC: 05/09/2019<im_end>\n"
+                                "<im_start>DISCHARGE_DTC: 13/09/2019<im_end>\n"
+                                "<im_start>ILLNESS_DAYS: 8.0<im_end>\n"
+                                "<im_start>TEMP_ADM: 38.1<im_end>\n"
+                                "<im_start>SYSBP: 117.0<im_end>\n"
+                                "<im_start>DIABP: 62.0<im_end>\n"
+                                "<im_start>HR: 142.0<im_end>\n"
+                                "<im_start>RESP: 34.0<im_end>\n"
+                                "<im_start>SPO2: 100.0<im_end>\n"
+                                "<im_start>CONSCIOUS_LEVEL: Unconscious<im_end>\n"
+                                "<im_start>WEIGHT: nan<im_end>\n"
+                                "<im_start>NA_W: True<im_end>\n"
+                                "<im_start>HEIGHT: nan<im_end>\n"
+                                "<im_start>NA_H: True<im_end>\n"
+                                "<im_start>HYPERTENSION: False<im_end>\n"
+                                "<im_start>DIABETES: False<im_end>\n"
+                                "<im_start>DYSLIPIDAEMIA: False<im_end>\n"
+                                "<im_start>IHD: False<im_end>\n"
+                                "<im_start>CLUNGD: False<im_end>\n"
+                                "<im_start>CVD: False<im_end>\n"
+                                "<im_start>CLIVERD: False<im_end>\n"
+                                "<im_start>CKD: False<im_end>\n"
+                                "<im_start>MALIGNANCY: False<im_end>\n"
+                                "<im_start>AUTOIMMUNE_DISEASE: False<im_end>\n"
+                                "<im_start>OTH_MORBIDITIES: nan<im_end>"
+                                "End example"
+                                "And remember: Checkboxes are indicated at the start of the VALUE in the image."
                             )}
                         ]
                     }
                 ]
             ]
-
-
-
-
             
             # Preparation for inference
             text_batch = [
