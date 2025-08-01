@@ -410,16 +410,16 @@ def train():
                             "<im_start>NA_W: True<im_end>\n"
                             "<im_start>HEIGHT: nan<im_end>\n"
                             "<im_start>NA_H: True<im_end>\n"
-                            "<im_start>HYPERTENSION: N<im_end>\n"
-                            "<im_start>DIABETES: N<im_end>\n"
-                            "<im_start>DYSLIPIDAEMIA: N<im_end>\n"
-                            "<im_start>IHD: N<im_end>\n"
-                            "<im_start>CLUNGD: N<im_end>\n"
-                            "<im_start>CVD: N<im_end>\n"
-                            "<im_start>CLIVERD: N<im_end>\n"
-                            "<im_start>CKD: N<im_end>\n"
-                            "<im_start>MALIGNANCY: N<im_end>\n"
-                            "<im_start>AUTOIMMUNE_DISEASE: N<im_end>\n"
+                            "<im_start>HYPERTENSION: False<im_end>\n"
+                            "<im_start>DIABETES: False<im_end>\n"
+                            "<im_start>DYSLIPIDAEMIA: False<im_end>\n"
+                            "<im_start>IHD: False<im_end>\n"
+                            "<im_start>CLUNGD: False<im_end>\n"
+                            "<im_start>CVD: False<im_end>\n"
+                            "<im_start>CLIVERD: False<im_end>\n"
+                            "<im_start>CKD: False<im_end>\n"
+                            "<im_start>MALIGNANCY: False<im_end>\n"
+                            "<im_start>AUTOIMMUNE_DISEASE: False<im_end>\n"
                             "<im_start>OTH_MORBIDITIES: nan<im_end>"
                         )
                     },
@@ -472,10 +472,10 @@ def train():
             log("Setting model.eval()...")
             model.to("cuda", dtype=torch.float16)
             model.eval()
-            log("Starting model.generate() with max tokens = 1024...")
+            log("Starting model.generate() with max tokens = 512...")
             generated_ids = model.generate(
                 **inputs,
-                max_new_tokens=1024,
+                max_new_tokens=512,
                 do_sample=False,
                 pad_token_id=processor.tokenizer.pad_token_id,
                 eos_token_id=processor.tokenizer.eos_token_id
