@@ -472,7 +472,7 @@ def train():
             log("Setting model.eval()...")
             model.to("cuda", dtype=torch.float16)
             model.eval()
-            log("Starting model.generate()...")
+            log("Starting model.generate() with max tokens = 1024...")
             generated_ids = model.generate(
                 **inputs,
                 max_new_tokens=1024,
