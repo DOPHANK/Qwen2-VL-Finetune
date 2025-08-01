@@ -339,17 +339,40 @@ def train():
             
             test_metrics = test_output.metrics
         except Exception as e:
-            print(f"[ERROR] Failed during evaluation: {e}")
+            rank0_print(f"[ERROR] Failed during evaluation: {e}")
         
     # === Custom single image generation test ===
+    import time
+
+    # === Logging Helper ===
+    def log(msg):
+        rank0_print(f"[{time.strftime('%H:%M:%S')}] {msg}")
+        
     if getattr(data_args, "inference_image_path", None):
-        rank0_print("\n🖼️ Running test inference on single image...")
+        start_time = time.time()
+        log("🖼️ Running test inference on single image...")
 
         try:
             from qwen_vl_utils import process_vision_info
 
-            example_image = Image.open("/kaggle/working/images/8/1.jpg").convert("RGB")
+            # === Step 1: Load image ===
+            t0 = time.time()
             test_image = Image.open(data_args.inference_image_path).convert("RGB")
+            example_image = Image.open("/kaggle/working/images/8/1.jpg").convert("RGB")
+            log(f"Loaded image in {time.time() - t0:.2f} sec, original size: {test_image.size}") 
+            
+            # === Step 2: Resize if needed ===
+            t0 = time.time()
+            max_dim = 1024
+            w, h = test_image.size
+            if max(w, h) > max_dim:
+                scale = max_dim / max(w, h)
+                new_size = (int(w * scale), int(h * scale))
+                test_image = test_image.resize(new_size, Image.LANCZOS)
+                example_image = example_image.resize(new_size, Image.LANCZOS)
+                log(f"Resized image to {test_image.size} in {time.time() - t0:.2f} sec")
+            else:
+                log("No resizing needed.")
             
             messages_batch = [
                 [
@@ -404,8 +427,10 @@ def train():
                 processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
                 for messages in messages_batch
             ]
-            image_inputs, video_inputs = process_vision_info(messages_batch)
 
+            # === Step 3: Preprocess input ===
+            t0 = time.time()
+            image_inputs, video_inputs = process_vision_info(messages_batch)
             inputs = processor(
                 text=text_batch,
                 images=image_inputs,
@@ -413,33 +438,35 @@ def train():
                 padding=True,
                 return_tensors="pt",
             ).to(model.device)
+            log(f"Preprocessed inputs in {time.time() - t0:.2f} sec")
+            rank0_print(model.device)
 
-            # Inference: Generation of the output          
-            generated_ids = model.generate(**inputs,
-                                           max_new_tokens=256,
-                                           do_sample=False,
-                                           pad_token_id=processor.tokenizer.pad_token_id,
-                                           eos_token_id=processor.tokenizer.eos_token_id
-                                          )
-            output_texts = processor.batch_decode(
-                generated_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
+            # === Step 4: Model Inference ===            
+            t0 = time.time()
+            log("Setting model.eval()...")
+            model.to("cuda", dtype=torch.float16)
+            model.eval()
+            log("Starting model.generate()...")
+            generated_ids = model.generate(
+                **inputs,
+                max_new_tokens=128,
+                do_sample=False,
+                pad_token_id=processor.tokenizer.pad_token_id,
+                eos_token_id=processor.tokenizer.eos_token_id
             )
-            #rank0_print("\n🧠🧾 Generated ids:")
-            #for i, text in enumerate(output_texts):
-            #    rank0_print(f"[Sample {i + 1}]: {text}")
-            
-            generated_ids_trimmed = [
-                out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
-            ]
+            log(f"Generation completed in {time.time() - t0:.2f} sec")
 
-            output_texts = processor.batch_decode(
-                generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
-            )
-            
+            # === Step 5: Decoding ===
+            t0 = time.time()
+            generated_ids_trimmed = [out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)]
+            output_texts = processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+            log(f"Decoded outputs in {time.time() - t0:.2f} sec")
+
+            # === End ===
+            log(f"Total single image inference time: {time.time() - start_time:.2f} sec")
             rank0_print("\n🧠🧾 Generated Output:")
             for i, text in enumerate(output_texts):
-                rank0_print(f"[Sample {i + 1}]: {text}")
-
+                log(f"[Sample {i + 1}]: {text}")
         except Exception as e:
             print(f"[ERROR] Failed during single image inference: {e}")
 
