@@ -394,7 +394,33 @@ def train():
                             "<im_start>Side Code: 1<im_end>\n"
                             "<im_start>ID: 8<im_end>\n"
                             "<im_start>RECORD_DTC: 20/11/2024<im_end>\n"
-                            "..."
+                            "<im_start>SEX: Male<im_end>\n"
+                            "<im_start>AGE: 28.0<im_end>\n"
+                            "<im_start>ADMISSION_DTC: 05/09/2019<im_end>\n"
+                            "<im_start>DISCHARGE_DTC: 13/09/2019<im_end>\n"
+                            "<im_start>ILLNESS_DAYS: 8.0<im_end>\n"
+                            "<im_start>TEMP_ADM: 38.1<im_end>\n"
+                            "<im_start>SYSBP: 117.0<im_end>\n"
+                            "<im_start>DIABP: 62.0<im_end>\n"
+                            "<im_start>HR: 142.0<im_end>\n"
+                            "<im_start>RESP: 34.0<im_end>\n"
+                            "<im_start>SPO2: 100.0<im_end>\n"
+                            "<im_start>CONSCIOUS_LEVEL: Unconscious<im_end>\n"
+                            "<im_start>WEIGHT: nan<im_end>\n"
+                            "<im_start>NA_W: True<im_end>\n"
+                            "<im_start>HEIGHT: nan<im_end>\n"
+                            "<im_start>NA_H: True<im_end>\n"
+                            "<im_start>HYPERTENSION: N<im_end>\n"
+                            "<im_start>DIABETES: N<im_end>\n"
+                            "<im_start>DYSLIPIDAEMIA: N<im_end>\n"
+                            "<im_start>IHD: N<im_end>\n"
+                            "<im_start>CLUNGD: N<im_end>\n"
+                            "<im_start>CVD: N<im_end>\n"
+                            "<im_start>CLIVERD: N<im_end>\n"
+                            "<im_start>CKD: N<im_end>\n"
+                            "<im_start>MALIGNANCY: N<im_end>\n"
+                            "<im_start>AUTOIMMUNE_DISEASE: N<im_end>\n"
+                            "<im_start>OTH_MORBIDITIES: nan<im_end>"
                         )
                     },
                     # Separator to emphasize new task
@@ -466,7 +492,7 @@ def train():
             log(f"Total single image inference time: {time.time() - start_time:.2f} sec")
             rank0_print("\n🧠🧾 Generated Output:")
             for i, text in enumerate(output_texts):
-                log(f"[Sample {i + 1}]: {text}")
+                log(f"[Sample {i + 1}]:\n 🧠🧾 Generated Output:\n {text}")
         except Exception as e:
             print(f"[ERROR] Failed during single image inference: {e}")
 
