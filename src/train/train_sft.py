@@ -343,9 +343,9 @@ def train():
         
     # === Custom single image generation test ===
     import time
+    from pathlib import Path
     
     # === CONFIGURATION ===
-    image_dir = "/kaggle/working/images/test_images"  # Directory with test images
     batch_size = 2                                    # Process N images at a time
     max_new_tokens = 256                              # Generation length
     max_dim = 1024                                    # Resize max dimension
