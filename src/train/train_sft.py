@@ -347,8 +347,8 @@ def train():
     from qwen_vl_utils import process_vision_info
     
     # === CONFIGURATION ===
-    batch_size = 4                                    # Process N images at a time
-    max_new_tokens = 256                              # Generation length
+    batch_size = 10                                    # Process N images at a time
+    max_new_tokens = 512                              # Generation length
     max_dim = 1024                                    # Resize max dimension
     
     # === Logging Helper ===
@@ -384,39 +384,11 @@ def train():
                 {
                     "role": "user",
                     "content": [
-                        {"type": "image", "image": img},
                         {"type": "text", "text": (
-                            "Extract infos as format <im_start>KEY: VALUE<im_end>:\n"
-                            "<im_start>Side Code: 0001<im_end>\n"
-                            "<im_start>ID: 0001<im_end>\n"
-                            "<im_start>Date_of_record: 09/09/1999<im_end>\n"
-                            "<im_start>Sex: Male or Female<im_end>\n"
-                            "<im_start>Age: 99<im_end>\n"
-                            "<im_start>Date_of_admission: 09/09/1999<im_end>\n"
-                            "<im_start>Date_of_discharge: 09/09/1999<im_end>\n"
-                            "<im_start>Illness_days: 9<im_end>\n"
-                            "<im_start>Temperature: 39.9<im_end>\n"
-                            "<im_start>Blood pressure: 100/50<im_end>\n"
-                            "<im_start>Heart rate: 142.0<im_end>\n"
-                            "<im_start>Respiratory rate: 34.0<im_end>\n"
-                            "<im_start>SPO2: 100.0<im_end>\n"
-                            "<im_start>CONSCIOUS_LEVEL: Conscious or Unconscious<im_end>\n"
-                            "<im_start>WEIGHT: nan or (value)<im_end>\n"
-                            "<im_start>NA_W: True or False<im_end>\n"
-                            "<im_start>HEIGHT: nan or (value)<im_end>\n"
-                            "<im_start>NA_H: True or False<im_end>\n"
-                            "<im_start>HYPERTENSION: True or False or No data<im_end>\n"
-                            "<im_start>DIABETES: True or False or No data<im_end>\n"
-                            "<im_start>DYSLIPIDAEMIA: True or False or No data<im_end>\n"
-                            "<im_start>IHD: True or False or No data<im_end>\n"
-                            "<im_start>CLUNGD: True or False or No data<im_end>\n"
-                            "<im_start>CVD: True or False or No data<im_end>\n"
-                            "<im_start>CLIVERD: True or False or No data<im_end>\n"
-                            "<im_start>CKD: True or False or No data<im_end>\n"
-                            "<im_start>MALIGNANCY: True or False or No data<im_end>\n"
-                            "<im_start>AUTOIMMUNE_DISEASE: True or False or No data<im_end>\n"
-                            "<im_start>OTH_MORBIDITIES: nan or (description)<im_end>"
-                            "Remember: Checkboxes are indicated at the start of the VALUE in the image."
+                    "Extract all information from this image follow this format strictly: <im_start>KEY: VALUE<im_end>\n"
+                    "Example keys: Side_code, ID, Date_of_record, Sex, Age, Date_of_admission, etc.\n"
+                    "If a field is not found, set its VALUE as nan.\n"
+                    "Remember: Checkboxes are indicated at the start of the VALUE."
                         )}
                     ]
                 }
