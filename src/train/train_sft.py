@@ -384,6 +384,7 @@ def train():
                 {
                     "role": "user",
                     "content": [
+                        {"type": "image", "image": img},
                         {"type": "text", "text": (
                     "Extract all information from this image follow this format strictly: <im_start>KEY: VALUE<im_end>\n"
                     "Example keys: Side_code, ID, Date_of_record, Sex, Age, Date_of_admission, etc.\n"
