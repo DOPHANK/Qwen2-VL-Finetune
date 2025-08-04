@@ -357,9 +357,20 @@ def train():
     
     # === Collect Images from Directory ===
     if getattr(data_args, "inference_image_path", None):
-        inference_image_dir = data_args.inference_image_path
-        page_number = getattr(data_args, "page_number", 1)   # Default to page 1 if not set
-        target_name = f"{page_number}.jpg"
+        base_dir = Path(data_args.inference_image_path)
+        page_number = getattr(data_args, "page_number", 1)
+        target_filename = f"{page_number}.jpg"
+        
+        # Get all <patient_number>/<page_number>.jpg
+        image_paths = sorted([
+            str(p) for p in base_dir.glob(f"*/{target_filename}")
+        ])
+        
+        log(f"Looking for {target_filename} under {base_dir}/*/")
+        log(f"✅ Found {len(image_paths)} images")
+        
+        for p in image_paths:
+            log(f" - {p}")
         
         # === Only take the specific page ===
         image_paths = [
