@@ -343,93 +343,111 @@ def train():
         
     # === Custom single image generation test ===
     import time
-
+    
+    # === CONFIGURATION ===
+    image_dir = "/kaggle/working/images/test_images"  # Directory with test images
+    batch_size = 2                                    # Process N images at a time
+    max_new_tokens = 256                              # Generation length
+    max_dim = 1024                                    # Resize max dimension
+    
     # === Logging Helper ===
     def log(msg):
-        rank0_print(f"[{time.strftime('%H:%M:%S')}] {msg}")
-        
+        print(f"[{time.strftime('%H:%M:%S')}] {msg}")
+    
+    # === Collect Images from Directory ===
     if getattr(data_args, "inference_image_path", None):
+        inference_image_dir = data_args.inference_image_path
+        
+        image_paths = sorted([
+            str(p) for p in Path(inference_image_dir).glob("*")
+            if p.suffix.lower() in [".jpg", ".jpeg", ".png"]
+        ])
+        log(f"Found {len(image_paths)} images in {inference_image_dir}")
+        
+        # === GPU Info ===
+        if torch.cuda.is_available():
+            log(f"Using GPU: {torch.cuda.get_device_name(0)}")
+        else:
+            log("⚠️ No GPU detected! Running on CPU (very slow)")
+        
+        # === Prepare Messages Template ===
+        def build_message_for_image(img):
+            return [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image", "image": img},
+                        {"type": "text", "text": (
+                            "Now extract infos from THIS image as KEY: VALUE pairs in ChatML format.\n"
+                            "Follow this format strictly: <im_start>KEY: VALUE<im_end>.\n"
+                            "Start example from <image>/kaggle/working/images/8/1\n"
+                            "<im_start>Side Code: 1<im_end>\n"
+                            "<im_start>ID: 8<im_end>\n"
+                            "<im_start>RECORD_DTC: 20/11/2024<im_end>\n"
+                            "<im_start>SEX: Male<im_end>\n"
+                            "<im_start>AGE: 28.0<im_end>\n"
+                            "<im_start>ADMISSION_DTC: 05/09/2019<im_end>\n"
+                            "<im_start>DISCHARGE_DTC: 13/09/2019<im_end>\n"
+                            "<im_start>ILLNESS_DAYS: 8.0<im_end>\n"
+                            "<im_start>TEMP_ADM: 38.1<im_end>\n"
+                            "<im_start>SYSBP: 117.0<im_end>\n"
+                            "<im_start>DIABP: 62.0<im_end>\n"
+                            "<im_start>HR: 142.0<im_end>\n"
+                            "<im_start>RESP: 34.0<im_end>\n"
+                            "<im_start>SPO2: 100.0<im_end>\n"
+                            "<im_start>CONSCIOUS_LEVEL: Unconscious<im_end>\n"
+                            "<im_start>WEIGHT: nan<im_end>\n"
+                            "<im_start>NA_W: True<im_end>\n"
+                            "<im_start>HEIGHT: nan<im_end>\n"
+                            "<im_start>NA_H: True<im_end>\n"
+                            "<im_start>HYPERTENSION: False<im_end>\n"
+                            "<im_start>DIABETES: False<im_end>\n"
+                            "<im_start>DYSLIPIDAEMIA: False<im_end>\n"
+                            "<im_start>IHD: False<im_end>\n"
+                            "<im_start>CLUNGD: False<im_end>\n"
+                            "<im_start>CVD: False<im_end>\n"
+                            "<im_start>CLIVERD: False<im_end>\n"
+                            "<im_start>CKD: False<im_end>\n"
+                            "<im_start>MALIGNANCY: False<im_end>\n"
+                            "<im_start>AUTOIMMUNE_DISEASE: False<im_end>\n"
+                            "<im_start>OTH_MORBIDITIES: nan<im_end>"
+                            "End example\n"
+                            "Remember: Checkboxes are indicated at the start of the VALUE in the image."
+                        )}
+                    ]
+                }
+            ]
+        
+        # === MAIN INFERENCE ===
         start_time = time.time()
-        log("🖼️ Running test inference on single image...")
-
-        try:
-            from qwen_vl_utils import process_vision_info
-
-            # === Step 1: Load image ===
-            t0 = time.time()
-            test_image = Image.open(data_args.inference_image_path).convert("RGB")
-            example_image = Image.open("/kaggle/working/images/8/1.jpg").convert("RGB")
-            log(f"Loaded image in {time.time() - t0:.2f} sec, original size: {test_image.size}") 
-            
-            # === Step 2: Resize if needed ===
-            t0 = time.time()
-            max_dim = 1024
-            w, h = test_image.size
-            if max(w, h) > max_dim:
-                scale = max_dim / max(w, h)
-                new_size = (int(w * scale), int(h * scale))
-                test_image = test_image.resize(new_size, Image.LANCZOS)
-                example_image = example_image.resize(new_size, Image.LANCZOS)
-                log(f"Resized image to {test_image.size} in {time.time() - t0:.2f} sec")
-            else:
-                log("No resizing needed.")
-            
-            messages_batch = [
-                [
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "image", "image": test_image},
-                            {"type": "text", "text": (
-                                "Now extract infos from THIS new image (not the example above) "
-                                "as KEY: VALUE pairs in ChatML format.\n"
-                                "Follow this format strictly: <im_start>KEY: VALUE<im_end> as example following.\n"
-                                "Start example"
-                                "<im_start>Side Code: 1<im_end>\n"
-                                "<im_start>ID: 8<im_end>\n"
-                                "<im_start>RECORD_DTC: 20/11/2024<im_end>\n"
-                                "<im_start>SEX: Male<im_end>\n"
-                                "<im_start>AGE: 28.0<im_end>\n"
-                                "<im_start>ADMISSION_DTC: 05/09/2019<im_end>\n"
-                                "<im_start>DISCHARGE_DTC: 13/09/2019<im_end>\n"
-                                "<im_start>ILLNESS_DAYS: 8.0<im_end>\n"
-                                "<im_start>TEMP_ADM: 38.1<im_end>\n"
-                                "<im_start>SYSBP: 117.0<im_end>\n"
-                                "<im_start>DIABP: 62.0<im_end>\n"
-                                "<im_start>HR: 142.0<im_end>\n"
-                                "<im_start>RESP: 34.0<im_end>\n"
-                                "<im_start>SPO2: 100.0<im_end>\n"
-                                "<im_start>CONSCIOUS_LEVEL: Unconscious<im_end>\n"
-                                "<im_start>WEIGHT: nan<im_end>\n"
-                                "<im_start>NA_W: True<im_end>\n"
-                                "<im_start>HEIGHT: nan<im_end>\n"
-                                "<im_start>NA_H: True<im_end>\n"
-                                "<im_start>HYPERTENSION: False<im_end>\n"
-                                "<im_start>DIABETES: False<im_end>\n"
-                                "<im_start>DYSLIPIDAEMIA: False<im_end>\n"
-                                "<im_start>IHD: False<im_end>\n"
-                                "<im_start>CLUNGD: False<im_end>\n"
-                                "<im_start>CVD: False<im_end>\n"
-                                "<im_start>CLIVERD: False<im_end>\n"
-                                "<im_start>CKD: False<im_end>\n"
-                                "<im_start>MALIGNANCY: False<im_end>\n"
-                                "<im_start>AUTOIMMUNE_DISEASE: False<im_end>\n"
-                                "<im_start>OTH_MORBIDITIES: nan<im_end>"
-                                "End example"
-                                "And remember: Checkboxes are indicated at the start of the VALUE in the image."
-                            )}
-                        ]
-                    }
-                ]
-            ]
-            
-            # Preparation for inference
+        all_outputs = []
+        
+        for i in range(0, len(image_paths), batch_size):
+            batch_paths = image_paths[i:i+batch_size]
+            log(f"\n🔹 Processing batch {i//batch_size + 1} ({len(batch_paths)} images)")
+        
+            messages_batch = []
+            images_loaded = []
+        
+            # === Load and Resize Images ===
+            for img_path in batch_paths:
+                t_load = time.time()
+                img = Image.open(img_path).convert("RGB")
+                w, h = img.size
+                if max(w, h) > max_dim:
+                    scale = max_dim / max(w, h)
+                    img = img.resize((int(w*scale), int(h*scale)), Image.LANCZOS)
+                log(f"🖼️ Loaded {Path(img_path).name} size={img.size} in {time.time()-t_load:.2f}s")
+                images_loaded.append(img)
+                messages_batch.append(build_message_for_image(img))
+        
+            # === Build Text Prompts ===
             text_batch = [
-                processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-                for messages in messages_batch
+                processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
+                for msg in messages_batch
             ]
-
-            # === Step 3: Preprocess input ===
+        
+            # === Preprocess ===
             t0 = time.time()
             image_inputs, video_inputs = process_vision_info(messages_batch)
             inputs = processor(
@@ -439,37 +457,42 @@ def train():
                 padding=True,
                 return_tensors="pt",
             ).to(model.device)
-            log(f"Preprocessed inputs in {time.time() - t0:.2f} sec")
-            rank0_print(model.device)
-
-            # === Step 4: Model Inference ===            
+            log(f"✅ Preprocessed batch in {time.time() - t0:.2f}s")
+        
+            # === Log GPU Memory Before Generation ===
+            if torch.cuda.is_available():
+                log(f"💾 GPU Memory before generate: {torch.cuda.memory_allocated()/1e6:.1f} MB")
+        
+            # === Inference ===
             t0 = time.time()
-            log("Setting model.eval()...")
-            model.to("cuda", dtype=torch.float16)
             model.eval()
-            log("Starting model.generate() with max tokens = 512...")
             generated_ids = model.generate(
                 **inputs,
-                max_new_tokens=512,
+                max_new_tokens=max_new_tokens,
                 do_sample=False,
                 pad_token_id=processor.tokenizer.pad_token_id,
                 eos_token_id=processor.tokenizer.eos_token_id
             )
-            log(f"Generation completed in {time.time() - t0:.2f} sec")
-
-            # === Step 5: Decoding ===
+            log(f"🚀 Generation took {time.time() - t0:.2f}s")
+        
+            # === Log GPU Memory After Generation ===
+            if torch.cuda.is_available():
+                log(f"💾 GPU Memory after generate: {torch.cuda.memory_allocated()/1e6:.1f} MB")
+        
+            # === Decode Outputs ===
             t0 = time.time()
             generated_ids_trimmed = [out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)]
-            output_texts = processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)
-            log(f"Decoded outputs in {time.time() - t0:.2f} sec")
-
-            # === End ===
-            log(f"Total single image inference time: {time.time() - start_time:.2f} sec")
-            rank0_print("\n🧠🧾 Generated Output:")
-            for i, text in enumerate(output_texts):
-                log(f"[Sample {i + 1}]:\n 🧠🧾 Generated Output:\n {text}")
-        except Exception as e:
-            print(f"[ERROR] Failed during single image inference: {e}")
+            outputs = processor.batch_decode(
+                generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
+            )
+            log(f"📝 Decoding took {time.time() - t0:.2f}s")
+        
+            # === Collect & Print Results ===
+            for img_path, text in zip(batch_paths, outputs):
+                log(f"\n🖼️ [Result for {Path(img_path).name}]:\n{text}")
+                all_outputs.append({"image": img_path, "result": text})
+        
+        log(f"\n✅ Finished multi-image inference in {time.time() - start_time:.2f}s for {len(image_paths)} images.")
 
     model.config.use_cache = True
 
