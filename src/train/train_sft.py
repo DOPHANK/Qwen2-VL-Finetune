@@ -347,7 +347,7 @@ def train():
     from qwen_vl_utils import process_vision_info
     
     # === CONFIGURATION ===
-    batch_size = 2                                    # Process N images at a time
+    batch_size = 4                                    # Process N images at a time
     max_new_tokens = 256                              # Generation length
     max_dim = 1024                                    # Resize max dimension
     
@@ -379,40 +379,36 @@ def train():
                     "content": [
                         {"type": "image", "image": img},
                         {"type": "text", "text": (
-                            "Now extract infos from THIS image as KEY: VALUE pairs in ChatML format.\n"
-                            "Follow this format strictly: <im_start>KEY: VALUE<im_end>.\n"
-                            "Start example from <image>/kaggle/working/images/8/1\n"
-                            "<im_start>Side Code: 1<im_end>\n"
-                            "<im_start>ID: 8<im_end>\n"
-                            "<im_start>RECORD_DTC: 20/11/2024<im_end>\n"
-                            "<im_start>SEX: Male<im_end>\n"
-                            "<im_start>AGE: 28.0<im_end>\n"
-                            "<im_start>ADMISSION_DTC: 05/09/2019<im_end>\n"
-                            "<im_start>DISCHARGE_DTC: 13/09/2019<im_end>\n"
-                            "<im_start>ILLNESS_DAYS: 8.0<im_end>\n"
-                            "<im_start>TEMP_ADM: 38.1<im_end>\n"
-                            "<im_start>SYSBP: 117.0<im_end>\n"
-                            "<im_start>DIABP: 62.0<im_end>\n"
-                            "<im_start>HR: 142.0<im_end>\n"
-                            "<im_start>RESP: 34.0<im_end>\n"
+                            "Extract infos as format <im_start>KEY: VALUE<im_end>:\n"
+                            "<im_start>Side Code: 0001<im_end>\n"
+                            "<im_start>ID: 0001<im_end>\n"
+                            "<im_start>Date_of_record: 09/09/1999<im_end>\n"
+                            "<im_start>Sex: Male or Female<im_end>\n"
+                            "<im_start>Age: 99<im_end>\n"
+                            "<im_start>Date_of_admission: 09/09/1999<im_end>\n"
+                            "<im_start>Date_of_discharge: 09/09/1999<im_end>\n"
+                            "<im_start>Illness_days: 9<im_end>\n"
+                            "<im_start>Temperature: 39.9<im_end>\n"
+                            "<im_start>Blood pressure: 100/50<im_end>\n"
+                            "<im_start>Heart rate: 142.0<im_end>\n"
+                            "<im_start>Respiratory rate: 34.0<im_end>\n"
                             "<im_start>SPO2: 100.0<im_end>\n"
-                            "<im_start>CONSCIOUS_LEVEL: Unconscious<im_end>\n"
-                            "<im_start>WEIGHT: nan<im_end>\n"
-                            "<im_start>NA_W: True<im_end>\n"
-                            "<im_start>HEIGHT: nan<im_end>\n"
-                            "<im_start>NA_H: True<im_end>\n"
-                            "<im_start>HYPERTENSION: False<im_end>\n"
-                            "<im_start>DIABETES: False<im_end>\n"
-                            "<im_start>DYSLIPIDAEMIA: False<im_end>\n"
-                            "<im_start>IHD: False<im_end>\n"
-                            "<im_start>CLUNGD: False<im_end>\n"
-                            "<im_start>CVD: False<im_end>\n"
-                            "<im_start>CLIVERD: False<im_end>\n"
-                            "<im_start>CKD: False<im_end>\n"
-                            "<im_start>MALIGNANCY: False<im_end>\n"
-                            "<im_start>AUTOIMMUNE_DISEASE: False<im_end>\n"
-                            "<im_start>OTH_MORBIDITIES: nan<im_end>"
-                            "End example\n"
+                            "<im_start>CONSCIOUS_LEVEL: Conscious or Unconscious<im_end>\n"
+                            "<im_start>WEIGHT: nan or (value)<im_end>\n"
+                            "<im_start>NA_W: True or False<im_end>\n"
+                            "<im_start>HEIGHT: nan or (value)<im_end>\n"
+                            "<im_start>NA_H: True or False<im_end>\n"
+                            "<im_start>HYPERTENSION: True or False or No data<im_end>\n"
+                            "<im_start>DIABETES: True or False or No data<im_end>\n"
+                            "<im_start>DYSLIPIDAEMIA: True or False or No data<im_end>\n"
+                            "<im_start>IHD: True or False or No data<im_end>\n"
+                            "<im_start>CLUNGD: True or False or No data<im_end>\n"
+                            "<im_start>CVD: True or False or No data<im_end>\n"
+                            "<im_start>CLIVERD: True or False or No data<im_end>\n"
+                            "<im_start>CKD: True or False or No data<im_end>\n"
+                            "<im_start>MALIGNANCY: True or False or No data<im_end>\n"
+                            "<im_start>AUTOIMMUNE_DISEASE: True or False or No data<im_end>\n"
+                            "<im_start>OTH_MORBIDITIES: nan or (description)<im_end>"
                             "Remember: Checkboxes are indicated at the start of the VALUE in the image."
                         )}
                     ]
