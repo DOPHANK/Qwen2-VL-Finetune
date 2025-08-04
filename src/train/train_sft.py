@@ -372,18 +372,6 @@ def train():
         for p in image_paths:
             log(f" - {p}")
         
-        # === Only take the specific page ===
-        image_paths = [
-            str(p) for p in Path(inference_image_dir).glob("*")
-            if p.name == target_name
-        ]
-
-        log(f"Looking for {target_name} in {inference_image_dir}")
-        if image_paths:
-            log(f"✅ Found page {page_number}: {image_paths[0]}")
-        else:
-            log(f"❌ Page {page_number} not found in {inference_image_dir}")
-        
         # === GPU Info ===
         if torch.cuda.is_available():
             log(f"Using GPU: {torch.cuda.get_device_name(0)}")
