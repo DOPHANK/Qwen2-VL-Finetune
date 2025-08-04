@@ -344,6 +344,7 @@ def train():
     # === Custom single image generation test ===
     import time
     from pathlib import Path
+    from qwen_vl_utils import process_vision_info
     
     # === CONFIGURATION ===
     batch_size = 2                                    # Process N images at a time
