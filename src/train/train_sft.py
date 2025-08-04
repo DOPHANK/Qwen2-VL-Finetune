@@ -358,12 +358,20 @@ def train():
     # === Collect Images from Directory ===
     if getattr(data_args, "inference_image_path", None):
         inference_image_dir = data_args.inference_image_path
+        page_number = getattr(data_args, "page_number", 1)   # Default to page 1 if not set
+        target_name = f"{page_number}.jpg"
         
-        image_paths = sorted([
+        # === Only take the specific page ===
+        image_paths = [
             str(p) for p in Path(inference_image_dir).glob("*")
-            if p.suffix.lower() in [".jpg", ".jpeg", ".png"]
-        ])
-        log(f"Found {len(image_paths)} images in {inference_image_dir}")
+            if p.name == target_name
+        ]
+
+        log(f"Looking for {target_name} in {inference_image_dir}")
+        if image_paths:
+            log(f"✅ Found page {page_number}: {image_paths[0]}")
+        else:
+            log(f"❌ Page {page_number} not found in {inference_image_dir}")
         
         # === GPU Info ===
         if torch.cuda.is_available():
