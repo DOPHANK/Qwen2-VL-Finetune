@@ -345,12 +345,7 @@ def train():
     import time
     from pathlib import Path
     from qwen_vl_utils import process_vision_info
-    
-    # === CONFIGURATION ===
-    batch_size = 10                                    # Process N images at a time
-    max_new_tokens = 512                              # Generation length
-    max_dim = 1024                                    # Resize max dimension
-    
+
     # === Logging Helper ===
     def log(msg):
         print(f"[{time.strftime('%H:%M:%S')}] {msg}")
@@ -387,14 +382,25 @@ def train():
                         {"type": "image", "image": img},
                         {"type": "text", "text": (
                     "Extract all information from this image follow this format strictly: <im_start>KEY: VALUE<im_end>\n"
-                    "Example keys: Side_code, ID, Date_of_record, Sex, Age, Date_of_admission, etc.\n"
+                    "Example keys: ID, Date_of_record, Sex, Age, Date_of_admission, ... Hypertension, Diabetes etc.\n"
                     "If a field is not found, set its VALUE as nan.\n"
                     "Remember: Checkboxes are indicated at the start of the VALUE."
                         )}
                     ]
                 }
             ]
+
+    timing_data = []        
+    for test_batch_size in [4, 6, 8, 10]:
+        log(f"\n{'='*60}")
+        log(f"🧪 Testing batch size: {test_batch_size}")
+        log(f"{'='*60}")
         
+        # === CONFIGURATION ===
+        batch_size = test_batch_size                      # Process N images at a time
+        max_new_tokens = 512                              # Generation length
+        max_dim = 1024                                    # Resize max dimension
+    
         # === MAIN INFERENCE ===
         start_time = time.time()
         all_outputs = []
@@ -470,6 +476,15 @@ def train():
                 all_outputs.append({"image": img_path, "result": text})
         
         log(f"\n✅ Finished multi-image inference in {time.time() - start_time:.2f}s for {len(image_paths)} images.")
+        total_time = time.time() - start_time
+        timing_data.append((test_batch_size, total_time))
+        log(f"⏱️ Total time for batch size {test_batch_size}: {total_time:.2f}s")
+    
+    log("\n=== Batch Size Timing Summary ===")
+    for bs, t in timing_data:
+        per_image = t / len(image_paths)
+        log(f"Batch size {bs}: {t:.2f}s total ({per_image:.2f}s/image)")
+
 
     model.config.use_cache = True
 
