@@ -383,6 +383,7 @@ def train():
                         {"type": "text", "text": (
                     "Extract all information from this image follow this format strictly: <im_start>KEY: VALUE<im_end>\n"
                     "Example keys: ID, Date_of_record, Sex, Age, Date_of_admission, ... Hypertension, Diabetes etc.\n"
+                    "Example format: <im_start>ID: 0001<im_end>\n"
                     "If a field is not found, set its VALUE as nan.\n"
                     "Remember: Checkboxes are indicated at the start of the VALUE."
                         )}
