@@ -375,6 +375,7 @@ def train():
         
         # === Prepare Messages Template ===
         example_output = """
+        Example output extracted from the image corresponding:
         <im_start>Sex: Female<im_end>
         <im_start>Age (years): 26<im_end>
         <im_start>Date of admission: 07/01/2018<im_end>
@@ -402,34 +403,43 @@ def train():
         """
 
         inference_prompt = """
-            You are given an image of a patient record form.  
-            Your task: extract only the information present in the image and output it in the format:
-            <im_start>KEY: VALUE<im_end>
-            Rules:
-            1. Use exactly the labels printed in the form as the KEY and hand-writting text as VALUE.
-            2. For checkbox fields:
-               - Look for boxes marked with an X, ☑, ✓, or any filled mark which be before of the VLUE they represent.
-               - Output VALUE as exactly "Yes", "No", or "No data" (matching the marked box).
-            3. Never guess missing values.
-            """
+        You are now starting a new, separate task.
+        
+        Ignore all text and values from the example above — do NOT copy them.
+        
+        Look only at the next image provided and extract the information.
+        
+        Output format:
+        <im_start>KEY: VALUE<im_end>
+        
+        Rules:
+        1. Use exactly the printed labels in the form as KEY and handwritten text as VALUE.
+        2. For checkbox fields:
+           - Look for boxes marked with an X, ☑, ✓, or any filled mark before the VALUE they represent.
+           - Output VALUE exactly as "Yes", "No", or "No data".
+        3. If no value is visible, write nan.
+        4. Never copy any numbers, words, or labels from earlier examples.
+        """
 
         def build_message_with_example(target_img_path):
-            return [
-                # Example block
+            # First call: Show example (no generation, just context)
+            example_messages = [
                 {
                     "role": "user",
                     "content": [
                         {"type": "image", "image": Image.open("/kaggle/working/images/1/1.jpg").convert("RGB")},
-                        {"type": "text", "text": "Example output for the above image:"}
+                        {"type": "text", "text": "Here is an example image and its correct output."}
                     ]
                 },
                 {
                     "role": "assistant",
-                    "content": [
-                        {"type": "text", "text": example_output}
-                    ]
-                },
-                # Target block
+                    "content": [{"type": "text", "text": example_output}]
+                }
+            ]
+            model.generate(**processor(example_messages, ...))  # This call is just for 'teaching', discard result
+        
+            # Second call: Actual target
+            target_messages = [
                 {
                     "role": "user",
                     "content": [
@@ -438,6 +448,8 @@ def train():
                     ]
                 }
             ]
+            return target_messages
+
 
 
     timing_data = []        
