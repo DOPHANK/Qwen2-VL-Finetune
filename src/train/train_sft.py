@@ -355,7 +355,7 @@ def train():
         base_dir = Path(data_args.inference_image_path)
         page_number = getattr(data_args, "page_number", 1)
         #target_filename = f"{page_number}.jpg"
-        target_filename = ".jpg"
+        target_filename = "*.jpg"
         
         # Get all <patient_number>/<page_number>.jpg
         image_paths = sorted([
