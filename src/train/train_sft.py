@@ -441,7 +441,7 @@ def train():
 
 
     timing_data = []        
-    for test_batch_size in [4]:
+    for test_batch_size in [4, 8]:
         log(f"\n{'='*60}")
         log(f"🧪 Testing batch size: {test_batch_size}")
         log(f"{'='*60}")
