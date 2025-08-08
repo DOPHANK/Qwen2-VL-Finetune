@@ -476,7 +476,7 @@ def train():
         
             # === Collect & Print Results ===
             for img_path, text in zip(batch_paths, outputs):
-                log(f"\n🖼️ [Result for {Path(img_path).name}]:\n{text}")
+                log(f"\n🖼️ [Result for {Path(*Path(img_path).parts[-2:])}]:\n{text}")
                 all_outputs.append({"image": img_path, "result": text})
         
         log(f"\n✅ Finished multi-image inference in {time.time() - start_time:.2f}s for {len(image_paths)} images.")
