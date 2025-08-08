@@ -354,7 +354,8 @@ def train():
     if getattr(data_args, "inference_image_path", None):
         base_dir = Path(data_args.inference_image_path)
         page_number = getattr(data_args, "page_number", 1)
-        target_filename = f"{page_number}.jpg"
+        #target_filename = f"{page_number}.jpg"
+        target_filename = ".jpg"
         
         # Get all <patient_number>/<page_number>.jpg
         image_paths = sorted([
@@ -381,9 +382,11 @@ def train():
                     "content": [
                         {"type": "image", "image": img},
                         {"type": "text", "text": (
-                    "Extract all information from this image follow this format strictly: <im_start>KEY: VALUE<im_end>\n"
-                    "Example keys: ID, Date_of_record, Sex, Age, Date_of_admission, ... Hypertension, Diabetes etc.\n"
-                    "Example format: <im_start>ID: 0001<im_end>\n"
+                    "You will see part of a patient record. Extract only the information on this page."
+                    "Format: <im_start>KEY: VALUE<im_end>"
+                    "Use exactly the labels printed in the form as KEY."
+                    "Preserve units and measurement formats."
+                    "Skip fields not present in the page."
                     "If a field is not found, set its VALUE as nan.\n"
                     "Remember: Checkboxes are indicated at the start of the VALUE."
                         )}
@@ -392,7 +395,7 @@ def train():
             ]
 
     timing_data = []        
-    for test_batch_size in [4, 6, 8, 10]:
+    for test_batch_size in [2, 4]:
         log(f"\n{'='*60}")
         log(f"🧪 Testing batch size: {test_batch_size}")
         log(f"{'='*60}")
