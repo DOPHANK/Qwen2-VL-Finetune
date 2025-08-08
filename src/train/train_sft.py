@@ -433,7 +433,7 @@ def train():
                 {
                     "role": "user",
                     "content": [
-                        {"type": "image", "image": Image.open(target_img_path).convert("RGB")},
+                        {"type": "image", "image": target_img_path},
                         {"type": "text", "text": inference_prompt}
                     ]
                 }
