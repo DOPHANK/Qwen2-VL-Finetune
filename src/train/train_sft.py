@@ -381,21 +381,33 @@ def train():
                     "role": "user",
                     "content": [
                         {"type": "image", "image": img},
-                        {"type": "text", "text": (
-                    "You will see part of a patient record. Extract only the information on this page."
-                    "Format: <im_start>KEY: VALUE<im_end>"
-                    "Use exactly the labels printed in the form as KEY."
-                    "Preserve units and measurement formats."
-                    "Skip fields not present in the page."
-                    "If a field is not found, set its VALUE as nan.\n"
-                    "Remember: Checkboxes are indicated at the start of the VALUE."
-                        )}
+                        {
+                            "type": "text",
+                            "text": (
+                                "You will see part of a patient record. Extract only the information on this page. "
+                                "Format: <im_start>{key_name}: {value}<im_end>"
+                                "Use exactly the labels printed in the form as {key_name}. "
+                                "Preserve units and measurement formats. "
+                                "Skip fields not present in the page. "
+                                "If a field is not found, set its {value} as nan.\n"
+                                "Special instructions for checkboxes:\n"
+                                "- If a question has 'Yes', 'No', or 'No data' checkboxes, find which box is marked with an X or tick.\n"
+                                "- Return the VALUE exactly as 'Yes', 'No', or 'No data' (do not guess).\n"
+                                "- If multiple boxes are ticked, return them separated by commas.\n"
+                                "- If no box is ticked, return 'No data'.\n"
+                                "Example:\n"
+                                "If the form says:\n"
+                                "Hypertension  [☑ Yes]  [☐ No]  [☐ No data]\n"
+                                "Then output:\n"
+                                "<im_start>Hypertension: Yes\n"
+                            )
+                        }
                     ]
                 }
             ]
 
     timing_data = []        
-    for test_batch_size in [2, 4]:
+    for test_batch_size in [4, 10]:
         log(f"\n{'='*60}")
         log(f"🧪 Testing batch size: {test_batch_size}")
         log(f"{'='*60}")
