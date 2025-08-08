@@ -436,7 +436,6 @@ def train():
                     "content": [{"type": "text", "text": example_output}]
                 }
             ]
-            model.generate(**processor(example_messages, ...))  # This call is just for 'teaching', discard result
         
             # Second call: Actual target
             target_messages = [
