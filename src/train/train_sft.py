@@ -354,8 +354,7 @@ def train():
     if getattr(data_args, "inference_image_path", None):
         base_dir = Path(data_args.inference_image_path)
         page_number = getattr(data_args, "page_number", 1)
-        #target_filename = f"{page_number}.jpg"
-        target_filename = "*.jpg"
+        target_filename = f"{page_number}.jpg"
         
         # Get all <patient_number>/<page_number>.jpg
         image_paths = sorted([
@@ -375,39 +374,74 @@ def train():
             log("⚠️ No GPU detected! Running on CPU (very slow)")
         
         # === Prepare Messages Template ===
-        def build_message_for_image(img):
+        example_output = """
+        <im_start>Sex: Female<im_end>
+        <im_start>Age (years): 26<im_end>
+        <im_start>Date of admission: 07/01/2018<im_end>
+        <im_start>Date of discharge: 10/01/2018<im_end>
+        <im_start>Days of illness: 3<im_end>
+        <im_start>Temperature: 37.1<im_end>
+        <im_start>Blood pressure: 123/84<im_end>
+        <im_start>Heart rate: 104<im_end>
+        <im_start>Respiratory rate: 12<im_end>
+        <im_start>Oxygen saturation: 98<im_end>
+        <im_start>Conscious level: Conscious<im_end>
+        <im_start>Weight: 63<im_end>
+        <im_start>Height: 151<im_end>
+        <im_start>Hypertension: Yes<im_end>
+        <im_start>Diabetes: Yes<im_end>
+        <im_start>Dyslipidaemia: Yes<im_end>
+        <im_start>Ischaemic heart disease: Yes<im_end>
+        <im_start>Chronic lung disease: Yes<im_end>
+        <im_start>Cerebrovascular disease: Yes<im_end>
+        <im_start>Chronic liver disease: No<im_end>
+        <im_start>Chronic kidney disease: Yes<im_end>
+        <im_start>Malignancy (solid or haematologic): Yes<im_end>
+        <im_start>Autoimmune disease: Yes<im_end>
+        <im_start>Others: nan<im_end>
+        """
+
+        inference_prompt = """
+            You are given an image of a patient record form.  
+            Your task: extract only the information present in the image and output it in the format:
+            <im_start>KEY: VALUE<im_end>
+            Rules:
+            1. Use exactly the labels printed in the form as the KEY and hand-writting text as VALUE.
+            2. For checkbox fields:
+               - Look for boxes marked with an X, ☑, ✓, or any filled mark which be before of the VLUE they represent.
+               - Output VALUE as exactly "Yes", "No", or "No data" (matching the marked box).
+            3. Never guess missing values.
+            """
+
+        def build_message_with_example(target_img_path):
             return [
+                # Example block
                 {
                     "role": "user",
                     "content": [
-                        {"type": "image", "image": img},
-                        {
-                            "type": "text",
-                            "text": (
-                                "You will see part of a patient record. Extract only the information on this page. "
-                                "Format: <im_start>{key_name}: {value}<im_end>"
-                                "Use exactly the labels printed in the form as {key_name}. "
-                                "Preserve units and measurement formats. "
-                                "Skip fields not present in the page. "
-                                "If a field is not found, set its {value} as nan.\n"
-                                "Special instructions for checkboxes:\n"
-                                "- If a question has 'Yes', 'No', or 'No data' checkboxes, find which box is marked with an X or tick.\n"
-                                "- Return the VALUE exactly as 'Yes', 'No', or 'No data' (do not guess).\n"
-                                "- If multiple boxes are ticked, return them separated by commas.\n"
-                                "- If no box is ticked, return 'No data'.\n"
-                                "Example:\n"
-                                "If the form says:\n"
-                                "Hypertension  [☑ Yes]  [☐ No]  [☐ No data]\n"
-                                "Then output:\n"
-                                "<im_start>Hypertension: Yes\n"
-                            )
-                        }
+                        {"type": "image", "image": Image.open("/kaggle/working/images/1/1.jpg").convert("RGB")},
+                        {"type": "text", "text": "Example output for the above image:"}
+                    ]
+                },
+                {
+                    "role": "assistant",
+                    "content": [
+                        {"type": "text", "text": example_output}
+                    ]
+                },
+                # Target block
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image", "image": Image.open(target_img_path).convert("RGB")},
+                        {"type": "text", "text": inference_prompt}
                     ]
                 }
             ]
 
+
     timing_data = []        
-    for test_batch_size in [4, 10]:
+    for test_batch_size in [4]:
         log(f"\n{'='*60}")
         log(f"🧪 Testing batch size: {test_batch_size}")
         log(f"{'='*60}")
