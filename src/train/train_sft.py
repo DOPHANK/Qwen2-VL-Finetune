@@ -436,7 +436,7 @@ def train():
                 if max(w, h) > max_dim:
                     scale = max_dim / max(w, h)
                     img = img.resize((int(w*scale), int(h*scale)), Image.LANCZOS)
-                log(f"🖼️ Loaded {Path(img_path).name} size={img.size} in {time.time()-t_load:.2f}s")
+                log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} size={img.size} in {time.time()-t_load:.2f}s")
                 images_loaded.append(img)
                 messages_batch.append(build_message_for_image(img))
         
