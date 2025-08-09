@@ -18,7 +18,7 @@ from src.constants import (
 
 from src.dataset.data_utils import get_image_info, get_video_info, llava_to_openai, pad_sequence
 
-
+from pathlib import Path
 
 class SupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
@@ -101,14 +101,52 @@ class SupervisedDataset(Dataset):
 
             images = []
             
+            #for image_file in image_files:
+            #    if not os.path.exists(image_file):
+            #        if not image_file.startswith("http"):
+            #            image_file = os.path.join(image_folder, image_file)
+            #            
+            #    image_file = os.path.join("/kaggle/working/Qwen2-VL-Finetune", image_file)
+            #    images.append(get_image_info(image_file, self.image_min_pixel, self.image_max_pixel, self.image_resized_w, self.image_resized_h))
             for image_file in image_files:
-                if not os.path.exists(image_file):
-                    if not image_file.startswith("http"):
-                        image_file = os.path.join(image_folder, image_file)
-                        
-                image_file = os.path.join("/kaggle/working/Qwen2-VL-Finetune", image_file)
-                images.append(get_image_info(image_file, self.image_min_pixel, self.image_max_pixel, self.image_resized_w, self.image_resized_h))
-
+                found_path = None
+            
+                # 1. If it's already an absolute path and exists, use it
+                if os.path.isabs(image_file) and os.path.exists(image_file):
+                    found_path = image_file
+            
+                # 2. Try relative to the configured image_folder
+                if not found_path:
+                    candidate = os.path.join(image_folder, image_file)
+                    if os.path.exists(candidate):
+                        found_path = candidate
+            
+                # 3. Try relative to project root (old behavior)
+                if not found_path:
+                    candidate = os.path.join("/kaggle/working/Qwen2-VL-Finetune", image_file)
+                    if os.path.exists(candidate):
+                        found_path = candidate
+            
+                # 4. Search by filename in the whole image folder (handles missing/misnumbered subfolders)
+                if not found_path:
+                    search_root = Path(image_folder)
+                    target_name = Path(image_file).name  # e.g., "1.jpg"
+                    matches = list(search_root.rglob(target_name))
+                    if matches:
+                        found_path = str(matches[0])  # take first match
+            
+                # 5. If still not found, skip this image
+                if not found_path:
+                    print(f"[WARN] Image not found: {image_file} — skipping sample")
+                    continue
+            
+                images.append(get_image_info(
+                    found_path,
+                    self.image_min_pixel,
+                    self.image_max_pixel,
+                    self.image_resized_w,
+                    self.image_resized_h
+                ))
         elif "video" in sources:
             is_video = True
             images=None
