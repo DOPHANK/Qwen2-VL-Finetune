@@ -380,36 +380,36 @@ def train():
         # === Prepare Messages Template ===
         example_output = """
         Example output extracted from the image corresponding:
-        <im_start>Sex: Female<im_end>
-        <im_start>Age (years): 26<im_end>
-        <im_start>Date of admission: 07/01/2018<im_end>
-        <im_start>Date of discharge: 10/01/2018<im_end>
-        <im_start>Days of illness: 3<im_end>
-        <im_start>Temperature: 37.1<im_end>
-        <im_start>Blood pressure: 123/84<im_end>
-        <im_start>Heart rate: 104<im_end>
-        <im_start>Respiratory rate: 12<im_end>
-        <im_start>Oxygen saturation: 98<im_end>
-        <im_start>Conscious level: Conscious<im_end>
-        <im_start>Weight: 63<im_end>
-        <im_start>Height: 151<im_end>
-        <im_start>Hypertension: Yes<im_end>
-        <im_start>Diabetes: Yes<im_end>
-        <im_start>Dyslipidaemia: Yes<im_end>
-        <im_start>Ischaemic heart disease: Yes<im_end>
-        <im_start>Chronic lung disease: Yes<im_end>
-        <im_start>Cerebrovascular disease: Yes<im_end>
-        <im_start>Chronic liver disease: No<im_end>
-        <im_start>Chronic kidney disease: Yes<im_end>
-        <im_start>Malignancy (solid or haematologic): Yes<im_end>
-        <im_start>Autoimmune disease: Yes<im_end>
-        <im_start>Others: nan<im_end>
+        <im_start>Sex: [Male/Female]<im_end>
+        <im_start>Age (years): [number or nan]<im_end>
+        <im_start>Date of admission: [DD/MM/YYYY or nan]<im_end>
+        <im_start>Date of discharge: [DD/MM/YYYY or nan]<im_end>
+        <im_start>Days of illness: [number or nan]<im_end>
+        <im_start>Temperature: [°C or nan]<im_end>
+        <im_start>Blood pressure: [systolic/diastolic mmHg or nan]<im_end>
+        <im_start>Heart rate: [bpm or nan]<im_end>
+        <im_start>Respiratory rate: [breaths/min or nan]<im_end>
+        <im_start>Oxygen saturation: [% or nan]<im_end>
+        <im_start>Conscious level: [Conscious/Unconscious or nan]<im_end>
+        <im_start>Weight: [kg or nan]<im_end>
+        <im_start>Height: [cm or nan]<im_end>
+        <im_start>Hypertension: [Yes/No/No data or nan]<im_end>
+        <im_start>Diabetes: [Yes/No/No data or nan]<im_end>
+        <im_start>Dyslipidaemia: [Yes/No/No data or nan]<im_end>
+        <im_start>Ischaemic heart disease: [Yes/No/No data or nan]<im_end>
+        <im_start>Chronic lung disease: [Yes/No/No data or nan]<im_end>
+        <im_start>Cerebrovascular disease: [Yes/No/No data or nan]<im_end>
+        <im_start>Chronic liver disease: [Yes/No/No data or nan]<im_end>
+        <im_start>Chronic kidney disease: [Yes/No/No data or nan]<im_end>
+        <im_start>Malignancy (solid or haematologic): [Yes/No/No data or nan]<im_end>
+        <im_start>Autoimmune disease: [Yes/No/No data or nan]<im_end>
+        <im_start>Others: [text or nan]<im_end>
         """
-
+        
         inference_prompt = """
         You are now starting a new, separate task.
         
-        Ignore all text and values from the example above — do NOT copy them.
+        Ignore all text and values from the example above — they are placeholders.
         
         Look only at the next image provided and extract the information.
         
@@ -424,15 +424,21 @@ def train():
         3. If no value is visible, write nan.
         4. Never copy any numbers, words, or labels from earlier examples.
         """
-
+        
         def build_message_with_example(target_img_path):
-            # First call: Show example (no generation, just context)
+            # First: Example with placeholders only
             example_messages = [
                 {
                     "role": "user",
                     "content": [
-                        {"type": "image", "image": Image.open("/kaggle/working/images/1/1.jpg").convert("RGB")},
-                        {"type": "text", "text": "Here is an example image and its correct output."}
+                        {
+                            "type": "image", 
+                            "image": Image.open("/kaggle/working/images/1/1.jpg").convert("RGB")
+                        },
+                        {
+                            "type": "text", 
+                            "text": "Here is an example image and its correct output format (values are placeholders):"
+                        }
                     ]
                 },
                 {
@@ -441,19 +447,23 @@ def train():
                 }
             ]
         
-            # Second call: Actual target
+            # Second: Actual target task
             target_messages = [
                 {
                     "role": "user",
                     "content": [
-                        {"type": "image", "image": target_img_path},
-                        {"type": "text", "text": inference_prompt}
+                        {
+                            "type": "image", 
+                            "image": target_img_path
+                        },
+                        {
+                            "type": "text", 
+                            "text": inference_prompt
+                        }
                     ]
                 }
             ]
             return target_messages
-
-
 
     timing_data = []        
     for test_batch_size in [4, 8]:
