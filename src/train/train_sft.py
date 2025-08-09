@@ -17,6 +17,11 @@ from src.train.reward_funcs import accuracy_reward, format_reward, accuracy_info
 import numpy as np
 from PIL import Image
 
+from pathlib import Path
+from datasets import Dataset
+from src.dataset.sft_dataset import SupervisedDataset
+from transformers import Trainer
+
 local_rank = None
 
 def rank0_print(*args):
@@ -345,6 +350,7 @@ def train():
     import time
     from pathlib import Path
     from qwen_vl_utils import process_vision_info
+    from src.dataset.data_utils import get_image_info
 
     # === Logging Helper ===
     def log(msg):
@@ -427,13 +433,21 @@ def train():
         
         def build_message_with_example(target_img_path):
             # First: Example with placeholders only
+            example_image, _ = get_image_info(
+                "/kaggle/working/images/1/1.jpg",
+                image_min_pixel=data_args.image_min_pixel,
+                image_max_pixel=data_args.image_max_pixel,
+                image_resized_w=data_args.image_resized_w,
+                image_resized_h=data_args.image_resized_h
+            )
+            
             example_messages = [
                 {
                     "role": "user",
                     "content": [
                         {
                             "type": "image", 
-                            "image": Image.open("/kaggle/working/images/1/1.jpg").convert("RGB")
+                            "image": example_image
                         },
                         {
                             "type": "text", 
@@ -490,15 +504,30 @@ def train():
             # === Load and Resize Images ===
             for img_path in batch_paths:
                 t_load = time.time()
-                img = Image.open(img_path).convert("RGB")
-                w, h = img.size
-                if max(w, h) > max_dim:
-                    scale = max_dim / max(w, h)
-                    img = img.resize((int(w*scale), int(h*scale)), Image.LANCZOS)
-                log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} size={img.size} in {time.time()-t_load:.2f}s")
-                images_loaded.append(img)
-                messages_batch.append(build_message_with_example(img))
-        
+                
+                #img = Image.open(img_path).convert("RGB")
+                #w, h = img.size
+                #if max(w, h) > max_dim:
+                #    scale = max_dim / max(w, h)
+                #    img = img.resize((int(w*scale), int(h*scale)), Image.LANCZOS)
+                #log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} size={img.size} in {time.time()-t_load:.2f}s")
+                #images_loaded.append(img)
+                #messages_batch.append(build_message_with_example(img))
+                
+                # This returns the preprocessed image tensor + other info
+                image_tensor, _ = get_image_info(
+                    img_path,
+                    image_min_pixel=data_args.image_min_pixel,
+                    image_max_pixel=data_args.image_max_pixel,
+                    image_resized_w=data_args.image_resized_w,
+                    image_resized_h=data_args.image_resized_h
+                )
+                log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} preprocessed to {list(image_tensor.size())} in {time.time()-t_load:.2f}s")
+                .append(image_tensor)
+                
+                # Build messages with this preprocessed image
+                messages_batch.append(build_message_with_example(image_tensor))
+            
             # === Build Text Prompts ===
             text_batch = [
                 processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
