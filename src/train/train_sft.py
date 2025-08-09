@@ -526,7 +526,7 @@ def train():
                 image_resized_w = getattr(data_args, "image_resized_width", getattr(data_args, "image_resized_w", None))
                 image_resized_h = getattr(data_args, "image_resized_height", getattr(data_args, "image_resized_h", None))
                 
-                image_tensor = get_image_info(
+                image_proc = get_image_info(
                     img_path,
                     image_min_pixels,
                     image_max_pixels,
@@ -536,7 +536,8 @@ def train():
                 log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} preprocessed in {time.time()-t_load:.2f}s")
                 
                 # Build messages with this preprocessed image
-                messages_batch.append(build_message_with_example(image_tensor))
+                images_loaded.append(image_proc)
+                messages_batch.append(build_message_with_example(image_proc))
             
             # === Build Text Prompts ===
             text_batch = [
@@ -546,11 +547,9 @@ def train():
         
             # === Preprocess ===
             t0 = time.time()
-            image_inputs, video_inputs = process_vision_info(messages_batch)
             inputs = processor(
                 text=text_batch,
-                images=image_inputs,
-                videos=video_inputs,
+                images=images_loaded,
                 padding=True,
                 return_tensors="pt",
             ).to(model.device)
