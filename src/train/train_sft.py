@@ -533,6 +533,7 @@ def train():
                     image_resized_w,
                     image_resized_h
                 )
+                log(f"image_proc: {image_proc}")
                 log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} preprocessed in {time.time()-t_load:.2f}s")
                 
                 # Build messages with this preprocessed image
