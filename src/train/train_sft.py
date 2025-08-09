@@ -526,7 +526,7 @@ def train():
                 log(f"image_resized_w: {image_resized_w}")
                 log(f"image_resized_h: {image_resized_h}")
                 
-                image_tensor, _ = get_image_info(
+                image_tensor = get_image_info(
                     img_path,
                     image_min_pixels,
                     image_max_pixels,
