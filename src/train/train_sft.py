@@ -435,8 +435,8 @@ def train():
             # First: Example with placeholders only
             example_image, _ = get_image_info(
                 "/kaggle/working/images/1/1.jpg",
-                image_min_pixel=data_args.image_min_pixel,
-                image_max_pixel=data_args.image_max_pixel,
+                image_min_pixel=data_args.image_min_pixels,
+                image_max_pixel=data_args.image_max_pixels,
                 image_resized_w=data_args.image_resized_w,
                 image_resized_h=data_args.image_resized_h
             )
