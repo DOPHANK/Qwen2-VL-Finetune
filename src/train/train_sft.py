@@ -433,12 +433,17 @@ def train():
         
         def build_message_with_example(target_img_path):
             # First: Example with placeholders only
+            image_min_pixels = getattr(data_args, "image_min_pixels", getattr(data_args, "image_min_pixel", None))
+            image_max_pixels = getattr(data_args, "image_max_pixels", getattr(data_args, "image_max_pixel", None))
+            image_resized_w = getattr(data_args, "image_resized_width", getattr(data_args, "image_resized_w", None))
+            image_resized_h = getattr(data_args, "image_resized_height", getattr(data_args, "image_resized_h", None))
+            
             example_image, _ = get_image_info(
                 "/kaggle/working/images/1/1.jpg",
-                image_min_pixel=data_args.image_min_pixels,
-                image_max_pixel=data_args.image_max_pixels,
-                image_resized_w=data_args.image_resized_w,
-                image_resized_h=data_args.image_resized_h
+                image_min_pixels,
+                image_max_pixels,
+                image_resized_w,
+                image_resized_h
             )
             
             example_messages = [
