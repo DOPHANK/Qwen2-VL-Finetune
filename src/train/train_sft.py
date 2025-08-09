@@ -523,7 +523,6 @@ def train():
                     image_resized_h=data_args.image_resized_h
                 )
                 log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} preprocessed to {list(image_tensor.size())} in {time.time()-t_load:.2f}s")
-                .append(image_tensor)
                 
                 # Build messages with this preprocessed image
                 messages_batch.append(build_message_with_example(image_tensor))
