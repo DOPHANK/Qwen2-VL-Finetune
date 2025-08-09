@@ -438,7 +438,7 @@ def train():
             image_resized_w = getattr(data_args, "image_resized_width", getattr(data_args, "image_resized_w", None))
             image_resized_h = getattr(data_args, "image_resized_height", getattr(data_args, "image_resized_h", None))
             
-            example_image, _ = get_image_info(
+            example_image = get_image_info(
                 "/kaggle/working/images/1/1.jpg",
                 image_min_pixels,
                 image_max_pixels,
