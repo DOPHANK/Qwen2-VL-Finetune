@@ -513,14 +513,20 @@ def train():
                 #log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} size={img.size} in {time.time()-t_load:.2f}s")
                 #images_loaded.append(img)
                 #messages_batch.append(build_message_with_example(img))
-                
+
                 # This returns the preprocessed image tensor + other info
+                # Use the correct attribute names from DataArguments
+                image_min_pixels = getattr(data_args, "image_min_pixels", getattr(data_args, "image_min_pixel", None))
+                image_max_pixels = getattr(data_args, "image_max_pixels", getattr(data_args, "image_max_pixel", None))
+                image_resized_w = getattr(data_args, "image_resized_width", getattr(data_args, "image_resized_w", None))
+                image_resized_h = getattr(data_args, "image_resized_height", getattr(data_args, "image_resized_h", None))
+                
                 image_tensor, _ = get_image_info(
                     img_path,
-                    image_min_pixel=data_args.image_min_pixel,
-                    image_max_pixel=data_args.image_max_pixel,
-                    image_resized_w=data_args.image_resized_w,
-                    image_resized_h=data_args.image_resized_h
+                    image_min_pixels,
+                    image_max_pixels,
+                    image_resized_w,
+                    image_resized_h
                 )
                 log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} preprocessed to {list(image_tensor.size())} in {time.time()-t_load:.2f}s")
                 
