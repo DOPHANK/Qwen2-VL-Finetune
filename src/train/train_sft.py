@@ -276,7 +276,7 @@ def train():
 
     # model.config.tokenizer_model_max_length = processor.tokenizer.model_max_length
 
-    if training_args.bits in [4, 8]:
+    if training_args.bits in [4]:
         from peft.tuners.lora import LoraLayer
         for name, module in model.named_modules():
             if isinstance(module, LoraLayer):
