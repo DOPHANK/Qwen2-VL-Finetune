@@ -520,6 +520,11 @@ def train():
                 image_max_pixels = getattr(data_args, "image_max_pixels", getattr(data_args, "image_max_pixel", None))
                 image_resized_w = getattr(data_args, "image_resized_width", getattr(data_args, "image_resized_w", None))
                 image_resized_h = getattr(data_args, "image_resized_height", getattr(data_args, "image_resized_h", None))
+
+                log(f"image_min_pixels: {image_min_pixels}")
+                log(f"image_max_pixels: {image_max_pixels}")
+                log(f"image_resized_w: {image_resized_w}")
+                log(f"image_resized_h: {image_resized_h}")
                 
                 image_tensor, _ = get_image_info(
                     img_path,
@@ -528,6 +533,7 @@ def train():
                     image_resized_w,
                     image_resized_h
                 )
+                log(f"image_tensor: {image_tensor}")
                 log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} preprocessed to {list(image_tensor.size())} in {time.time()-t_load:.2f}s")
                 
                 # Build messages with this preprocessed image
