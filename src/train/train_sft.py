@@ -357,9 +357,13 @@ def train():
         target_filename = f"{page_number}.jpg"
         
         # Get all <patient_number>/<page_number>.jpg
+        #image_paths = sorted([
+        #    str(p) for p in base_dir.glob(f"*/{target_filename}")
+        #])
         image_paths = sorted([
-            str(p) for p in base_dir.glob(f"*/{target_filename}")
+            str(p) for p in base_dir.rglob(target_filename)
         ])
+
         
         log(f"Looking for {target_filename} under {base_dir}/*/")
         log(f"✅ Found {len(image_paths)} images")
