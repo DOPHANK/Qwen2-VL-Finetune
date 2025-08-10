@@ -387,34 +387,48 @@ def train():
         
         # === Prepare Messages Template ===
         EXAMPLE_DIR = Path("/kaggle/working/data/chatml")
-        IMAGE_ROOT = Path("/kaggle/working/images")
+        IMG_DIR = Path("/kaggle/working/images")
         
         def load_examples():
             example_messages = []
-            log(f"📂 Searching for JSONs in: {EXAMPLE_DIR}")
         
+            print(f"📂 Searching for JSONs in: {EXAMPLE_DIR}")
             for json_file in sorted(EXAMPLE_DIR.glob("Patient_*_CHATML/*.json")):
                 with open(json_file, "r") as f:
                     data = json.load(f)
         
-                if not data or not isinstance(data, list) or "conversations" not in data[0]:
+                # Detect root format
+                if isinstance(data, list) and "conversations" in data[0]:
+                    conversations = data[0]["conversations"]
+                elif isinstance(data, dict) and "conversations" in data:
+                    conversations = data["conversations"]
+                else:
+                    print(f"⚠️ Skipping {json_file} — no conversations key found")
                     continue
         
-                # Extract patient/page from filename
-                match = re.match(r"Patient_(\d+)_page_(\d+)\.json", json_file.name)
-                if not match:
+                # Extract assistant's output text
+                if len(conversations) > 1 and "value" in conversations[1]:
+                    output_text = conversations[1]["value"]
+                else:
+                    print(f"⚠️ Skipping {json_file} — no assistant value found")
                     continue
-                patient_id, page_id = match.groups()
         
-                img_path = IMAGE_ROOT / patient_id / f"{page_id}.jpg"
+                # Figure out patient ID and page from filename
+                json_name = json_file.stem  # e.g., "Patient_1_page_1"
+                parts = json_name.split("_")
+                patient_id = parts[1]
+                page_num = parts[-1]
+        
+                # Match to image path
+                img_path = IMG_DIR / patient_id / f"{page_num}.jpg"
                 if not img_path.exists():
-                    img_path = IMAGE_ROOT / patient_id / f"{page_id}.png"
-                if not img_path.exists():
+                    print(f"❌ Image not found for {json_file}, expected {img_path}")
                     continue
         
+                # Load image
                 img = Image.open(img_path).convert("RGB")
-                output_text = data[0]["conversations"][1]["value"]
         
+                # Append few-shot example
                 example_messages.append({
                     "role": "user",
                     "content": [
@@ -427,7 +441,9 @@ def train():
                     "content": [{"type": "text", "text": output_text}]
                 })
         
-            log(f"🎯 Total examples loaded: {len(example_messages)//2}")
+                print(f"✅ Loaded example: {json_file} ↔ {img_path}")
+        
+            print(f"🎯 Total examples loaded: {len(example_messages)//2}")
             return example_messages
     
         fs_examples = load_examples()
