@@ -396,16 +396,16 @@ def train():
                     with open(json_file, "r") as f:
                         data = json.load(f)
                     
-                    if not data or "conversations" not in data[0]:
+                    if not data or "conversations" not in data:
                         continue
                     
-                    img_rel_path = data[0]["image"].lstrip("/")  # remove leading slash
+                    img_rel_path = data["image"].lstrip("/")  # remove leading slash
                     img_path = Path("/kaggle/working") / img_rel_path
                     if not img_path.exists():
                         continue
                     
                     img = Image.open(img_path).convert("RGB")
-                    output_text = data[0]["conversations"][1]["value"]
+                    output_text = data["conversations"][1]["value"]
         
                     # User example
                     example_messages.append({
@@ -423,9 +423,9 @@ def train():
         
             return example_messages
 
-
         fs_examples = load_examples()
         log(f"fs_examples: {fs_examples}")
+        log(f"len: {len(fs_examples)}")
         
         example_output = """
         Example output extracted from the image corresponding:
