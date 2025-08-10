@@ -390,41 +390,42 @@ def train():
         
         def load_examples():
             example_messages = []
+            
             for folder in sorted(EXAMPLE_DIR.glob("patient_*_CHATML")):
-                json_files = list(folder.glob("*.json"))
-                img_files = list(folder.glob("*.jpg")) + list(folder.glob("*.png"))
-                
-                if not json_files or not img_files:
-                    continue
-                
-                # Read image
-                img_path = img_files[0]
-                img = Image.open(img_path).convert("RGB")
+                for json_file in sorted(folder.glob("*.json")):
+                    with open(json_file, "r") as f:
+                        data = json.load(f)
+                    
+                    if not data or "conversations" not in data[0]:
+                        continue
+                    
+                    img_rel_path = data[0]["image"].lstrip("/")  # remove leading slash
+                    img_path = Path("/kaggle/working") / img_rel_path
+                    if not img_path.exists():
+                        continue
+                    
+                    img = Image.open(img_path).convert("RGB")
+                    output_text = data[0]["conversations"][1]["value"]
         
-                # Read JSON as output text
-                with open(json_files[0], "r") as f:
-                    data = json.load(f)
-                output_text = data if isinstance(data, str) else json.dumps(data)
-        
-                # Append as few-shot example
-                example_messages.append(
-                    {
+                    # User example
+                    example_messages.append({
                         "role": "user",
                         "content": [
                             {"type": "image", "image": img},
                             {"type": "text", "text": "Here is an example image and its correct output format:"}
                         ]
-                    }
-                )
-                example_messages.append(
-                    {
+                    })
+                    # Assistant example
+                    example_messages.append({
                         "role": "assistant",
                         "content": [{"type": "text", "text": output_text}]
-                    }
-                )
+                    })
+        
             return example_messages
 
+
         fs_examples = load_examples()
+        log(f"fs_examples: {fs_examples}")
         
         example_output = """
         Example output extracted from the image corresponding:
@@ -533,8 +534,6 @@ def train():
                 processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
                 for msg in messages_batch
             ]
-            log(f"text_batch: {text_batch}")
-            log(f"messages_batch: {messages_batch}")
         
             # === Preprocess ===
             t0 = time.time()
