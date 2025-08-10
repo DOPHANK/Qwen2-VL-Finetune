@@ -373,8 +373,8 @@ def train():
         ])
 
         
-        log(f"Looking for {target_filename} under {base_dir}/*/")
-        log(f"✅ Found {len(image_paths)} images")
+        #log(f"Looking for {target_filename} under {base_dir}/*/")
+        #log(f"✅ Found {len(image_paths)} images")
         
         #for p in image_paths:
         #    log(f" - {p}")
@@ -391,64 +391,43 @@ def train():
         
         def load_examples():
             example_messages = []
-            print(f"📂 Searching for JSONs in: {EXAMPLE_DIR}")
+            log(f"📂 Searching for JSONs in: {EXAMPLE_DIR}")
         
-            for folder in sorted(EXAMPLE_DIR.glob("Patient_*_CHATML")):
-                print(f"🔍 Checking folder: {folder}")
-                
-                for json_file in sorted(folder.glob("*.json")):
-                    print(f"   📄 Reading JSON: {json_file}")
-                    with open(json_file, "r") as f:
-                        data = json.load(f)
+            for json_file in sorted(EXAMPLE_DIR.glob("Patient_*_CHATML/*.json")):
+                with open(json_file, "r") as f:
+                    data = json.load(f)
         
-                    # Must be a list
-                    if not data or not isinstance(data, list):
-                        print("   ⚠️ Skipped: not a list or empty")
-                        continue
+                if not data or not isinstance(data, list) or "conversations" not in data[0]:
+                    continue
         
-                    record = data[0]
-                    if "image" not in record or "conversations" not in record:
-                        print("   ⚠️ Skipped: missing keys")
-                        continue
+                # Extract patient/page from filename
+                match = re.match(r"Patient_(\d+)_page_(\d+)\.json", json_file.name)
+                if not match:
+                    continue
+                patient_id, page_id = match.groups()
         
-                    # Extract image path from JSON
-                    img_rel_path = record["image"]
-                    print(f"   🖼 JSON image path: {img_rel_path}")
+                img_path = IMAGE_ROOT / patient_id / f"{page_id}.jpg"
+                if not img_path.exists():
+                    img_path = IMAGE_ROOT / patient_id / f"{page_id}.png"
+                if not img_path.exists():
+                    continue
         
-                    parts = Path(img_rel_path).parts
-                    if len(parts) < 2:
-                        print("   ⚠️ Skipped: unexpected path format")
-                        continue
+                img = Image.open(img_path).convert("RGB")
+                output_text = data[0]["conversations"][1]["value"]
         
-                    patient_num = parts[-2]
-                    page_file = parts[-1]
-                    img_path = IMAGE_ROOT / patient_num / page_file
-                    print(f"   📍 Resolved local image path: {img_path}")
+                example_messages.append({
+                    "role": "user",
+                    "content": [
+                        {"type": "image", "image": img},
+                        {"type": "text", "text": "Here is an example image and its correct output format:"}
+                    ]
+                })
+                example_messages.append({
+                    "role": "assistant",
+                    "content": [{"type": "text", "text": output_text}]
+                })
         
-                    if not img_path.exists():
-                        print("   ❌ Image not found locally")
-                        continue
-        
-                    img = Image.open(img_path).convert("RGB")
-                    output_text = record["conversations"][1]["value"]
-        
-                    # Append user example
-                    example_messages.append({
-                        "role": "user",
-                        "content": [
-                            {"type": "image", "image": img},
-                            {"type": "text", "text": "Here is an example image and its correct output format:"}
-                        ]
-                    })
-                    # Append assistant example
-                    example_messages.append({
-                        "role": "assistant",
-                        "content": [{"type": "text", "text": output_text}]
-                    })
-        
-                    print(f"   ✅ Added example from {img_path}")
-        
-            print(f"🎯 Total examples loaded: {len(example_messages)//2}")
+            log(f"🎯 Total examples loaded: {len(example_messages)//2}")
             return example_messages
     
         fs_examples = load_examples()
