@@ -432,19 +432,7 @@ def train():
         """
         
         def build_message_with_example(target_img_path):
-            # First: Example with placeholders only
-            image_min_pixels = getattr(data_args, "image_min_pixels", getattr(data_args, "image_min_pixel", None))
-            image_max_pixels = getattr(data_args, "image_max_pixels", getattr(data_args, "image_max_pixel", None))
-            image_resized_w = getattr(data_args, "image_resized_width", getattr(data_args, "image_resized_w", None))
-            image_resized_h = getattr(data_args, "image_resized_height", getattr(data_args, "image_resized_h", None))
-            
-            example_image = get_image_info(
-                "/kaggle/working/images/1/1.jpg",
-                image_min_pixels,
-                image_max_pixels,
-                image_resized_w,
-                image_resized_h
-            )
+            example_image = img = Image.open("/kaggle/working/images/1/1.jpg").convert("RGB")
             
             example_messages = [
                 {
@@ -510,37 +498,14 @@ def train():
             for img_path in batch_paths:
                 t_load = time.time()
                 
-                #img = Image.open(img_path).convert("RGB")
-                #w, h = img.size
-                #if max(w, h) > max_dim:
-                #    scale = max_dim / max(w, h)
-                #    img = img.resize((int(w*scale), int(h*scale)), Image.LANCZOS)
-                #log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} size={img.size} in {time.time()-t_load:.2f}s")
-                #images_loaded.append(img)
-                #messages_batch.append(build_message_with_example(img))
-
-                # This returns the preprocessed image tensor + other info
-                # Use the correct attribute names from DataArguments
-                image_min_pixels = getattr(data_args, "image_min_pixels", getattr(data_args, "image_min_pixel", None))
-                image_max_pixels = getattr(data_args, "image_max_pixels", getattr(data_args, "image_max_pixel", None))
-                image_resized_w = getattr(data_args, "image_resized_width", getattr(data_args, "image_resized_w", None))
-                image_resized_h = getattr(data_args, "image_resized_height", getattr(data_args, "image_resized_h", None))
-                
-                image_proc = get_image_info(
-                    img_path,
-                    image_min_pixels,
-                    image_max_pixels,
-                    image_resized_w,
-                    image_resized_h
-                )
-                log(f"image_proc: {image_proc}")
-                log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} preprocessed in {time.time()-t_load:.2f}s")
-                
-                # Build messages with this preprocessed image
-                images_loaded.append(image_proc)
-                messages_batch.append(build_message_with_example(image_proc))
-                log(f"images_loaded: {images_loaded}")
-                log(f"messages_batch: {messages_batch}")
+                img = Image.open(img_path).convert("RGB")
+                w, h = img.size
+                if max(w, h) > max_dim:
+                    scale = max_dim / max(w, h)
+                    img = img.resize((int(w*scale), int(h*scale)), Image.LANCZOS)
+                log(f"🖼️ Loaded {Path(*Path(img_path).parts[-2:])} size={img.size} in {time.time()-t_load:.2f}s")
+                images_loaded.append(img)
+                messages_batch.append(build_message_with_example(img))
 
             # === Build Text Prompts ===
             text_batch = [
@@ -550,10 +515,11 @@ def train():
         
             # === Preprocess ===
             t0 = time.time()
-            img, _ = process_vision_info(messages_batch)
+            image_inputs, video_inputs = process_vision_info(messages_batch)
             inputs = processor(
                 text=text_batch,
-                images=img,
+                images=image_inputs,
+                videos=video_inputs,
                 padding=True,
                 return_tensors="pt",
             ).to(model.device)
