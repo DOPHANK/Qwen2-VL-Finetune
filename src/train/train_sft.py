@@ -473,26 +473,8 @@ def train():
         4. Never copy any numbers, words, or labels from earlier examples.
         """
         
-        def build_message_with_example(target_img_path):
-            example_image = img = Image.open("/kaggle/working/images/1/1.jpg").convert("RGB")
-            
-            example_messages = [
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text", 
-                            "text": "Here is an example image and its correct output format (values are placeholders):"
-                        }
-                    ]
-                },
-                {
-                    "role": "assistant",
-                    "content": [{"type": "text", "text": example_output}]
-                }
-            ]
-        
-            # Second: Actual target task
+        def build_message_with_example(target_img_path):   
+            # Actual target task
             target_messages = [
                 {
                     "role": "user",
