@@ -386,29 +386,29 @@ def train():
         # === Prepare Messages Template ===
         example_output = """
         Example output extracted from the image corresponding:
-        <im_start>Sex: [Male/Female]<im_end>
+        <im_start>Sex: [Male or Female]<im_end>
         <im_start>Age (years): [number or nan]<im_end>
         <im_start>Date of admission: [DD/MM/YYYY or nan]<im_end>
         <im_start>Date of discharge: [DD/MM/YYYY or nan]<im_end>
         <im_start>Days of illness: [number or nan]<im_end>
-        <im_start>Temperature: [°C or nan]<im_end>
-        <im_start>Blood pressure: [systolic/diastolic mmHg or nan]<im_end>
-        <im_start>Heart rate: [bpm or nan]<im_end>
-        <im_start>Respiratory rate: [breaths/min or nan]<im_end>
-        <im_start>Oxygen saturation: [% or nan]<im_end>
-        <im_start>Conscious level: [Conscious/Unconscious or nan]<im_end>
-        <im_start>Weight: [kg or nan]<im_end>
-        <im_start>Height: [cm or nan]<im_end>
-        <im_start>Hypertension: [Yes/No/No data or nan]<im_end>
-        <im_start>Diabetes: [Yes/No/No data or nan]<im_end>
-        <im_start>Dyslipidaemia: [Yes/No/No data or nan]<im_end>
-        <im_start>Ischaemic heart disease: [Yes/No/No data or nan]<im_end>
-        <im_start>Chronic lung disease: [Yes/No/No data or nan]<im_end>
-        <im_start>Cerebrovascular disease: [Yes/No/No data or nan]<im_end>
-        <im_start>Chronic liver disease: [Yes/No/No data or nan]<im_end>
-        <im_start>Chronic kidney disease: [Yes/No/No data or nan]<im_end>
-        <im_start>Malignancy (solid or haematologic): [Yes/No/No data or nan]<im_end>
-        <im_start>Autoimmune disease: [Yes/No/No data or nan]<im_end>
+        <im_start>Temperature: [number or nan]<im_end>
+        <im_start>Blood pressure: [number or nan]<im_end>
+        <im_start>Heart rate: [number or nan]<im_end>
+        <im_start>Respiratory rate: [number / number or nan]<im_end>
+        <im_start>Oxygen saturation: [number or nan]<im_end>
+        <im_start>Conscious level: [Conscious or Unconscious]<im_end>
+        <im_start>Weight: [number or No data]<im_end>
+        <im_start>Height: [number or No data]<im_end>
+        <im_start>Hypertension: [Yes or No or No data]<im_end>
+        <im_start>Diabetes: [Yes or No or No data]<im_end>
+        <im_start>Dyslipidaemia: [Yes or No or No data]<im_end>
+        <im_start>Ischaemic heart disease: [Yes or No or No data]<im_end>
+        <im_start>Chronic lung disease: [Yes or No or No data]<im_end>
+        <im_start>Cerebrovascular disease: [Yes/No/No data or nan[Yes or No or No data]<im_end>
+        <im_start>Chronic liver disease: [Yes or No or No data]<im_end>
+        <im_start>Chronic kidney disease: [Yes or No or No data]<im_end>
+        <im_start>Malignancy (solid or haematologic): [Yes or No or No data]<im_end>
+        <im_start>Autoimmune disease: [Yes or No or No data]<im_end>
         <im_start>Others: [text or nan]<im_end>
         """
         
@@ -557,6 +557,12 @@ def train():
             for img_path, text in zip(batch_paths, outputs):
                 log(f"\n🖼️ [Result for {Path(*Path(img_path).parts[-2:])}]:\n{text}")
                 all_outputs.append({"image": img_path, "result": text})
+
+            # === Save batch results ===
+            batch_file = Path(training_args.output_dir) / f"inference_batch_{i//batch_size + 1}.json"
+            with open(batch_file, "w", encoding="utf-8") as f:
+                json.dump(batch_results, f, ensure_ascii=False, indent=2)
+            log(f"💾 Saved batch {i//batch_size + 1} results to {batch_file}")
         
         log(f"\n✅ Finished multi-image inference in {time.time() - start_time:.2f}s for {len(image_paths)} images.")
         total_time = time.time() - start_time
