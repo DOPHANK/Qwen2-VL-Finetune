@@ -450,8 +450,6 @@ def train():
             return example_messages
     
         fs_examples = load_examples()
-        log(f"fs_examples: {fs_examples}")
-        log(f"len: {len(fs_examples)}")
         
         example_output = """
         Example output extracted from the image corresponding:
@@ -499,25 +497,30 @@ def train():
         3. If no value is visible, write nan.
         4. Never copy any numbers, words, or labels from earlier examples.
         """
+
+        import random
+
+        MAX_FS = 4
         
-        def build_message_with_example(target_img_path):   
-            # Actual target task
-            target_messages = [
+        def build_message_with_example(img):
+            # Each example is 2 messages (user + assistant), so we step in pairs
+            example_pairs = [fs_examples[i:i+2] for i in range(0, len(fs_examples), 2)]
+            
+            # Randomly sample without replacement
+            sampled_pairs = random.sample(example_pairs, min(MAX_FS, len(example_pairs)))
+            
+            # Flatten pairs back into a single list
+            few_shots = [msg for pair in sampled_pairs for msg in pair]
+            
+            return few_shots + [
                 {
                     "role": "user",
                     "content": [
-                        {
-                            "type": "image", 
-                            "image": target_img_path
-                        },
-                        {
-                            "type": "text", 
-                            "text": inference_prompt
-                        }
+                        {"type": "image", "image": img},
+                        {"type": "text", "text": inference_prompt}
                     ]
                 }
             ]
-            return fs_examples + target_messages
 
     timing_data = []        
     for test_batch_size in [4, 8]:
