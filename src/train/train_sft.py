@@ -376,8 +376,8 @@ def train():
         log(f"Looking for {target_filename} under {base_dir}/*/")
         log(f"✅ Found {len(image_paths)} images")
         
-        for p in image_paths:
-            log(f" - {p}")
+        #for p in image_paths:
+        #    log(f" - {p}")
         
         # === GPU Info ===
         if torch.cuda.is_available():
