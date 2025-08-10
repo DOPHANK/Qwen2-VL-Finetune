@@ -386,6 +386,46 @@ def train():
             log("⚠️ No GPU detected! Running on CPU (very slow)")
         
         # === Prepare Messages Template ===
+        EXAMPLE_DIR = Path("/kaggle/working/Qwen2-VL-Finetune/data/chatml")
+        
+        def load_examples():
+            example_messages = []
+            for folder in sorted(EXAMPLE_DIR.glob("patient_*_CHATML")):
+                json_files = list(folder.glob("*.json"))
+                img_files = list(folder.glob("*.jpg")) + list(folder.glob("*.png"))
+                
+                if not json_files or not img_files:
+                    continue
+                
+                # Read image
+                img_path = img_files[0]
+                img = Image.open(img_path).convert("RGB")
+        
+                # Read JSON as output text
+                with open(json_files[0], "r") as f:
+                    data = json.load(f)
+                output_text = data if isinstance(data, str) else json.dumps(data)
+        
+                # Append as few-shot example
+                example_messages.append(
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "image", "image": img},
+                            {"type": "text", "text": "Here is an example image and its correct output format:"}
+                        ]
+                    }
+                )
+                example_messages.append(
+                    {
+                        "role": "assistant",
+                        "content": [{"type": "text", "text": output_text}]
+                    }
+                )
+            return example_messages
+
+        fs_examples = load_examples()
+        
         example_output = """
         Example output extracted from the image corresponding:
         <im_start>Sex: [Male or Female]<im_end>
@@ -441,10 +481,6 @@ def train():
                     "role": "user",
                     "content": [
                         {
-                            "type": "image", 
-                            "image": example_image
-                        },
-                        {
                             "type": "text", 
                             "text": "Here is an example image and its correct output format (values are placeholders):"
                         }
@@ -472,7 +508,7 @@ def train():
                     ]
                 }
             ]
-            return target_messages
+            return fs_examples + target_messages
 
     timing_data = []        
     for test_batch_size in [4, 8]:
