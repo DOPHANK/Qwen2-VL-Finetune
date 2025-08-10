@@ -524,6 +524,7 @@ def train():
         # === MAIN INFERENCE ===
         start_time = time.time()
         all_outputs = []
+        batch_results=[]
         
         for i in range(0, len(image_paths), batch_size):
             batch_paths = image_paths[i:i+batch_size]
@@ -595,6 +596,7 @@ def train():
             for img_path, text in zip(batch_paths, outputs):
                 log(f"\n🖼️ [Result for {Path(*Path(img_path).parts[-2:])}]:\n{text}")
                 all_outputs.append({"image": img_path, "result": text})
+                batch_results.append({"image": img_path, "result": text})
 
             # === Save batch results ===
             batch_file = Path(training_args.output_dir) / f"inference_batch_{i//batch_size + 1}.json"
