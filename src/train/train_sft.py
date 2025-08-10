@@ -444,9 +444,6 @@ def train():
                     "content": [{"type": "text", "text": output_text}]
                 })
         
-                print(f"✅ Loaded example: {json_file} ↔ {img_path}")
-        
-            print(f"🎯 Total examples loaded: {len(example_messages)//2}")
             return example_messages
     
         fs_examples = load_examples()
@@ -500,7 +497,7 @@ def train():
 
         import random
 
-        MAX_FS = 4
+        MAX_FS = 2
         
         def build_message_with_example(img):
             # Each example is 2 messages (user + assistant), so we step in pairs
