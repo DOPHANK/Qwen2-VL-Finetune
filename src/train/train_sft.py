@@ -386,26 +386,34 @@ def train():
             log("⚠️ No GPU detected! Running on CPU (very slow)")
         
         # === Prepare Messages Template ===
-        EXAMPLE_DIR = Path("/kaggle/working/data/chatml")
+        EXAMPLE_DIR = Path("/kaggle/working/data/chatml")        
+        IMAGE_ROOT = Path("/kaggle/working/images")
         
         def load_examples():
             example_messages = []
-            
-            for folder in sorted(EXAMPLE_DIR.glob("patient_*_CHATML")):
+        
+            for folder in sorted(EXAMPLE_DIR.glob("Patient_*_CHATML")):
                 for json_file in sorted(folder.glob("*.json")):
                     with open(json_file, "r") as f:
                         data = json.load(f)
-                    
-                    if not data or "conversations" not in data:
+        
+                    if not data or not isinstance(data, list) or "conversations" not in data[0]:
                         continue
+        
+                    img_rel_path = data[0]["image"]  # e.g. /images/1/1.jpg
+                    parts = Path(img_rel_path).parts
                     
-                    img_rel_path = data["image"].lstrip("/")  # remove leading slash
-                    img_path = Path("/kaggle/working") / img_rel_path
+                    # Extract patient number and page number
+                    patient_num = parts[-2]
+                    page_num = Path(parts[-1]).stem
+                    
+                    # Build local path
+                    img_path = IMAGE_ROOT / patient_num / f"{page_num}.jpg"
                     if not img_path.exists():
                         continue
-                    
+        
                     img = Image.open(img_path).convert("RGB")
-                    output_text = data["conversations"][1]["value"]
+                    output_text = data[0]["conversations"][1]["value"]
         
                     # User example
                     example_messages.append({
