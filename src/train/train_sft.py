@@ -539,6 +539,8 @@ def train():
                 # Build messages with this preprocessed image
                 images_loaded.append(image_proc)
                 messages_batch.append(build_message_with_example(image_proc))
+                log(f"images_loaded: {images_loaded}")
+                log(f"messages_batch: {messages_batch}")
             
             # === Build Text Prompts ===
             text_batch = [
