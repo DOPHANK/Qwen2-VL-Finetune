@@ -386,7 +386,7 @@ def train():
             log("⚠️ No GPU detected! Running on CPU (very slow)")
         
         # === Prepare Messages Template ===
-        EXAMPLE_DIR = Path("/kaggle/working/Qwen2-VL-Finetune/data/chatml")
+        EXAMPLE_DIR = Path("/kaggle/working/data/chatml")
         
         def load_examples():
             example_messages = []
