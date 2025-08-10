@@ -391,9 +391,9 @@ def train():
         
         def load_examples():
             example_messages = []
-        
-            print(f"📂 Searching for JSONs in: {EXAMPLE_DIR}")
-            json_files = sorted(EXAMPLE_DIR.rglob("*.json"))
+
+            #json_files = sorted(EXAMPLE_DIR.rglob("*.json"))
+            json_files = sorted(EXAMPLE_DIR.rglob(f"*page_{page_number}.json"))
             print(f"🔍 Found {len(json_files)} JSON files")
     
             for json_file in json_files:
