@@ -533,6 +533,8 @@ def train():
                 processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
                 for msg in messages_batch
             ]
+            log(f"text_batch: {text_batch}")
+            log(f"messages_batch: {messages_batch}")
         
             # === Preprocess ===
             t0 = time.time()
