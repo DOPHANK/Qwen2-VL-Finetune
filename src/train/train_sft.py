@@ -541,7 +541,7 @@ def train():
                 messages_batch.append(build_message_with_example(image_proc))
                 log(f"images_loaded: {images_loaded}")
                 log(f"messages_batch: {messages_batch}")
-            
+
             # === Build Text Prompts ===
             text_batch = [
                 processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
@@ -550,9 +550,10 @@ def train():
         
             # === Preprocess ===
             t0 = time.time()
+            img, _ = process_vision_info(messages_batch)
             inputs = processor(
                 text=text_batch,
-                images=images_loaded,
+                images=img,
                 padding=True,
                 return_tensors="pt",
             ).to(model.device)
