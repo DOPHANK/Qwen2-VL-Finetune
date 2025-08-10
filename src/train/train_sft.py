@@ -393,7 +393,10 @@ def train():
             example_messages = []
         
             print(f"📂 Searching for JSONs in: {EXAMPLE_DIR}")
-            for json_file in sorted(EXAMPLE_DIR.glob("Patient_*_CHATML/*.json")):
+            json_files = sorted(EXAMPLE_DIR.rglob("*.json"))
+            print(f"🔍 Found {len(json_files)} JSON files")
+    
+            for json_file in json_files:
                 with open(json_file, "r") as f:
                     data = json.load(f)
         
