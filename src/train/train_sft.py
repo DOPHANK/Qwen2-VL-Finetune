@@ -477,12 +477,6 @@ def train():
         """
         
         inference_prompt = """
-        You are now starting a new, separate task.
-        
-        Ignore all text and values from the example above — they are placeholders.
-        
-        Look only at the next image provided and extract the information.
-        
         Output format:
         <im_start>KEY: VALUE<im_end>
         
