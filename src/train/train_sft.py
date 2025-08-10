@@ -22,6 +22,8 @@ from datasets import Dataset
 from src.dataset.sft_dataset import SupervisedDataset
 from transformers import Trainer
 
+import json
+
 local_rank = None
 
 def rank0_print(*args):
@@ -387,18 +389,18 @@ def train():
         example_output = """
         Example output extracted from the image corresponding:
         <im_start>Sex: [Male or Female]<im_end>
-        <im_start>Age (years): [number or nan]<im_end>
+        <im_start>Age (years): [number (1-99) or nan]<im_end>
         <im_start>Date of admission: [DD/MM/YYYY or nan]<im_end>
         <im_start>Date of discharge: [DD/MM/YYYY or nan]<im_end>
-        <im_start>Days of illness: [number or nan]<im_end>
-        <im_start>Temperature: [number or nan]<im_end>
-        <im_start>Blood pressure: [number or nan]<im_end>
-        <im_start>Heart rate: [number or nan]<im_end>
-        <im_start>Respiratory rate: [number / number or nan]<im_end>
-        <im_start>Oxygen saturation: [number or nan]<im_end>
+        <im_start>Days of illness: [number  (1-99) or nan]<im_end>
+        <im_start>Temperature: [number  (30-50) or nan]<im_end>
+        <im_start>Blood pressure: [number (90-140 / 60-90) or nan]<im_end>
+        <im_start>Heart rate: [60-100 or nan]<im_end>
+        <im_start>Respiratory rate: [5-60 / number or nan]<im_end>
+        <im_start>Oxygen saturation: [90-100 or nan]<im_end>
         <im_start>Conscious level: [Conscious or Unconscious]<im_end>
-        <im_start>Weight: [number or No data]<im_end>
-        <im_start>Height: [number or No data]<im_end>
+        <im_start>Weight: [5-100 or No data]<im_end>
+        <im_start>Height: [50-200 or No data]<im_end>
         <im_start>Hypertension: [Yes or No or No data]<im_end>
         <im_start>Diabetes: [Yes or No or No data]<im_end>
         <im_start>Dyslipidaemia: [Yes or No or No data]<im_end>
