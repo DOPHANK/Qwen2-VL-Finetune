@@ -386,36 +386,53 @@ def train():
             log("⚠️ No GPU detected! Running on CPU (very slow)")
         
         # === Prepare Messages Template ===
-        EXAMPLE_DIR = Path("/kaggle/working/data/chatml")        
+        EXAMPLE_DIR = Path("/kaggle/working/data/chatml")
         IMAGE_ROOT = Path("/kaggle/working/images")
         
         def load_examples():
             example_messages = []
+            print(f"📂 Searching for JSONs in: {EXAMPLE_DIR}")
         
             for folder in sorted(EXAMPLE_DIR.glob("Patient_*_CHATML")):
+                print(f"🔍 Checking folder: {folder}")
+                
                 for json_file in sorted(folder.glob("*.json")):
+                    print(f"   📄 Reading JSON: {json_file}")
                     with open(json_file, "r") as f:
                         data = json.load(f)
         
-                    if not data or not isinstance(data, list) or "conversations" not in data[0]:
+                    # Must be a list
+                    if not data or not isinstance(data, list):
+                        print("   ⚠️ Skipped: not a list or empty")
                         continue
         
-                    img_rel_path = data[0]["image"]  # e.g. /images/1/1.jpg
+                    record = data[0]
+                    if "image" not in record or "conversations" not in record:
+                        print("   ⚠️ Skipped: missing keys")
+                        continue
+        
+                    # Extract image path from JSON
+                    img_rel_path = record["image"]
+                    print(f"   🖼 JSON image path: {img_rel_path}")
+        
                     parts = Path(img_rel_path).parts
-                    
-                    # Extract patient number and page number
+                    if len(parts) < 2:
+                        print("   ⚠️ Skipped: unexpected path format")
+                        continue
+        
                     patient_num = parts[-2]
-                    page_num = Path(parts[-1]).stem
-                    
-                    # Build local path
-                    img_path = IMAGE_ROOT / patient_num / f"{page_num}.jpg"
+                    page_file = parts[-1]
+                    img_path = IMAGE_ROOT / patient_num / page_file
+                    print(f"   📍 Resolved local image path: {img_path}")
+        
                     if not img_path.exists():
+                        print("   ❌ Image not found locally")
                         continue
         
                     img = Image.open(img_path).convert("RGB")
-                    output_text = data[0]["conversations"][1]["value"]
+                    output_text = record["conversations"][1]["value"]
         
-                    # User example
+                    # Append user example
                     example_messages.append({
                         "role": "user",
                         "content": [
@@ -423,14 +440,17 @@ def train():
                             {"type": "text", "text": "Here is an example image and its correct output format:"}
                         ]
                     })
-                    # Assistant example
+                    # Append assistant example
                     example_messages.append({
                         "role": "assistant",
                         "content": [{"type": "text", "text": output_text}]
                     })
         
+                    print(f"   ✅ Added example from {img_path}")
+        
+            print(f"🎯 Total examples loaded: {len(example_messages)//2}")
             return example_messages
-
+    
         fs_examples = load_examples()
         log(f"fs_examples: {fs_examples}")
         log(f"len: {len(fs_examples)}")
