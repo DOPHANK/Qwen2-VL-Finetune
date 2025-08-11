@@ -257,6 +257,8 @@ def train():
             if training_args.fp16:
                 model.to(torch.float16)
         model = get_peft_model(model, peft_config)
+        print("LoRA modules:")
+        model.print_trainable_parameters()
 
         # Peft maodel makes vision tower and merger freezed again.
         # Configuring fuction could be called here, but sometimes it does not work properly.
