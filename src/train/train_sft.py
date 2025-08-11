@@ -257,10 +257,19 @@ def train():
             if training_args.fp16:
                 model.to(torch.float16)
         model = get_peft_model(model, peft_config)
-        print("LoRA modules:")
+        
+        # Print all LoRA trainable modules
+        print("\n=== All LoRA Trainable Modules ===")
         model.print_trainable_parameters()
+        
+        # Extract trainable vision-only LoRA modules
+        print("\n=== Vision-only LoRA Modules ===")
+        for name, param in model.named_parameters():
+            if param.requires_grad and "lora" in name.lower():
+                if any(v_key in name for v_key in ["visual", "vision_model", "patch_embed", "image_proj", "blocks"]):
+                    print(name, param.shape)
 
-        # Peft maodel makes vision tower and merger freezed again.
+        # Peft model makes vision tower and merger freezed again.
         # Configuring fuction could be called here, but sometimes it does not work properly.
         # So I just made it this way.
         # Need to be fixed in the future.
