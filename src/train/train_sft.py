@@ -258,16 +258,24 @@ def train():
                 model.to(torch.float16)
         model = get_peft_model(model, peft_config)
         
-        # Print all LoRA trainable modules
+        # === All LoRA Modules ===
         print("\n=== All LoRA Trainable Modules ===")
-        model.print_trainable_parameters()
-        
-        # Extract trainable vision-only LoRA modules
-        print("\n=== Vision-only LoRA Modules ===")
+        all_lora_params = []
         for name, param in model.named_parameters():
             if param.requires_grad and "lora" in name.lower():
-                if any(v_key in name for v_key in ["visual", "vision_model", "patch_embed", "image_proj", "blocks"]):
-                    print(name, param.shape)
+                all_lora_params.append(name)
+                print(f"{name} {tuple(param.shape)}")
+        print(f"\nTotal LoRA params: {len(all_lora_params)} modules")
+        
+        # Extract trainable vision-only LoRA modules
+        vision_keywords = ["visual", "vision_model", "vision_tower", "image_projector",
+                       "patch_embed", "resblocks", "vit", "blocks"]
+        print("\n=== Vision-only LoRA Modules ===")
+        vision_lora_params = [n for n in all_lora_params if any(k in n for k in vision_keywords)]
+        for name in vision_lora_params:
+            shape = dict(model.named_parameters())[name].shape
+            print(f"{name} {tuple(shape)}")
+        print(f"\nTotal Vision LoRA params: {len(vision_lora_params)} modules")
 
         # Peft model makes vision tower and merger freezed again.
         # Configuring fuction could be called here, but sometimes it does not work properly.
