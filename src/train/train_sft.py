@@ -285,7 +285,11 @@ def train():
         peft_config = LoraConfig(
             r=training_args.lora_rank,
             lora_alpha=training_args.lora_alpha,
-            target_modules=find_target_linear_names(model, lora_namespan_exclude=lora_namespan_exclude, num_lora_modules=training_args.num_lora_modules),
+            target_modules=find_target_linear_names(
+                model,
+                lora_namespan_exclude=lora_namespan_exclude,
+                num_lora_modules=training_args.num_lora_modules
+            ),
             lora_dropout=training_args.lora_dropout,
             bias=training_args.lora_bias
         )
@@ -295,6 +299,19 @@ def train():
             if training_args.fp16:
                 model.to(torch.float16)
         model = get_peft_model(model, peft_config)
+
+        all_targets = find_target_linear_names(model)
+        vision_targets = [t for t in all_targets if t.startswith("vision_tower") or t.startswith("image_proj")]
+        text_targets = [t for t in all_targets if t.startswith("language_model")]
+        
+        print(f"=== LoRA Module Summary ===")
+        print(f"Total LoRA modules: {len(all_targets)}")
+        print(f" - Vision modules: {len(vision_targets)}")
+        for vt in vision_targets:
+            print(f"   [V] {vt}")
+        print(f" - Text modules: {len(text_targets)}")
+        for tt in text_targets:
+            print(f"   [T] {tt}")
 
         # Peft model makes vision tower and merger freezed again.
         # Configuring fuction could be called here, but sometimes it does not work properly.
