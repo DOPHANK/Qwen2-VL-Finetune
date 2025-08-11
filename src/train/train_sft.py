@@ -30,22 +30,64 @@ def rank0_print(*args):
     if local_rank == 0 or local_rank == '0' or local_rank is None:
         print(*args)
 
-def find_target_linear_names(model, num_lora_modules=-1, lora_namespan_exclude=[], verbose=True):
-    linear_cls = torch.nn.modules.Linear
-    embedding_cls = torch.nn.modules.Embedding
-    lora_module_names = []
+def find_target_linear_names(model, lora_namespan_exclude=None, num_lora_modules=None):
+    """
+    Find target nn.Linear module names for LoRA injection
+    in both text and vision parts of Qwen2.5-VL, grouped by type.
+    """
+    import torch
+    
+    if lora_namespan_exclude is None:
+        lora_namespan_exclude = []
+
+    target_module_names = []
+    vision_modules = []
+    text_modules = []
+    
+    def match(name):
+        return not any(ex_kw in name for ex_kw in lora_namespan_exclude)
 
     for name, module in model.named_modules():
-        if any(ex_keyword in name for ex_keyword in lora_namespan_exclude):
-            continue
-        if isinstance(module, (linear_cls, embedding_cls)):
-            lora_module_names.append(name)
-    
-    if num_lora_modules > 0:
-        lora_module_names = lora_module_names[-num_lora_modules:]
+        if isinstance(module, torch.nn.Linear) and match(name):
+            target_module_names.append(name)
+            # Categorize into vision or text based on path
+            if any(v_key in name.lower() for v_key in ["visual", "vision_model", "patch_embed", "image_proj", "blocks"]):
+                vision_modules.append(name)
+            else:
+                text_modules.append(name)
+
+    # Optional: limit to a fixed number
+    if num_lora_modules is not None and num_lora_modules > 0:
+        target_module_names = target_module_names[:num_lora_modules]
+
+    # === Print grouped info ===
+    print("\n=== LoRA Module Summary ===")
+    print(f"Total LoRA modules: {len(target_module_names)}")
+    print(f" - Vision modules: {len(vision_modules)}")
+    for n in vision_modules:
+        print(f"   [V] {n}")
+    print(f" - Text modules: {len(text_modules)}")
+    for n in text_modules:
+        print(f"   [T] {n}")
+
+    return target_module_names
+
+#def find_target_linear_names(model, num_lora_modules=-1, lora_namespan_exclude=[], verbose=True):
+#    linear_cls = torch.nn.modules.Linear
+#    embedding_cls = torch.nn.modules.Embedding
+#    lora_module_names = []
+#
+#    for name, module in model.named_modules():
+#        if any(ex_keyword in name for ex_keyword in lora_namespan_exclude):
+#            continue
+#        if isinstance(module, (linear_cls, embedding_cls)):
+#            lora_module_names.append(name)
+#    
+#    if num_lora_modules > 0:
+#        lora_module_names = lora_module_names[-num_lora_modules:]
     #if verbose:
     #    rank0_print(f"Found {len(lora_module_names)} lora modules: {lora_module_names}")
-    return lora_module_names
+#    return lora_module_names
 
 def set_requires_grad(params, requires_grad=True):
     for p in params:
@@ -257,25 +299,6 @@ def train():
             if training_args.fp16:
                 model.to(torch.float16)
         model = get_peft_model(model, peft_config)
-        
-        # === All LoRA Modules ===
-        print("\n=== All LoRA Trainable Modules ===")
-        all_lora_params = []
-        for name, param in model.named_parameters():
-            if param.requires_grad and "lora" in name.lower():
-                all_lora_params.append(name)
-                print(f"{name} {tuple(param.shape)}")
-        print(f"\nTotal LoRA params: {len(all_lora_params)} modules")
-        
-        # Extract trainable vision-only LoRA modules
-        vision_keywords = ["visual", "vision_model", "vision_tower", "image_projector",
-                       "patch_embed", "resblocks", "vit", "blocks"]
-        print("\n=== Vision-only LoRA Modules ===")
-        vision_lora_params = [n for n in all_lora_params if any(k in n for k in vision_keywords)]
-        for name in vision_lora_params:
-            shape = dict(model.named_parameters())[name].shape
-            print(f"{name} {tuple(shape)}")
-        print(f"\nTotal Vision LoRA params: {len(vision_lora_params)} modules")
 
         # Peft model makes vision tower and merger freezed again.
         # Configuring fuction could be called here, but sometimes it does not work properly.
