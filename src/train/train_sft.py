@@ -32,45 +32,41 @@ def rank0_print(*args):
 
 def find_target_linear_names(model, lora_namespan_exclude=None, num_lora_modules=None):
     """
-    Find target nn.Linear module names for LoRA injection
-    in both text and vision parts of Qwen2.5-VL, grouped by type.
+    Find all target nn.Linear modules for LoRA injection from both
+    the language model and the vision tower in Qwen2.5-VL.
     """
-    import torch
-    
     if lora_namespan_exclude is None:
         lora_namespan_exclude = []
 
-    target_module_names = []
-    vision_modules = []
-    text_modules = []
-    
-    def match(name):
-        return not any(ex_kw in name for ex_kw in lora_namespan_exclude)
+    target_modules = set()
 
-    for name, module in model.named_modules():
-        if isinstance(module, torch.nn.Linear) and match(name):
-            target_module_names.append(name)
-            # Categorize into vision or text based on path
-            if any(v_key in name.lower() for v_key in ["visual", "vision_model", "patch_embed", "image_proj", "blocks"]):
-                vision_modules.append(name)
-            else:
-                text_modules.append(name)
+    def collect_linear_names(module, prefix=""):
+        for name, child in module.named_modules():
+            full_name = f"{prefix}.{name}" if prefix else name
+            if any(excl in full_name for excl in lora_namespan_exclude):
+                continue
+            if isinstance(child, torch.nn.Linear):
+                target_modules.add(full_name)
 
-    # Optional: limit to a fixed number
-    if num_lora_modules is not None and num_lora_modules > 0:
-        target_module_names = target_module_names[:num_lora_modules]
+    # 1. Language model (text)
+    if hasattr(model, "language_model"):
+        collect_linear_names(model.language_model, prefix="language_model")
 
-    # === Print grouped info ===
-    print("\n=== LoRA Module Summary ===")
-    print(f"Total LoRA modules: {len(target_module_names)}")
-    print(f" - Vision modules: {len(vision_modules)}")
-    for n in vision_modules:
-        print(f"   [V] {n}")
-    print(f" - Text modules: {len(text_modules)}")
-    for n in text_modules:
-        print(f"   [T] {n}")
+    # 2. Vision tower (vision encoder)
+    if hasattr(model, "vision_tower"):
+        vision_model = getattr(model.vision_tower, "vision_model", model.vision_tower)
+        collect_linear_names(vision_model, prefix="vision_tower")
 
-    return target_module_names
+    # 3. Image projection head
+    if hasattr(model, "image_proj"):
+        collect_linear_names(model.image_proj, prefix="image_proj")
+
+    # Limit number of modules if specified
+    target_modules = sorted(target_modules)
+    if num_lora_modules and len(target_modules) > num_lora_modules:
+        target_modules = target_modules[:num_lora_modules]
+
+    return target_modules
 
 #def find_target_linear_names(model, num_lora_modules=-1, lora_namespan_exclude=[], verbose=True):
 #    linear_cls = torch.nn.modules.Linear
