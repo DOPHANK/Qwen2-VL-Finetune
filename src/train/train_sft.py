@@ -30,60 +30,21 @@ def rank0_print(*args):
     if local_rank == 0 or local_rank == '0' or local_rank is None:
         print(*args)
 
-def find_target_linear_names(model, lora_namespan_exclude=None, num_lora_modules=None):
-    """
-    Find all target nn.Linear modules for LoRA injection from both
-    the language model and the vision tower in Qwen2.5-VL.
-    """
-    if lora_namespan_exclude is None:
-        lora_namespan_exclude = []
+def find_target_linear_names(model, num_lora_modules=-1, lora_namespan_exclude=[], verbose=True):
+    linear_cls = torch.nn.modules.Linear
+    embedding_cls = torch.nn.modules.Embedding
+    lora_module_names = []
 
-    target_modules = set()
-
-    def collect_linear_names(module, prefix=""):
-        for name, child in module.named_modules():
-            full_name = f"{prefix}.{name}" if prefix else name
-            if any(excl in full_name for excl in lora_namespan_exclude):
-                continue
-            if isinstance(child, torch.nn.Linear):
-                target_modules.add(full_name)
-
-    # 1. Language model (text)
-    if hasattr(model, "language_model"):
-        collect_linear_names(model.language_model, prefix="language_model")
-
-    # 2. Vision tower (vision encoder)
-    if hasattr(model, "vision_tower"):
-        vision_model = getattr(model.vision_tower, "vision_model", model.vision_tower)
-        collect_linear_names(vision_model, prefix="vision_tower")
-
-    # 3. Image projection head
-    if hasattr(model, "image_proj"):
-        collect_linear_names(model.image_proj, prefix="image_proj")
-
-    # Limit number of modules if specified
-    target_modules = sorted(target_modules)
-    if num_lora_modules and len(target_modules) > num_lora_modules:
-        target_modules = target_modules[:num_lora_modules]
-
-    return target_modules
-
-#def find_target_linear_names(model, num_lora_modules=-1, lora_namespan_exclude=[], verbose=True):
-#    linear_cls = torch.nn.modules.Linear
-#    embedding_cls = torch.nn.modules.Embedding
-#    lora_module_names = []
-#
-#    for name, module in model.named_modules():
-#        if any(ex_keyword in name for ex_keyword in lora_namespan_exclude):
-#            continue
-#        if isinstance(module, (linear_cls, embedding_cls)):
-#            lora_module_names.append(name)
-#    
-#    if num_lora_modules > 0:
-#        lora_module_names = lora_module_names[-num_lora_modules:]
-    #if verbose:
-    #    rank0_print(f"Found {len(lora_module_names)} lora modules: {lora_module_names}")
-#    return lora_module_names
+    for name, module in model.named_modules():
+        if any(ex_keyword in name for ex_keyword in lora_namespan_exclude):
+            continue
+        if isinstance(module, (linear_cls, embedding_cls)):
+            lora_module_names.append(name)
+    
+    if num_lora_modules > 0:
+        lora_module_names = lora_module_names[-num_lora_modules:]
+        
+    return lora_module_names
 
 def set_requires_grad(params, requires_grad=True):
     for p in params:
