@@ -558,12 +558,13 @@ def train():
             # Flatten pairs back into a single list
             few_shots = [msg for pair in sampled_pairs for msg in pair]
             
-            return few_shots + [
+            return [
                 {
                     "role": "user",
                     "content": [
                         {"type": "image", "image": img},
-                        {"type": "text", "text": inference_prompt}
+                        {"type": "text", "text": "For each field extraction, return bounding box on the image of each KEY and VALUE in pixel coordinates "
+             "as JSON in the format: [{\"label\": str, \"bbox\": [x_min, y_min, x_max, y_max]}]."}
                     ]
                 }
             ]
