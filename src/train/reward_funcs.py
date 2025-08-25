@@ -7,12 +7,31 @@ import yaml
 import xml.etree.ElementTree as ET
 
 def extract_key_value_pairs(text):
-    """Extracts (KEY, VALUE) pairs from a string with <im_start>KEY: VALUE<im_end> segments."""
+    """
+    Extract (key, value) pairs from ChatML text <im_start>KEY: VALUE<im_end>.
+
+    Args:
+        text (str): Input text.
+
+    Returns:
+        list[tuple[str,str]]: Extracted pairs.
+    """
+
     pattern = r"<im_start>(.*?):\s*(.*?)<im_end>"
     return re.findall(pattern, text.strip())
 
 def accuracy_infos(completions, assistant, **kwargs):
-    """Evaluate percentage of correctly predicted VALUEs across all pages."""
+    """
+    Compute exact match accuracy between predictions and ground truth VALUEs.
+
+    Args:
+        completions (list): Model outputs, chat-style.
+        assistant (list): Ground-truth references.
+    
+    Returns:
+        list[float]: Reward per sample (0–1).
+    """
+    
     contents = [completion[0]["content"] for completion in completions]
     solutions = [a["content"] for a in assistant]
     rewards = []
@@ -71,10 +90,29 @@ def accuracy_infos(completions, assistant, **kwargs):
     return rewards
 
 def extract_key_value_pairs_chatml(text):
+    """
+    Extract (key, value) pairs from ChatML text <im_start>KEY: VALUE<im_end>.
+    
+        Args:
+            text (str): Input text.
+    
+        Returns:
+            list[tuple[str,str]]: Extracted pairs.
+    """
+    
     pattern = r"<im_start>(.*?):\s*(.*?)<im_end>"
     return re.findall(pattern, text.strip())
 
 def extract_key_value_pairs_json(text):
+    """
+    Extract (key, value) pairs from JSON format text.
+    
+        Args:
+            text (str): Input text.
+    
+        Returns:
+            list[tuple[str,str]]: Extracted pairs.
+    """
     try:
         data = json.loads(text)
         if not isinstance(data, dict):
@@ -86,6 +124,16 @@ def extract_key_value_pairs_json(text):
         return {}
 
 def extract_key_value_pairs_yaml(text):
+    """
+    Extract (key, value) pairs from YAML format text.
+    
+        Args:
+            text (str): Input text.
+    
+        Returns:
+            list[tuple[str,str]]: Extracted pairs.
+    """
+    
     try:
         # Try to find the assistant message (in ChatML-like content)
         if "assistant" in text:
@@ -111,6 +159,16 @@ def extract_key_value_pairs_yaml(text):
 
 
 def extract_key_value_pairs_xml(text):
+    """
+    Extract (key, value) pairs from XML format text.
+    
+        Args:
+            text (str): Input text.
+    
+        Returns:
+            list[tuple[str,str]]: Extracted pairs.
+    """
+    
     try:
         root = ET.fromstring(text)
         data = {}
@@ -140,7 +198,8 @@ def detect_format_and_extract(text):
         return "YAML", extract_key_value_pairs_yaml(text)
 
 def accuracy_infos_v1(completions, assistant, **kwargs):
-    """Evaluate accuracy of VALUEs across multiple output formats (ChatML, JSON, YAML, XML)."""
+    """Same as accuracy_infos but supports ChatML, JSON, YAML, XML formats."""
+
     contents = [completion[0]["content"] for completion in completions]
     solutions = [a["content"] for a in assistant]
     rewards = []
@@ -182,7 +241,11 @@ def accuracy_infos_v1(completions, assistant, **kwargs):
     return rewards
 
 def accuracy_reward(completions, assistant, **kwargs):
-    """Reward function that checks if the completion is correct using either symbolic verification or exact string matching."""
+    """
+    Reward: verify numeric/math answers (via symbolic parse/verify) else string match.
+    Reward function that checks if the completion is correct using either symbolic verification or exact string matching.
+    """
+    
     contents = [completion[0]["content"] for completion in completions]
     solution = [a['content'] for a in assistant]
     rewards = []
