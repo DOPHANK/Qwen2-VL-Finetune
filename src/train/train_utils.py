@@ -4,6 +4,8 @@ import logging
 
 
 def maybe_zero_3(param, ignore_status=False, name=None, device=torch.device('cpu')):
+    """Safely gather and detach a ZeRO-3 partitioned param to CPU/device."""
+
     from deepspeed import zero
     from deepspeed.runtime.zero.partition_parameters import ZeroParamStatus
     if type(device) is str:
@@ -23,6 +25,8 @@ def maybe_zero_3(param, ignore_status=False, name=None, device=torch.device('cpu
 
 # Borrowed from peft.utils.get_peft_model_state_dict
 def get_peft_state_maybe_zero_3(named_params, bias):
+    """Return LoRA (and optionally bias) params, handling ZeRO-3 state."""
+
     if bias == "none":
         to_return = {k: t for k, t in named_params if "lora_" in k}
     elif bias == "all":
@@ -48,14 +52,17 @@ def get_peft_state_maybe_zero_3(named_params, bias):
 
 
 def get_peft_state_non_lora_maybe_zero_3(named_params, require_grad_only=True):
+    """Return non-LoRA params (optionally only those requiring grad)."""
+
     to_return = {k: t for k, t in named_params if "lora_" not in k}
     if require_grad_only:
         to_return = {k: t for k, t in to_return.items() if t.requires_grad}
     to_return = {k: maybe_zero_3(v, ignore_status=True) for k, v in to_return.items()}
     return to_return
 
-def safe_save_model_for_hf_trainer(trainer: transformers.Trainer,
-                                   output_dir: str):
+def safe_save_model_for_hf_trainer(trainer, output_dir):
+    """Safely save HuggingFace Trainer model state (handles deepspeed)."""
+
     """Collects the state dict and dump to disk."""
 
     if trainer.deepspeed:
