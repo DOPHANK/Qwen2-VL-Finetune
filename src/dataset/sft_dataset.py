@@ -21,6 +21,13 @@ from src.dataset.data_utils import get_image_info, get_video_info, llava_to_open
 from pathlib import Path
 
 class SupervisedDataset(Dataset):
+    """
+    Dataset for supervised fine-tuning of Qwen2-VL models.
+
+    Loads JSON(s) with {"conversations": [...], "image"/"video": ...} and processes
+    them into tokenized inputs + pixel values.
+    """
+
     """Dataset for supervised fine-tuning."""
 
     def __init__(
