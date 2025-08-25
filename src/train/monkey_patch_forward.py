@@ -12,12 +12,26 @@ from liger_kernel.transformers.fused_linear_cross_entropy import (
 from torch.nn import CrossEntropyLoss
 
 def replace_qwen_2_with_mixed_modality_forward(use_liger=True):
+    """
+    Monkey-patch Qwen2-VL forward function with multimodal support.
+
+    Args:
+        use_liger (bool): If True, use fused linear cross-entropy (liger).
+    """
+
     if use_liger:
         transformers.models.qwen2_vl.modeling_qwen2_vl.Qwen2VLForConditionalGeneration.forward = qwen_2_mixed_modality_forward_with_flce
     else:
         transformers.models.qwen2_vl.modeling_qwen2_vl.Qwen2VLForConditionalGeneration.forward = qwen_2_mixed_modality_forward
 
 def replace_qwen2_5_with_mixed_modality_forward(use_liger=True):
+    """
+    Monkey-patch Qwen2.5-VL forward function with multimodal support.
+
+    Args:
+        use_liger (bool): If True, use fused linear cross-entropy (liger).
+    """
+
     if use_liger:
         transformers.models.qwen2_5_vl.modeling_qwen2_5_vl.Qwen2_5_VLForConditionalGeneration.forward = qwen2_5_mixed_modality_forward_with_flce
     else:
